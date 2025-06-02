@@ -1,0 +1,89 @@
+:root {
+  --primary-color: #c62828;
+  --light-bg: #fff3f3;
+}
+
+.login-container {
+  position: relative;  // để chứa overlay
+  min-height: 100vh;
+  background-image: url('../../../assets/images/HIVAIDS-Banner-1920x1024v2.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;  // top:0; right:0; bottom:0; left:0;
+    background: rgba(255, 255, 255, 0.3);  // lớp phủ trắng mờ 30%
+    backdrop-filter: blur(6px);  // tạo hiệu ứng mờ sương mù (blur)
+    z-index: 1;
+  }
+
+  .login-box {
+    position: relative;
+    z-index: 2;  // để nội dung nằm trên overlay
+  }
+}
+
+
+
+.login-box {
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.login-title {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.login-subtitle {
+  display: block;
+  margin-bottom: 30px;
+  color: #666;
+}
+
+.login-form .ant-form-item-label > label {
+  color: #444;
+}
+
+.login-btn {
+  width: 100%;
+  background-color: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+  background-color: #b71c1c; /* darken(#c62828, 5%) tương đương */
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.login-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.login-links a:hover {
+  text-decoration: underline;
+}
