@@ -12,6 +12,7 @@ import endPoint from "./routers/router";
 import BookingAppointment from "./pages/booking-appointment-pages";
 import BlogsPages from "./pages/blogs-pages";
 import SetUpPasswordAfterRegister from "./pages/authentication-pages/setup-passwordAfterRegister-page";
+import HivTreatmentPage from "./pages/hiv_treatment-page";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -30,6 +31,10 @@ const App = () => {
         {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
+        },
+         {
+          path: endPoint.HIVTREATMENT,
+          element: <HivTreatmentPage />,
         },
 
       ],
