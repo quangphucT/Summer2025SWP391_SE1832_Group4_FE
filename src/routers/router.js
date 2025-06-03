@@ -7,7 +7,7 @@ const endPoint = {
     FORGOTPASSWORD: "/forgotpassword-page",
     BOOKINGAPPOINTMENT: "/booking-appointment",
     BLOGSPAGE: "/blogs-page",
-
+    HIVTREATMENT: "/services/hiv_treatment",
     DASHBOARD: "/dashboard",
     DASHBOARDSTATISTICS: "dashboard-statistics",
     CUSTOMERMANAGEMENT: "customer-management",
