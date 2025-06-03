@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Image } from "antd";
+import { Dropdown, Image, Menu } from "antd";
 import "./index.scss";
 import logo from "../../assets/images/logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ const Header = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 
-  const isWhiteBackgroundPage = location.pathname === "/booking-appointment";
+  const isWhiteBackgroundPage = location.pathname === "/booking-appointment" || location.pathname === "/services/hiv_treatment";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,11 +25,30 @@ const Header = () => {
     };
   }, [isWhiteBackgroundPage]);
 
+  const serviceMenu = (
+    <Menu
+      items={[
+        {
+          key: "hiv_treatment",
+          label: <span onClick={() => navigate("/services/hiv_treatment")}>HIV treatment</span>,
+        },
+        {
+          key: "testing_stds",
+          label: <span onClick={() => navigate("/services/testing_stds")}>Testing for STDs</span>,
+        },
+        {
+          key: "hiv_testing",
+          label: <span onClick={() => navigate("/services/hiv_testing")}>HIV testing</span>,
+        },
+      ]}
+    />
+  );
+
   const menuItemsHeader = [
     { label: "Home", path: endPoint.HOME },
     { label: "Blogs", path: endPoint.BLOGSPAGE },
-    { label: "Book an appointment", path: endPoint.BOOKINGAPPOINTMENT },
-    { label: "Service", path: endPoint.BOOKINGAPPOINTMENT },
+    // { label: "Book an appointment", path: endPoint.BOOKINGAPPOINTMENT },
+    // Remove Service from here
   ];
 
   const handleNavigate = (path) => {
@@ -55,7 +74,7 @@ const Header = () => {
           width={70}
           preview={false}
         />
-        <h1 className="text-xl font-bold font-extrabold hidden sm:block bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 bg-clip-text text-transparent">
+        <h1 className="text-xl font-extrabold hidden sm:block bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 bg-clip-text text-transparent">
           HIV TREATMENT
         </h1>
       </div>
@@ -65,14 +84,17 @@ const Header = () => {
         {menuItemsHeader.map((item) => (
           <p
             key={item.path}
-            onClick={() => {
-              handleNavigate(item.path);
-            }}
+            onClick={() => handleNavigate(item.path)}
             className="hover:underline"
           >
             {item.label}
           </p>
         ))}
+
+        {/* Service dropdown */}
+        <Dropdown overlay={serviceMenu} placement="bottom">
+          <p className="hover:underline">Service</p>
+        </Dropdown>
       </div>
 
       {/* Right */}
