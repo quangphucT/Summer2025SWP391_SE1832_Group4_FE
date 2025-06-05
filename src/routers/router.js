@@ -5,9 +5,19 @@ const endPoint = {
     REGISTER: "/register-page",
     PASSWORDAFTERREGISTER: "/passwordAfterRegister-page",
     FORGOTPASSWORD: "/forgotpassword-page",
-    BOOKINGAPPOINTMENT: "/booking-appointment",
+
+
+    PROFILEPAGE: "/profile-page",
+    APPOINTMENT: "/appointment",
+    TRANSACTION: "/transaction",
+    MEDICALRECORD: "/medical-reccord",
+
+
     BLOGSPAGE: "/blogs-page",
     HIVTREATMENT: "/services/hiv_treatment",
+    TESTINGSTDS: "/services/testing_stds",
+    HIVTESTING: "/services/hiv_testing",
+  
     DASHBOARD: "/dashboard",
     DASHBOARDSTATISTICS: "dashboard-statistics",
     CUSTOMERMANAGEMENT: "customer-management",

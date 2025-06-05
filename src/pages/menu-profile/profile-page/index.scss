@@ -1,0 +1,30 @@
+.contentProfile-right {
+  position: relative;
+  padding: 40px;
+  background-image: url('../../../assets/images/symstoms.jpg'); // đổi theo đúng path hình bạn muốn
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(5px); // hiệu ứng sương mù
+    background-color: rgba(255, 255, 255, 0.5); // lớp phủ trắng trong suốt
+    z-index: 0;
+  }
+
+  > div {
+    position: relative;
+    z-index: 1;
+  }
+
+
+  .gradient-text {
+  background: linear-gradient(to right, #1e88e5, #00566B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+}
