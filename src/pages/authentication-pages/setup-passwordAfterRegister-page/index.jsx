@@ -32,8 +32,11 @@ const SetUpPasswordAfterRegister = () => {
             Password has been set successfully!
           </p>
         ) : (
-          <Form layout="vertical" onFinish={onFinish} className="space-y-4">
-          
+          <Form initialValues={{ token }}layout="vertical" onFinish={onFinish} className="space-y-4">
+           <Form.Item
+              name="token" hidden>
+              <Input />
+            </Form.Item>
             <Form.Item
               label="New Password"
               name="newPassword"
