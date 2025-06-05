@@ -1,16 +1,23 @@
 import { useState } from "react";
 import { Form, Input, Button, Typography, message } from "antd";
 import "./index.scss";
+import { setupPassworApi } from "../../../apis/authenticationApi/setupPasswordApi";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
 const SetUpPasswordAfterRegister = () => {
   const [submitted, setSubmitted] = useState(false);
+  const urlParams = new URLSearchParams(window.location.search);
+  const navigate = useNavigate();
+  const token = urlParams.get('token');
 
-  const onFinish = (values) => {
-    console.log("Submitted:", values);
+  
+  const onFinish = async(values) => {
+    await setupPassworApi(values, token);
     setSubmitted(true);
     message.success("Password has been set successfully!");
+    navigate("/login-page")
   };
 
   return (
@@ -26,14 +33,7 @@ const SetUpPasswordAfterRegister = () => {
           </p>
         ) : (
           <Form layout="vertical" onFinish={onFinish} className="space-y-4">
-            <Form.Item
-              label="Token"
-              name="token"
-              rules={[{ required: true, message: "Please input your token!" }]}
-            >
-              <Input />
-            </Form.Item>
-
+          
             <Form.Item
               label="New Password"
               name="newPassword"
