@@ -4,13 +4,19 @@ import "./index.scss";
 import logo from "../../assets/images/logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import endPoint from "../../routers/router";
+import { UserOutlined } from "@ant-design/icons";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 
-  const isWhiteBackgroundPage = location.pathname === "/booking-appointment" || location.pathname === "/services/hiv_treatment";
+  const isWhiteBackgroundPage = 
+  location.pathname === "/booking-appointment" 
+  || location.pathname === "/services/hiv_treatment" 
+  || location.pathname === "/profile-page"
+  || location.pathname === "/services/testing_stds"
+  || location.pathname === "/services/hiv_testing";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,10 +105,13 @@ const Header = () => {
 
       {/* Right */}
       <div className="flex space-x-5 items-center">
+
         <div className="hidden md:flex flex-col text-right">
           <span className="font-medium font-mono">Act Today</span>
           <span className="text-sm font-mono">For a Future without HIV</span>
         </div>
+
+        <UserOutlined className="cursor-pointer" onClick={() => {navigate("/profile-page")}}/>
         <div className="flex space-x-1.5 cursor-pointer bg-[#e1e1e1] text-[#000] py-2 px-1 rounded-[5px]">
           <p
             onClick={() => navigate("/login-page")}

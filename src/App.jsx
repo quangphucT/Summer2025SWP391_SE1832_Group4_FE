@@ -9,10 +9,13 @@ import Login from "./pages/authentication-pages/login-page";
 import Register from "./pages/authentication-pages/register-page";
 import ForgotPasswordPage from "./pages/authentication-pages/forgotPassword-page";
 import endPoint from "./routers/router";
-import BookingAppointment from "./pages/booking-appointment-pages";
 import BlogsPages from "./pages/blogs-pages";
 import SetUpPasswordAfterRegister from "./pages/authentication-pages/setup-passwordAfterRegister-page";
 import HivTreatmentPage from "./pages/hiv_treatment-page";
+import ProfilePage from "./pages/menu-profile/profile-page";
+import AppointmentMenuPage from "./pages/menu-profile/appointmentMenu-page";
+import TransactionMenuPage from "./pages/menu-profile/transactionMenu-page";
+import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -24,10 +27,6 @@ const App = () => {
           path: endPoint.HOME,
           element: <HomePage />,
         },
-          {
-          path: endPoint.BOOKINGAPPOINTMENT,
-          element: <BookingAppointment />,
-        },
         {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
@@ -36,6 +35,38 @@ const App = () => {
           path: endPoint.HIVTREATMENT,
           element: <HivTreatmentPage />,
         },
+
+         {
+          path: endPoint.TESTINGSTDS,
+          element: <HivTreatmentPage />,
+        },
+         {
+          path: endPoint.HIVTESTING,
+          element: <HivTreatmentPage />,
+        },
+
+
+          {
+          path: endPoint.PROFILEPAGE,
+          element: <ProfilePage />,
+        },
+
+          {
+          path: endPoint.APPOINTMENT,
+          element: <AppointmentMenuPage/>,
+        },
+
+         {
+          path: endPoint.TRANSACTION,
+          element: <TransactionMenuPage/>,
+        },
+
+         {
+          path: endPoint.MEDICALRECORD,
+          element: <MedicalRecordMenuPage/>,
+        },
+
+      
 
       ],
     },
