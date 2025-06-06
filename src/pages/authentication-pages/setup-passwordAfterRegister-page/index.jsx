@@ -3,21 +3,29 @@ import { Form, Input, Button, Typography, message } from "antd";
 import "./index.scss";
 import { setupPassworApi } from "../../../apis/authenticationApi/setupPasswordApi";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const { Title } = Typography;
 
 const SetUpPasswordAfterRegister = () => {
   const [submitted, setSubmitted] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
   const token = urlParams.get('token');
 
   
   const onFinish = async(values) => {
-    await setupPassworApi(values, token);
-    setSubmitted(true);
-    message.success("Password has been set successfully!");
-    navigate("/login-page")
+    setLoading(true)
+     try {
+       await setupPassworApi(values, token);
+       setSubmitted(true);
+       message.success("Password has been set successfully!");
+       navigate("/login-page")
+     } catch (error) {
+      toast.error(error?.response?.data?.message || "Error while handling logic!!")
+     }
+     setLoading(false)
   };
 
   return (
@@ -48,7 +56,7 @@ const SetUpPasswordAfterRegister = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button
+              <Button loading={loading}
                 htmlType="submit"
                 block
                 style={{

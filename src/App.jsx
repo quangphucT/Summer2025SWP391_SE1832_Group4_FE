@@ -105,6 +105,11 @@ const App = () => {
           path: endPoint.DASHBOARDSTATISTICS,
           element: <DashboardStatistics />,
         },
+
+         {
+          path: endPoint.PROTOCOLMANAGEMENT,
+          element: <ProtocolManagement />,
+        },
         {
           path: endPoint.CUSTOMERMANAGEMENT,
           element: <CustomerManagement />,
