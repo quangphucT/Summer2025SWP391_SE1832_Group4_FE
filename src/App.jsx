@@ -18,6 +18,8 @@ import TransactionMenuPage from "./pages/menu-profile/transactionMenu-page";
 import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
+
 
 const App = () => {
   const router = createBrowserRouter([
@@ -67,7 +69,7 @@ const App = () => {
           path: endPoint.MEDICALRECORD,
           element: <MedicalRecordMenuPage/>,
         },
-
+    
       
 
       ],
@@ -101,8 +103,12 @@ const App = () => {
           element: <CustomerManagement />,
         },
         {
-          path: endPoint.PROTOCOLMANAGEMENT,
+          path: endPoint.AccountManagement,
           element: <ProtocolManagement />,
+        },
+        {
+          path: endPoint.ACCOUNTMANAGEMENT,
+          element: <AccountManagement />,
         },
       ],
     },

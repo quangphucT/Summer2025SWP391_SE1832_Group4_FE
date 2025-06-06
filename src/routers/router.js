@@ -21,8 +21,9 @@ const endPoint = {
     DASHBOARD: "/dashboard",
     DASHBOARDSTATISTICS: "dashboard-statistics",
     CUSTOMERMANAGEMENT: "customer-management",
-    PROTOCOLMANAGEMENT: "protocal-management"
-
+    PROTOCOLMANAGEMENT: "protocal-management",
+    ACCOUNTMANAGEMENT: "account-management",
+    
 
 
 }
