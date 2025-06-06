@@ -16,6 +16,7 @@ import ProfilePage from "./pages/menu-profile/profile-page";
 import AppointmentMenuPage from "./pages/menu-profile/appointmentMenu-page";
 import TransactionMenuPage from "./pages/menu-profile/transactionMenu-page";
 import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
+import ResetPassword from "./pages/authentication-pages/reset-password-page";
 
 import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
 
@@ -85,6 +86,10 @@ const App = () => {
       element: <Register />,
     },
     {
+      path: endPoint.RESETPASSWORD,
+      element: <ResetPassword/>,
+    },
+      {
       path: endPoint.PASSWORDAFTERREGISTER,
       element: <SetUpPasswordAfterRegister/>,
     },

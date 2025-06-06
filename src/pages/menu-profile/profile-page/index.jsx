@@ -28,6 +28,8 @@ import AppointmentMenuPage from "../appointmentMenu-page";
 import TransactionMenuPage from "../transactionMenu-page";
 import MedicalRecordMenuPage from "../medicalRecordMenu-page";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { removeInformation } from "../../../redux/feature/userSlice";
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -51,9 +53,10 @@ const ProfilePage = () => {
   const [form] = Form.useForm();
   const [selectedKey, setSelectedKey] = useState("profile");
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
+      dispatch(removeInformation())
       localStorage.removeItem("token");
       navigate("/login-page");
       return;
@@ -149,8 +152,8 @@ const ProfilePage = () => {
           onClick={handleMenuClick}
         />
       </Sider>
-
       <Content className="contentProfile-right">{renderContent()}</Content>
+      
     </Layout>
   );
 };
