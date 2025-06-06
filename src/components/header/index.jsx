@@ -10,6 +10,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const isAuthenticated = !!localStorage.getItem("token");
 
   const isWhiteBackgroundPage = 
   location.pathname === "/booking-appointment" 
@@ -45,7 +46,7 @@ const Header = () => {
         {
           key: "hiv_testing",
           label: <span onClick={() => navigate("/services/hiv_testing")}>HIV testing</span>,
-        },
+        }
       ]}
     />
   );
@@ -53,8 +54,6 @@ const Header = () => {
   const menuItemsHeader = [
     { label: "Home", path: endPoint.HOME },
     { label: "Blogs", path: endPoint.BLOGSPAGE },
-    // { label: "Book an appointment", path: endPoint.BOOKINGAPPOINTMENT },
-    // Remove Service from here
   ];
 
   const handleNavigate = (path) => {
@@ -97,36 +96,43 @@ const Header = () => {
           </p>
         ))}
 
-        {/* Service dropdown */}
-        <Dropdown overlay={serviceMenu} placement="bottom">
-          <p className="hover:underline">Service</p>
-        </Dropdown>
+        {/* Service dropdown - only show when authenticated */}
+        {isAuthenticated && (
+          <Dropdown overlay={serviceMenu} placement="bottom">
+            <p className="hover:underline">Services</p>
+          </Dropdown>
+        )}
       </div>
 
       {/* Right */}
       <div className="flex space-x-5 items-center">
-
         <div className="hidden md:flex flex-col text-right">
           <span className="font-medium font-mono">Act Today</span>
           <span className="text-sm font-mono">For a Future without HIV</span>
         </div>
 
-        <UserOutlined className="cursor-pointer" onClick={() => {navigate("/profile-page")}}/>
-        <div className="flex space-x-1.5 cursor-pointer bg-[#e1e1e1] text-[#000] py-2 px-1 rounded-[5px]">
-          <p
-            onClick={() => navigate("/login-page")}
-            className="font-mono font-bold hover:underline"
-          >
-            Login
-          </p>
-          <span>/</span>
-          <p
-            onClick={() => navigate("/register-page")}
-            className="font-mono font-bold hover:underline"
-          >
-            Register
-          </p>
-        </div>
+        {isAuthenticated ? (
+          <UserOutlined 
+            className="cursor-pointer text-xl" 
+            onClick={() => {navigate("/profile-page")}}
+          />
+        ) : (
+          <div className="flex space-x-1.5 cursor-pointer bg-[#e1e1e1] text-[#000] py-2 px-1 rounded-[5px]">
+            <p
+              onClick={() => navigate("/login-page")}
+              className="font-mono font-bold hover:underline"
+            >
+              Login
+            </p>
+            <span>/</span>
+            <p
+              onClick={() => navigate("/register-page")}
+              className="font-mono font-bold hover:underline"
+            >
+              Register
+            </p>
+          </div>
+        )}
       </div>
     </header>
   );

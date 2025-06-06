@@ -51,10 +51,12 @@ const ProfilePage = () => {
   const [form] = Form.useForm();
   const [selectedKey, setSelectedKey] = useState("profile");
   const navigate = useNavigate();
+
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
-      // Xử lý logout ở đây nếu cần
-     navigate("/login-page")
+      localStorage.removeItem("token");
+      navigate("/login-page");
+      return;
     }
     setSelectedKey(key); // cập nhật nội dung hiển thị
   };
