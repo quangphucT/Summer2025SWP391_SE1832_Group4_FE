@@ -4,31 +4,34 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { toast } from "react-toastify"
 import { login } from "../../../apis/authenticationApi/loginApi";
+import { useDispatch } from 'react-redux'
+import { saveInformation } from '../../../redux/feature/userSlice'
+
 
 const { Title, Text } = Typography
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
+  const dispatch = useDispatch();
   const onFinish = async (values) => {
     setIsLoading(true)
     try {
-      const response = await login( {
-        email: values.email,
-        password: values.password,
-      })
-      if (response && response.data && response.data.token) {
-        localStorage.setItem("token", response.data.token)
-        toast.success("Login successful!")
-        navigate("/")
-      } else {
-        toast.error("Incorrect account or password!")
-      }
+      const response = await login( values)
+       toast.success("Login successful!")
+       const {token, role} = response.data
+        dispatch(saveInformation(response?.data))    
+        localStorage.setItem("token", token)
+       if(role === "Patient"){
+             navigate("/")
+             
+       }else{
+         navigate("/dashboard")
+       }
     } catch (error) {
-      toast.error("Login failed! Please try again.")
-    } finally {
-      setIsLoading(false)
+      toast.error( error?.response?.data?.message || "Error while handling logic login!")
     }
+    setIsLoading(false)
   }
   
 
