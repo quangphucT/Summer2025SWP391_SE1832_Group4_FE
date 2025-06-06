@@ -1,6 +1,6 @@
 import api from "../../config/api"
 export const setupPassworApi = async (values, token) => {
-    const response = await api.post("/Auth/set-password", values, {
+    const response = await api.post("/api/Auth/set-password", values, {
         headers: {
             Authorization: `Bearer ${token}`,
         },

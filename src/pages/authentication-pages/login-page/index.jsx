@@ -10,7 +10,6 @@ const { Title, Text } = Typography
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-
   const onFinish = async (values) => {
     setIsLoading(true)
     try {

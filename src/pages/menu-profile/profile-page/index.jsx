@@ -149,8 +149,8 @@ const ProfilePage = () => {
           onClick={handleMenuClick}
         />
       </Sider>
-
       <Content className="contentProfile-right">{renderContent()}</Content>
+      
     </Layout>
   );
 };
