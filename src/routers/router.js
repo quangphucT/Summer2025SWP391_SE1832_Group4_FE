@@ -3,6 +3,7 @@ const endPoint = {
     HOME: "",
     LOGIN: "/login-page",
     REGISTER: "/register-page",
+    RESETPASSWORD: "/resetPassword-page",
     PASSWORDAFTERREGISTER: "/passwordAfterRegister-page",
     FORGOTPASSWORD: "/forgotpassword-page",
 

@@ -1,11 +1,23 @@
 import { Form, Input, message } from 'antd';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
+import { useState } from 'react';
+import PopUpNotiThroughEmail from '../../../components/atoms/PopUpNotiThroughEmail';
+import { forgotPassword } from '../../../apis/authenticationApi/forgotPasswordApi';
 
 const ForgotPasswordPage = () => {
-  const onFinish = (values) => {
-    console.log('Email submitted:', values.email);
-    message.success('Password reset instructions sent to your email.');
-    // Gọi API gửi email reset password tại đây
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const onFinish = async(values) => {
+      console.log("values:", values)
+    try {
+       await forgotPassword(values)
+      message.success('Password reset instructions sent to your email.');
+       setIsModalVisible(true);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Error while handling")
+    }
   };
 
   return (
@@ -44,6 +56,11 @@ const ForgotPasswordPage = () => {
           </Link>
         </div>
       </div>
+
+      <PopUpNotiThroughEmail
+          isModalVisible={isModalVisible}
+          setIsModalVisible={setIsModalVisible}
+        />
     </div>
   );
 };
