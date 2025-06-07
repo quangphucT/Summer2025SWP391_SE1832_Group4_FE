@@ -14,6 +14,7 @@ const endPoint = {
 
 
     BLOGSPAGE: "/blogs-page",
+
     HIVTREATMENT: "/services/hiv_treatment",
     TESTINGSTDS: "/services/testing_stds",
     HIVTESTING: "/services/hiv_testing",
@@ -23,6 +24,7 @@ const endPoint = {
     CUSTOMERMANAGEMENT: "customer-management",
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
+    BLOGMANAGEMENT: "blog-management",
     
 
 
