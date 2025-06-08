@@ -1,119 +1,78 @@
-// src/apis/accountsApi/index.js
 import api from "../../config/api";
 
 /**
  * GET /api/accounts
- * @param {string} queryString - ví dụ: "username=foo&accountStatus=0"
- * @returns {Promise<Array|Object>}
+ * Luôn trả về một Array (có thể rỗng)
  */
 export async function getAllAccounts(queryString = "") {
+  const url = `/api/accounts${queryString ? `?${queryString}` : ""}`;
+  console.log("[API] GET →", api.defaults.baseURL + url);
+
   try {
-    const url = `/api/accounts${queryString ? `?${queryString}` : ""}`;
-    console.log("[DEBUG] GET →", api.defaults.baseURL + url);
+    const res  = await api.get(url);
+    const body = res.data;
+    console.log("[API] 200 GET /api/accounts payload:", body);
 
-    // axios trả về { data, status, ... }
-    const response = await api.get(url);
-    console.log("[DEBUG] Status GET:", response.status);
-    console.log("[DEBUG] GET /api/accounts returned:", response.data);
-
-    // Giống logic cũ: nếu backend trả cấu trúc wrapper { data: { accounts: [...] } }
-    // hoặc trả mảng trực tiếp, chúng ta vẫn normalize được:
-    if (Array.isArray(response.data)) {
-      return response.data;
-    } else if (response.data?.data?.accounts) {
-      return response.data.data.accounts;
-    } else if (response.data?.data) {
-      return Array.isArray(response.data.data) ? response.data.data : [];
-    } else {
-      console.warn("[WARNING] Unexpected response format:", response.data);
-      return [];
+    // 1) nếu trả thẳng mảng
+    if (Array.isArray(body)) {
+      return body;
     }
+
+    // 2) nếu wrapper kiểu { data: { items: [...] } }
+    if (body.data?.items && Array.isArray(body.data.items)) {
+      return body.data.items;
+    }
+
+    // 3) nếu wrapper kiểu { data: { accounts: [...] } }
+    if (body.data?.accounts && Array.isArray(body.data.accounts)) {
+      return body.data.accounts;
+    }
+
+    console.warn("[API] Unexpected format, returning []:", body);
+    return [];
   } catch (err) {
-    
-    const message =
+    const msg =
       err.response?.data?.message ||
       err.response?.data ||
       err.message ||
       "Unknown error";
-    console.error("[ERROR] Failed to GET /api/accounts:", message);
-    throw new Error(message);
+    console.error("[API] GET /api/accounts failed:", msg);
+    throw new Error(msg);
   }
 }
 
-/**
- * GET /api/accounts/{id}
- * @param {number|string} id
- * @returns {Promise<Object>}
- */
-export async function getAccountById(id) {
-  try {
-    const url = `/api/accounts/${id}`;
-    console.log("[DEBUG] GET →", api.defaults.baseURL + url);
-
-    const response = await api.get(url);
-    console.log(`[DEBUG] Status GET /api/accounts/${id}:`, response.status);
-    return response.data;
-  } catch (err) {
-    const message =
-      err.response?.data?.message ||
-      err.response?.data ||
-      err.message ||
-      "Unknown error";
-    console.error(`[ERROR] Failed to GET /api/accounts/${id}:`, message);
-    throw new Error(message);
-  }
-}
-
-/**
- * PUT /api/accounts/{id}
- * @param {number|string} id
- * @param {Object} data  Ví dụ: { username: "...", email: "..." }
- * @returns {Promise<Object|null>}
- */
 export async function updateAccountById(id, data) {
+  const url = `/api/accounts/${id}`;
+  console.log("[API] PUT →", api.defaults.baseURL + url, "body:", data);
   try {
-    const url = `/api/accounts/${id}`;
-    console.log("[DEBUG] PUT →", api.defaults.baseURL + url, "body:", data);
-
-    const response = await api.put(url, data);
-    console.log(`[DEBUG] Status PUT /api/accounts/${id}:`, response.status);
-
-    // Nếu backend trả 204 No Content, axios trả status=204, data sẽ rỗng
-    if (response.status === 204) {
-      return null;
-    }
-    return response.data;
+    const res = await api.put(url, data);
+    console.log(`[API] PUT /api/accounts/${id} status:`, res.status);
+    return res.status === 204 ? null : res.data;
   } catch (err) {
-    const message =
+    const msg =
       err.response?.data?.message ||
       err.response?.data ||
       err.message ||
       "Unknown error";
-    console.error(`[ERROR] Failed to PUT /api/accounts/${id}:`, message);
-    throw new Error(message);
+    console.error(`[API] PUT /api/accounts/${id} failed:`, msg);
+    throw new Error(msg);
   }
 }
 
-/**
- * DELETE /api/accounts/{id}
- * @param {number|string} id
- * @returns {Promise<null>}
- */
 export async function deleteAccountById(id) {
+  const url = `/api/accounts/${id}`;
+  console.log("[API] DELETE →", api.defaults.baseURL + url);
   try {
-    const url = `/api/accounts/${id}`;
-    console.log("[DEBUG] DELETE →", api.defaults.baseURL + url);
-
-    const response = await api.delete(url);
-    console.log(`[DEBUG] Status DELETE /api/accounts/${id}:`, response.status);
+    const res = await api.delete(url);
+    console.log(`[API] DELETE /api/accounts/${id} status:`, res.status);
     return null;
   } catch (err) {
-    const message =
+    const msg =
       err.response?.data?.message ||
       err.response?.data ||
       err.message ||
       "Unknown error";
-    console.error(`[ERROR] Failed to DELETE /api/accounts/${id}:`, message);
-    throw new Error(message);
+    console.error(`[API] DELETE /api/accounts/${id} failed:`, msg);
+    throw new Error(msg);
   }
 }
