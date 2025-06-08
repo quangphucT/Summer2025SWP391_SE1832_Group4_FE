@@ -11,86 +11,125 @@ import {
     Space,
     Popconfirm,
     message,
-    Result
+    Result,
+    Spin,
 } from 'antd';
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    LoadingOutlined
+} from '@ant-design/icons';
 import {
     fetchDoctorExperience,
     createNewExperience,
     updateExperienceById,
     deleteExperienceById
 } from '../../../redux/feature/experienceWorkingSlice';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useNavigate } from 'react-router-dom';
 
 const ExperienceManagement = () => {
     const [form] = Form.useForm();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const { doctorExperiences, status, error } = useSelector((state) => state.experienceWorking);
-    const { user } = useSelector((state) => state.user || { user: null });
+    const { doctorExperiences, status, error, isLoading } = useSelector((state) => state.experienceWorking);
+    const user = useSelector((state) => state.user);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingExperience, setEditingExperience] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // Kiểm tra nếu không có user hoặc không phải là bác sĩ
-        if (!user) {
-            message.error('Vui lòng đăng nhập để truy cập trang này');
-            navigate('/login-page');
-            return;
+        if (user?.accountID) {
+            console.log('Fetching experience for doctor:', user.accountID);
+            dispatch(fetchDoctorExperience(user.accountID));
         }
+    }, [dispatch, user]);
 
-        // Nếu có user và là bác sĩ, fetch dữ liệu
-        dispatch(fetchDoctorExperience(user.id));
-    }, [dispatch, user, navigate]);
+    const safeExperiences = Array.isArray(doctorExperiences) ? doctorExperiences : [];
+    console.log('Current experiences:', safeExperiences);
+
+    if (!user?.accountID) {
+        return (
+            <Result
+                status="403"
+                title="Access Denied"
+                subTitle="Please log in to view this page"
+            />
+        );
+    }
+
+    if (user?.role !== 'Doctor') {
+        return (
+            <Result
+                status="403"
+                title="Access Denied"
+                subTitle="You don't have permission to view this page"
+            />
+        );
+    }
+
+    if (status === 'failed') {
+        console.error('Failed to load experiences:', error);
+        return (
+            <Result
+                status="error"
+                title="Failed to load data"
+                subTitle={error || "An error occurred while loading experience data"}
+                extra={[
+                    <Button 
+                        type="primary" 
+                        key="retry" 
+                        onClick={() => {
+                            console.log('Retrying fetch for doctor:', user.accountID);
+                            dispatch(fetchDoctorExperience(user.accountID));
+                        }}
+                    >
+                        Try Again
+                    </Button>
+                ]}
+            />
+        );
+    }
 
     const handleAdd = () => {
-        if (!user) {
-            message.error('Vui lòng đăng nhập để thực hiện chức năng này');
-            return;
-        }
         form.resetFields();
         setEditingExperience(null);
         setIsModalVisible(true);
     };
 
     const handleEdit = (record) => {
-        if (!user) {
-            message.error('Vui lòng đăng nhập để thực hiện chức năng này');
-            return;
-        }
+        console.log('Edit record:', record);
         setEditingExperience(record);
-        form.setFieldsValue({
+        const formData = {
             ...record,
-            fromDate: dayjs(record.fromDate),
+            fromDate: record.fromDate ? dayjs(record.fromDate) : null,
             toDate: record.toDate ? dayjs(record.toDate) : null,
-            hospitalName: record.hospitalName,
-            position: record.position
-        });
+            hospitalName: record.hospitalName || '',
+            position: record.position || ''
+        };
+        console.log('Form data being set:', formData);
+        form.setFieldsValue(formData);
         setIsModalVisible(true);
     };
 
     const handleDelete = async (id) => {
-        if (!user) {
-            message.error('Vui lòng đăng nhập để thực hiện chức năng này');
-            return;
-        }
         try {
+            setLoading(true);
             await dispatch(deleteExperienceById(id)).unwrap();
-            message.success('Xóa kinh nghiệm làm việc thành công');
+            message.success('Experience has been deleted successfully');
+            dispatch(fetchDoctorExperience(user.accountID));
         } catch {
-            message.error('Xóa kinh nghiệm làm việc thất bại');
+            message.error('Failed to delete experience');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleSubmit = async (values) => {
-        if (!user) {
-            message.error('Vui lòng đăng nhập để thực hiện chức năng này');
-            return;
-        }
         try {
+            setLoading(true);
+            console.log('Form values:', values);
             const data = {
-                doctorId: user.id,
+                doctorId: user.accountID,
                 hospitalName: values.hospitalName,
                 position: values.position,
                 fromDate: values.fromDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
@@ -98,43 +137,89 @@ const ExperienceManagement = () => {
             };
 
             if (editingExperience) {
-                await dispatch(updateExperienceById({ id: editingExperience.id, data })).unwrap();
-                message.success('Cập nhật kinh nghiệm làm việc thành công');
+                console.log('Updating experience with ID:', editingExperience.id);
+                const updateData = {
+                    doctorId: user.accountID,
+                    hospitalName: values.hospitalName,
+                    position: values.position,
+                    fromDate: values.fromDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+                    toDate: values.toDate ? values.toDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null,
+                };
+                console.log('Update payload:', updateData);
+                
+                try {
+                    const result = await dispatch(updateExperienceById({ 
+                        id: editingExperience.id,
+                        data: updateData
+                    })).unwrap();
+                    console.log('Update result:', result);
+                    
+                    if (result) {
+                        await dispatch(fetchDoctorExperience(user.accountID));
+                        message.success('Experience has been updated successfully');
+                    } else {
+                        throw new Error('Update operation failed');
+                    }
+                } catch (updateError) {
+                    console.error('Update error:', updateError);
+                    message.error('Failed to update experience: ' + (updateError.message || 'An unknown error occurred'));
+                    return;
+                }
             } else {
-                await dispatch(createNewExperience(data)).unwrap();
-                message.success('Thêm kinh nghiệm làm việc thành công');
+                await dispatch(createNewExperience({
+                    ...data,
+                    doctorId: user.accountID
+                })).unwrap();
+                await dispatch(fetchDoctorExperience(user.accountID));
+                message.success('New experience has been added successfully');
             }
-            setIsModalVisible(false);
-        } catch {
-            message.error('Thao tác thất bại');
+        } catch (error) {
+            console.error('Submit error:', error);
+            message.error('Operation failed: ' + (error.message || 'An unknown error occurred'));
+            return;
+        } finally {
+            setLoading(false);
+            if (!error) {
+                form.resetFields();
+                setIsModalVisible(false);
+                if (editingExperience) {
+                    setEditingExperience(null);
+                }
+            }
         }
+    };
+
+    const handleCancel = () => {
+        form.resetFields();
+        setIsModalVisible(false);
+        setEditingExperience(null);
     };
 
     const columns = [
         {
-            title: 'Vị trí',
+            title: 'Position',
             dataIndex: 'position',
             key: 'position',
         },
         {
-            title: 'Bệnh viện/Phòng khám',
+            title: 'Hospital/Clinic',
             dataIndex: 'hospitalName',
             key: 'hospitalName',
         },
         {
-            title: 'Ngày bắt đầu',
+            title: 'Start Date',
             dataIndex: 'fromDate',
             key: 'fromDate',
             render: (date) => dayjs(date).format('DD/MM/YYYY'),
         },
         {
-            title: 'Ngày kết thúc',
+            title: 'End Date',
             dataIndex: 'toDate',
             key: 'toDate',
-            render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : 'Hiện tại',
+            render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : 'Present',
         },
         {
-            title: 'Thao tác',
+            title: 'Actions',
             key: 'action',
             render: (_, record) => (
                 <Space>
@@ -142,14 +227,14 @@ const ExperienceManagement = () => {
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
                     >
-                        Sửa
+                        Edit
                     </Button>
                     <Popconfirm
-                        title="Bạn có chắc muốn xóa?"
+                        title="Are you sure you want to delete?"
                         onConfirm={() => handleDelete(record.id)}
                     >
                         <Button danger icon={<DeleteOutlined />}>
-                            Xóa
+                            Delete
                         </Button>
                     </Popconfirm>
                 </Space>
@@ -157,60 +242,44 @@ const ExperienceManagement = () => {
         },
     ];
 
-    // Nếu không có user, hiển thị thông báo
-    if (!user) {
-        return (
-            <Result
-                status="403"
-                title="Không có quyền truy cập"
-                subTitle="Vui lòng đăng nhập để truy cập trang này"
-                extra={
-                    <Button type="primary" onClick={() => navigate('/login-page')}>
-                        Đăng nhập
-                    </Button>
-                }
-            />
-        );
-    }
-
-    if (error) {
-        return (
-            <Result
-                status="error"
-                title="Đã có lỗi xảy ra"
-                subTitle="Không thể tải dữ liệu kinh nghiệm làm việc"
-                extra={
-                    <Button type="primary" onClick={() => dispatch(fetchDoctorExperience(user.id))}>
-                        Thử lại
-                    </Button>
-                }
-            />
-        );
-    }
-
     return (
         <div className="p-6">
             <Card
-                title="Quản lý kinh nghiệm làm việc"
+                title="Experience Management"
                 extra={
-                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-                        Thêm kinh nghiệm
+                    <Button 
+                        type="primary" 
+                        icon={<PlusOutlined />} 
+                        onClick={handleAdd}
+                        loading={loading}
+                        disabled={isLoading}
+                    >
+                        Add Experience
                     </Button>
                 }
             >
                 <Table
                     columns={columns}
-                    dataSource={doctorExperiences}
-                    loading={status === 'loading'}
+                    dataSource={safeExperiences}
+                    loading={{ 
+                        spinning: status === 'loading' || isLoading,
+                        indicator: <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }}
                     rowKey="id"
+                    locale={{
+                        emptyText: status === 'loading' ? 'Loading...' : 'No experience records found'
+                    }}
                 />
             </Card>
 
             <Modal
-                title={editingExperience ? "Cập nhật kinh nghiệm làm việc" : "Thêm kinh nghiệm làm việc"}
+                title={editingExperience ? "Update Experience" : "Add New Experience"}
                 open={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
+                onCancel={handleCancel}
                 footer={null}
+                maskClosable={!loading}
+                closable={!loading}
+                keyboard={!loading}
             >
                 <Form
                     form={form}
@@ -219,39 +288,87 @@ const ExperienceManagement = () => {
                 >
                     <Form.Item
                         name="position"
-                        label="Vị trí"
-                        rules={[{ required: true, message: 'Vui lòng nhập vị trí' }]}
+                        label="Position"
+                        rules={[{ required: true, message: 'Please enter the position' }]}
                     >
-                        <Input />
+                        <Input placeholder="Enter position" disabled={loading} />
                     </Form.Item>
 
                     <Form.Item
                         name="hospitalName"
-                        label="Bệnh viện/Phòng khám"
-                        rules={[{ required: true, message: 'Vui lòng nhập tên bệnh viện/phòng khám' }]}
+                        label="Hospital/Clinic"
+                        rules={[{ required: true, message: 'Please enter hospital/clinic name' }]}
                     >
-                        <Input />
+                        <Input placeholder="Enter hospital/clinic name" disabled={loading} />
                     </Form.Item>
 
                     <Form.Item
                         name="fromDate"
-                        label="Ngày bắt đầu"
-                        rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu' }]}
+                        label="Start Date"
+                        rules={[{ required: true, message: 'Please select start date' }]}
                     >
-                        <DatePicker format="DD/MM/YYYY" />
+                        <DatePicker 
+                            format="DD/MM/YYYY" 
+                            style={{ width: '100%' }}
+                            disabledDate={current => current && current > dayjs().endOf('day')}
+                            disabled={loading}
+                        />
                     </Form.Item>
 
                     <Form.Item
                         name="toDate"
-                        label="Ngày kết thúc"
+                        label="End Date"
+                        dependencies={['fromDate']}
+                        rules={[
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    const fromDate = getFieldValue('fromDate');
+                                    if (!value || !fromDate) {
+                                        return Promise.resolve();
+                                    }
+                                    if (value.isBefore(fromDate)) {
+                                        return Promise.reject(new Error('End date cannot be earlier than start date'));
+                                    }
+                                    if (value.isAfter(dayjs())) {
+                                        return Promise.reject(new Error('End date cannot be in the future'));
+                                    }
+                                    return Promise.resolve();
+                                }
+                            })
+                        ]}
                     >
-                        <DatePicker format="DD/MM/YYYY" />
+                        <DatePicker 
+                            format="DD/MM/YYYY" 
+                            style={{ width: '100%' }}
+                            disabledDate={current => {
+                                const fromDate = form.getFieldValue('fromDate');
+                                return (
+                                    (current && current > dayjs().endOf('day')) || 
+                                    (fromDate && current && current.isBefore(fromDate))
+                                );
+                            }}
+                            disabled={loading}
+                        />
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            {editingExperience ? 'Cập nhật' : 'Thêm mới'}
-                        </Button>
+                        <Space>
+                            <Button 
+                                type="primary" 
+                                htmlType="submit"
+                                loading={loading}
+                                icon={loading ? <LoadingOutlined /> : null}
+                                disabled={isLoading}
+                            >
+                                {editingExperience ? 'Update' : 'Add'}
+                            </Button>
+                            <Button 
+                                onClick={handleCancel}
+                                disabled={loading || isLoading}
+                            >
+                                Cancel
+                            </Button>
+                        </Space>
                     </Form.Item>
                 </Form>
             </Modal>

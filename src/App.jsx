@@ -19,12 +19,10 @@ import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
 import ResetPassword from "./pages/authentication-pages/reset-password-page";
 import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
 import ExperienceManagement from "./pages/dashboard-management/doctor/experience-management";
+import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
-import ResetPassword from "./pages/authentication-pages/reset-password-page";
-import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -109,6 +107,14 @@ const App = () => {
         {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,
+        },
+        {
+          path: endPoint.EXPERIENCEMANAGEMENT,
+          element: <ExperienceManagement />,
+        },
+        {
+          path: endPoint.BLOGMANAGEMENT,
+          element: <BlogManagement />,
         },
       ],
     },
