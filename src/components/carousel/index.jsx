@@ -10,7 +10,7 @@ import "./index.scss";
 // import required modules
 import { Pagination } from "swiper/modules";
 import { Image } from "antd";
-import imageBanner1 from "../../assets/images/HIVAIDS-Banner-1920x1024v2.jpg";
+import imageBanner1 from "../../assets/images/trump.jpg";
 
 export default function Carousel() {
   return (

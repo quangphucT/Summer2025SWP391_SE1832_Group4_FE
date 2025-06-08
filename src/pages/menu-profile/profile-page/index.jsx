@@ -42,7 +42,6 @@ import {
   Row,
   Col,
   Image,
-  Card,
 } from "antd";
 import "./index.scss";
 import {
@@ -55,14 +54,14 @@ import {
   DollarCircleOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logoUser from "../../../assets/images/userProfile.png";
 import AppointmentMenuPage from "../appointmentMenu-page";
 import TransactionMenuPage from "../transactionMenu-page";
 import MedicalRecordMenuPage from "../medicalRecordMenu-page";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { removeInformation } from "../../../redux/feature/userSlice";
+import { removeInformation, updateProfile } from "../../../redux/feature/userSlice";
 import uploadFile from "../../../utils/upload";
 import { toast } from "react-toastify";
 
@@ -78,9 +77,9 @@ const menuItems = [
 ];
 
 const ProfilePage = () => {
-
-  const userNameOnRedux = useSelector((store) => store?.user?.username)
-  const userEmailOnRedux = useSelector((store) => store?.user?.email)
+  const fullInformUserOnRedux = useSelector((store) => store?.user);
+  const userNameOnRedux = useSelector((store) => store?.user?.username);
+  const userEmailOnRedux = useSelector((store) => store?.user?.email);
   const [form] = Form.useForm();
   const [selectedKey, setSelectedKey] = useState("profile");
   const [loading, setLoading] = useState(false);
@@ -96,18 +95,56 @@ const ProfilePage = () => {
     setSelectedKey(key); // cập nhật nội dung hiển thị
   };
 
-  const handleFinish = async (values) => {
-    setLoading(true);
-     try {
-         const urlImageFromFirebase = await uploadFile(values.profileImageUrl.file.originFileObj);
-         values.profileImageUrl = urlImageFromFirebase;
-         console.log("Values:", values)
-     } catch (error) {
-      toast.error(error?.response?.data?.message || "Error while handling logic!")
-     }
+ const handleFinish = async (values) => {
+  setLoading(true);
+  try {
+    
+    // Nếu người dùng chọn ảnh mới
+    if (values.profileImageUrl && values.profileImageUrl[0]?.originFileObj) {
+      const urlImageFromFirebase = await uploadFile(values.profileImageUrl[0].originFileObj);
+      values.profileImageUrl = urlImageFromFirebase;
+    } else if (values.profileImageUrl && values.profileImageUrl[0]?.url) {
+      // Người dùng không đổi ảnh, dùng ảnh cũ
+      values.profileImageUrl = values.profileImageUrl[0].url;
+    } else {
+      values.profileImageUrl = ""; // hoặc null nếu bạn muốn gửi rỗng
+    }
 
-    setLoading(false);
-  };
+    dispatch(updateProfile(values));
+    console.log("values", values)
+    toast.info("Updated profile successfully!");
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message || "Error while handling logic!"
+    );
+  }
+  setLoading(false);
+};
+
+
+  useEffect(() => {
+    form.setFieldsValue({
+      fullName: fullInformUserOnRedux.fullName,
+      username: fullInformUserOnRedux.username,
+      phoneNumber: fullInformUserOnRedux.phone,
+      profileImageUrl: [
+        {
+          uid: "-1",
+          name: "profile.jpg",
+          status: "done",
+          url: fullInformUserOnRedux.profileImageUrl,
+        },
+      ],
+    });
+    setFileList([
+      {
+        uid: "-1",
+        name: "profile.jpg",
+        status: "done",
+        url: fullInformUserOnRedux.profileImageUrl,
+      },
+    ]);
+  }, [fullInformUserOnRedux]);
 
   // 💡 Nội dung động theo `selectedKey`
   const renderContent = () => {
@@ -135,15 +172,16 @@ const ProfilePage = () => {
                     <div className="mt-4 text-[#1e88e5] font-semibold text-sm">
                       Welcome to {userNameOnRedux}
                     </div>
-                     <div className=" text-[#7d8082] font-semibold text-[12px]">
-                       {userEmailOnRedux}
-                    </div> 
+                    <div className=" text-[#7d8082] font-semibold text-[12px]">
+                      {userEmailOnRedux}
+                    </div>
                   </div>
                 </Col>
                 <Col span={16}>
                   <Title level={3} className="gradient-text mb-4">
                     Edit Profile
                   </Title>
+
                   <Form
                     form={form}
                     layout="vertical"
@@ -151,9 +189,10 @@ const ProfilePage = () => {
                     size="large"
                   >
                     <Row gutter={16}>
+                      
                       <Col span={12}>
                         <Form.Item
-                          name="name"
+                          name="fullName"
                           label="Full Name"
                           rules={[{ required: true }]}
                         >
@@ -166,20 +205,20 @@ const ProfilePage = () => {
                       </Col>
                       <Col span={12}>
                         <Form.Item
-                          name="email"
-                          label="Email"
-                          rules={[{ required: true, type: "email" }]}
+                          name="username"
+                          label="Username"
+                          rules={[{ required: true }]}
                         >
                           <Input
                             prefix={<MailOutlined />}
-                            placeholder="example@mail.com"
+                            placeholder="example"
                             className="rounded-lg"
                           />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
                         <Form.Item
-                          name="phone"
+                          name="phoneNumber"
                           label="Phone"
                           rules={[{ required: true }]}
                         >
@@ -190,6 +229,7 @@ const ProfilePage = () => {
                           />
                         </Form.Item>
                       </Col>
+
                       <Col span={12}>
                         <Form.Item
                           label="Upload profile image"
@@ -201,6 +241,7 @@ const ProfilePage = () => {
                             fileList={fileList}
                             onPreview={handlePreview}
                             onChange={handleChange}
+                            //  showUploadList={{ showRemoveIcon: false }} 
                           >
                             {fileList.length >= 8 ? null : uploadButton}
                           </Upload>
@@ -240,6 +281,7 @@ const ProfilePage = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState([]);
+
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -247,6 +289,7 @@ const ProfilePage = () => {
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
+
   const handlePreview = (file) =>
     __awaiter(void 0, void 0, void 0, function* () {
       if (!file.url && !file.preview) {
@@ -255,7 +298,15 @@ const ProfilePage = () => {
       setPreviewImage(file.url || file.preview);
       setPreviewOpen(true);
     });
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+
+
+  const handleChange = ({ fileList: newFileList }) => {
+  const latestFileList = newFileList.slice(-1);
+  setFileList(latestFileList);
+  form.setFieldsValue({ profileImageUrl: latestFileList });
+};
+
+
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       <PlusOutlined />

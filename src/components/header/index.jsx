@@ -4,20 +4,22 @@ import "./index.scss";
 import logo from "../../assets/images/logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import endPoint from "../../routers/router";
-import { UserOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const isAuthenticated = !!localStorage.getItem("token");
-
-  const isWhiteBackgroundPage = 
-  location.pathname === "/booking-appointment" 
-  || location.pathname === "/services/hiv_treatment" 
-  || location.pathname === "/profile-page"
-  || location.pathname === "/services/testing_stds"
-  || location.pathname === "/services/hiv_testing";
+  const urlImageProfile = useSelector((store) => store?.user?.profileImageUrl);
+  const fullname = useSelector((store) => store?.user?.fullName);
+  const isWhiteBackgroundPage =
+    location.pathname === "/booking-appointment" ||
+    location.pathname === "/services/hiv_treatment" ||
+    location.pathname === "/profile-page" ||
+    location.pathname === "/services/testing_stds" ||
+    location.pathname === "/services/hiv_testing" ||
+    location.pathname === "/blogs-page";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,16 +39,28 @@ const Header = () => {
       items={[
         {
           key: "hiv_treatment",
-          label: <span onClick={() => navigate("/services/hiv_treatment")}>HIV treatment</span>,
+          label: (
+            <span onClick={() => navigate("/services/hiv_treatment")}>
+              HIV treatment
+            </span>
+          ),
         },
         {
           key: "testing_stds",
-          label: <span onClick={() => navigate("/services/testing_stds")}>Testing for STDs</span>,
+          label: (
+            <span onClick={() => navigate("/services/testing_stds")}>
+              Testing for STDs
+            </span>
+          ),
         },
         {
           key: "hiv_testing",
-          label: <span onClick={() => navigate("/services/hiv_testing")}>HIV testing</span>,
-        }
+          label: (
+            <span onClick={() => navigate("/services/hiv_testing")}>
+              HIV testing
+            </span>
+          ),
+        },
       ]}
     />
   );
@@ -106,16 +120,19 @@ const Header = () => {
 
       {/* Right */}
       <div className="flex space-x-5 items-center">
-        <div className="hidden md:flex flex-col text-right">
-          <span className="font-medium font-mono">Act Today</span>
-          <span className="text-sm font-mono">For a Future without HIV</span>
-        </div>
-
         {isAuthenticated ? (
-          <UserOutlined 
-            className="cursor-pointer text-xl" 
-            onClick={() => {navigate("/profile-page")}}
-          />
+          <div
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition duration-200 cursor-pointer"
+            onClick={() => navigate("/profile-page")}
+          >
+             <p className="text-sm font-medium text-gray-800">{fullname}</p>
+            <img
+              src={urlImageProfile}
+              alt="User Avatar"
+              className="w-11 h-11 rounded-full object-cover border border-gray-300 shadow-sm"
+            />
+           
+          </div>
         ) : (
           <div className="flex space-x-1.5 cursor-pointer bg-[#e1e1e1] text-[#000] py-2 px-1 rounded-[5px]">
             <p

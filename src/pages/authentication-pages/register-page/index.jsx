@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import "./index.scss";
-import { Col, Form, Input, Row } from "antd";
+import { Col, Form, Input, Row, Button } from "antd";
 import { toast } from "react-toastify";
 import { register } from "../../../apis/authenticationApi/registerApi";
 import { useState } from "react";
@@ -8,20 +8,20 @@ import PopUpNotiThroughEmail from "../../../components/atoms/PopUpNotiThroughEma
 
 const Register = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-
-  
   const onFinish = async (values) => {
+    setLoading(true);
     try {
       const valuesWithDefaultId = { roleId: 5, ...values };
-      const response = await register(valuesWithDefaultId);
-      toast.success(response.data.message);
+      await register(valuesWithDefaultId);
       setIsModalVisible(true);
     } catch (error) {
-      const errorMessage =
-        error?.response?.data?.message || "Error while handling the request";
-      toast.error(errorMessage);
+      toast.error(
+        error?.response?.data?.message || "Error while handling the request"
+      );
     }
+    setLoading(false);
   };
 
   return (
@@ -36,9 +36,13 @@ const Register = () => {
               <Form.Item
                 label="Username"
                 name="username"
+                hasFeedback
                 rules={[
                   { required: true, message: "Please enter your username!" },
-                  { type: "username", message: "Invalid username format!" },
+                  {
+                    pattern: /^[a-zA-Z0-9_]{3,20}$/,
+                    message: "Username must be 3-20 characters and no spaces!",
+                  },
                 ]}
               >
                 <Input placeholder="Enter your username" />
@@ -47,6 +51,7 @@ const Register = () => {
               <Form.Item
                 label="Email"
                 name="email"
+                hasFeedback
                 rules={[
                   { required: true, message: "Please enter your email!" },
                   { type: "email", message: "Invalid email format!" },
@@ -58,34 +63,47 @@ const Register = () => {
 
             <Col span={12}>
               <Form.Item
-                label="Fullname"
+                label="Full Name"
                 name="fullName"
+                hasFeedback
                 rules={[
-                  { required: true, message: "Please enter your fullname!" },
-                  { type: "fullname", message: "Invalid fullname format!" },
-                ]}
-              >
-                <Input placeholder="Enter your fullname" />
-              </Form.Item>
-
-              <Form.Item
-                label="PhoneNumber"
-                name="phoneNumber"
-                rules={[
-                  { required: true, message: "Please enter your phoneNumber!" },
+                  { required: true, message: "Please enter your full name!" },
                   {
-                    type: "phoneNumber",
-                    message: "Invalid phoneNumber format!",
+                    pattern: /^[a-zA-Z\s]{2,50}$/,
+                    message: "Full name must only contain letters and spaces!",
                   },
                 ]}
               >
-                <Input placeholder="Enter your phoneNumber" />
+                <Input placeholder="Enter your full name" />
+              </Form.Item>
+
+              <Form.Item
+                label="Phone Number"
+                name="phoneNumber"
+                hasFeedback
+                rules={[
+                  { required: true, message: "Please enter your phone number!" },
+                  {
+                    pattern: /^(0|\+84)[0-9]{9,10}$/,
+                    message: "Invalid phone number format!",
+                  },
+                ]}
+              >
+                <Input placeholder="Enter your phone number" />
               </Form.Item>
             </Col>
           </Row>
 
           <Form.Item>
-            <button className="register-btn">Create Account</button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="register-btn"
+              loading={loading}
+              block
+            >
+              Create Account
+            </Button>
           </Form.Item>
         </Form>
 
