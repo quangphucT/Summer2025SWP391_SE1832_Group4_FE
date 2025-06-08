@@ -24,8 +24,6 @@ const endPoint = {
     CUSTOMERMANAGEMENT: "customer-management",
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
-    
-
-
+    EXPERIENCEMANAGEMENT: "experience-management",
 }
 export default endPoint

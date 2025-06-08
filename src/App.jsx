@@ -17,12 +17,11 @@ import AppointmentMenuPage from "./pages/menu-profile/appointmentMenu-page";
 import TransactionMenuPage from "./pages/menu-profile/transactionMenu-page";
 import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
 import ResetPassword from "./pages/authentication-pages/reset-password-page";
-
 import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
+import ExperienceManagement from "./pages/dashboard-management/doctor/experience-management";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 
 const App = () => {
   const router = createBrowserRouter([
@@ -38,43 +37,34 @@ const App = () => {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
         },
-         {
+        {
           path: endPoint.HIVTREATMENT,
           element: <HivTreatmentPage />,
         },
-
-         {
+        {
           path: endPoint.TESTINGSTDS,
           element: <HivTreatmentPage />,
         },
-         {
+        {
           path: endPoint.HIVTESTING,
           element: <HivTreatmentPage />,
         },
-
-
-          {
+        {
           path: endPoint.PROFILEPAGE,
           element: <ProfilePage />,
         },
-
-          {
+        {
           path: endPoint.APPOINTMENT,
           element: <AppointmentMenuPage/>,
         },
-
-         {
+        {
           path: endPoint.TRANSACTION,
           element: <TransactionMenuPage/>,
         },
-
-         {
+        {
           path: endPoint.MEDICALRECORD,
           element: <MedicalRecordMenuPage/>,
         },
-    
-      
-
       ],
     },
     {
@@ -89,7 +79,7 @@ const App = () => {
       path: endPoint.RESETPASSWORD,
       element: <ResetPassword/>,
     },
-      {
+    {
       path: endPoint.PASSWORDAFTERREGISTER,
       element: <SetUpPasswordAfterRegister/>,
     },
@@ -105,8 +95,7 @@ const App = () => {
           path: endPoint.DASHBOARDSTATISTICS,
           element: <DashboardStatistics />,
         },
-
-         {
+        {
           path: endPoint.PROTOCOLMANAGEMENT,
           element: <ProtocolManagement />,
         },
@@ -115,12 +104,12 @@ const App = () => {
           element: <CustomerManagement />,
         },
         {
-          path: endPoint.AccountManagement,
-          element: <ProtocolManagement />,
-        },
-        {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,
+        },
+        {
+          path: endPoint.EXPERIENCEMANAGEMENT,
+          element: <ExperienceManagement />,
         },
       ],
     },
