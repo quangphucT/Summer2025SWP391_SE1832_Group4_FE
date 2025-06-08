@@ -1,31 +1,27 @@
 import { useState } from "react";
-import { Form, Input, Button, Typography, message } from "antd";
+import { Form, Input, Button, Typography } from "antd";
 import "./index.scss";
-import { setupPassworApi } from "../../../apis/authenticationApi/setupPasswordApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { resetPassword } from "../../../apis/authenticationApi/resetPasswordApi";
 
 const { Title } = Typography;
 
-const SetUpPasswordAfterRegister = () => {
+const ResetPassword = () => {
   const [submitted, setSubmitted] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
-  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
   const token = urlParams.get('token');
 
   
   const onFinish = async(values) => {
-    setLoading(true)
-     try {
-       await setupPassworApi(values, token);
-       setSubmitted(true);
-       message.success("Password has been set successfully!");
-       navigate("/login-page")
-     } catch (error) {
-      toast.error(error?.response?.data?.message || "Error while handling logic!!")
-     }
-     setLoading(false)
+  try {
+      await resetPassword(values)
+      setSubmitted(true);
+    navigate("/login-page")
+  } catch (error) {
+     toast.error(error?.response?.data?.message || "Error while fetching!")
+  }
   };
 
   return (
@@ -46,7 +42,7 @@ const SetUpPasswordAfterRegister = () => {
               <Input />
             </Form.Item>
             <Form.Item
-              label="New Password"
+              label="Update New Password"
               name="newPassword"
               rules={[
                 { required: true, message: "Please input your new password!" },
@@ -56,7 +52,7 @@ const SetUpPasswordAfterRegister = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button loading={loading}
+              <Button
                 htmlType="submit"
                 block
                 style={{
@@ -67,7 +63,7 @@ const SetUpPasswordAfterRegister = () => {
                 }}
                 className="hover:!bg-[#a21938] hover:!border-[#a21938] transition duration-200"
               >
-                Set Password
+               Reset Password
               </Button>
             </Form.Item>
           </Form>
@@ -77,4 +73,4 @@ const SetUpPasswordAfterRegister = () => {
   );
 };
 
-export default SetUpPasswordAfterRegister;
+export default ResetPassword;
