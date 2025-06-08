@@ -1,0 +1,215 @@
+.blog-mgmt-root {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  background: #fff;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 2.5rem 2vw 2rem 2vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-mgmt-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+  letter-spacing: -1px;
+  color: #1a237e;
+  border-left: 5px solid #1976d2;
+  padding-left: 0.7rem;
+  background: linear-gradient(90deg, #e3f2fd 60%, #fff 100%);
+  border-radius: 6px;
+}
+
+.blog-mgmt-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 0;
+  background: #f5f8fa;
+  border-bottom: 1px solid #d0d0d0;
+  margin-bottom: 1.5rem;
+}
+.blog-mgmt-form input,
+.blog-mgmt-form select {
+  flex: 1 1 200px;
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+.blog-mgmt-form input:focus,
+.blog-mgmt-form select:focus {
+  outline: none;
+  border-color: #1976d2;
+  border-width: 1.5px;
+}
+.blog-mgmt-form button {
+  flex: 0 0 auto;
+  padding: 8px 24px;
+  background: #1976d2;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 40px;
+  align-self: flex-end;
+  transition: background-color 0.2s;
+}
+.blog-mgmt-form button:hover {
+  background: #1251a3;
+}
+
+.blog-mgmt-table-wrap {
+  flex: 1;
+  overflow: auto;
+  padding: 0 0 24px 0;
+  background: #ffffff;
+}
+.blog-mgmt-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1rem;
+  min-width: 800px;
+}
+.blog-mgmt-table th {
+  position: sticky;
+  top: 0;
+  background: #e3eafc;
+  color: #1976d2;
+  font-weight: 700;
+  padding: 12px 8px;
+  border-bottom: 2px solid #b6c6e3;
+  z-index: 10;
+  text-align: left;
+}
+.blog-mgmt-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+.blog-mgmt-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+.blog-mgmt-table tr:hover {
+  background: #e3eafc33;
+}
+
+.blog-mgmt-btn {
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-right: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.blog-mgmt-btn.edit {
+  background: #e3eafc;
+  color: #1976d2;
+}
+.blog-mgmt-btn.edit:hover {
+  background: #1976d2;
+  color: #ffffff;
+}
+.blog-mgmt-btn.delete {
+  background: #ffeaea;
+  color: #d32f2f;
+}
+.blog-mgmt-btn.delete:hover {
+  background: #d32f2f;
+  color: #ffffff;
+}
+.blog-mgmt-btn.save {
+  background: #43a047;
+  color: #ffffff;
+}
+.blog-mgmt-btn.save:hover {
+  background: #2e7031;
+}
+.blog-mgmt-btn.cancel {
+  background: #bdbdbd;
+  color: #ffffff;
+}
+.blog-mgmt-btn.cancel:hover {
+  background: #757575;
+}
+
+@media (max-width: 900px) {
+  .blog-mgmt-root {
+    padding: 1rem 0.2rem;
+  }
+  .blog-mgmt-form {
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .blog-mgmt-form input,
+  .blog-mgmt-form select {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .blog-mgmt-form button {
+    width: 100%;
+    margin-top: 4px;
+  }
+  .blog-mgmt-table th,
+  .blog-mgmt-table td {
+    font-size: 0.9rem;
+    padding: 6px 4px;
+  }
+  .blog-mgmt-table {
+    min-width: 600px;
+  }
+}
+
+.blog-mgmt-modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.blog-mgmt-modal {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  padding: 2rem 2rem 1.5rem 2rem;
+  min-width: 320px;
+  max-width: 95vw;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.blog-mgmt-modal h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1976d2;
+}
+.blog-mgmt-modal input,
+.blog-mgmt-modal textarea {
+  font-size: 1rem;
+  padding: 8px 10px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+}
+.blog-mgmt-modal input:focus,
+.blog-mgmt-modal textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+  border-width: 1.5px;
+}
