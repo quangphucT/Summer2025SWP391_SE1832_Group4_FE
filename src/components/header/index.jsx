@@ -18,7 +18,8 @@ const Header = () => {
     location.pathname === "/services/hiv_treatment" ||
     location.pathname === "/profile-page" ||
     location.pathname === "/services/testing_stds" ||
-    location.pathname === "/services/hiv_testing";
+    location.pathname === "/services/hiv_testing" ||
+    location.pathname === "/blogs-page";
 
   useEffect(() => {
     const handleScroll = () => {
