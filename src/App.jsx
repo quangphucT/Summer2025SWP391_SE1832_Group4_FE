@@ -16,12 +16,9 @@ import ProfilePage from "./pages/menu-profile/profile-page";
 import AppointmentMenuPage from "./pages/menu-profile/appointmentMenu-page";
 import TransactionMenuPage from "./pages/menu-profile/transactionMenu-page";
 import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
-
 import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
 
 
