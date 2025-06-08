@@ -61,9 +61,17 @@ import TransactionMenuPage from "../transactionMenu-page";
 import MedicalRecordMenuPage from "../medicalRecordMenu-page";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { removeInformation, updateProfile } from "../../../redux/feature/userSlice";
+import {
+  removeInformation,
+  updateProfile,
+} from "../../../redux/feature/userSlice";
 import uploadFile from "../../../utils/upload";
 import { toast } from "react-toastify";
+import { changePasswordApi } from "../../../apis/authenticationApi/changePasswordApi";
+import { updateProfileApi } from "../../../apis/authenticationApi/updateProfileApi";
+import { showSuccessToast } from "../../../components/atoms/ConfigToast";
+import ModalDynamic from "../../../components/atoms/Modal";
+import HIVTreatmentInfoCard from "../../../components/atoms/TopInformationHIV";
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -78,11 +86,14 @@ const menuItems = [
 
 const ProfilePage = () => {
   const fullInformUserOnRedux = useSelector((store) => store?.user);
+  const accountId = useSelector((store) => store?.user?.accountID);
   const userNameOnRedux = useSelector((store) => store?.user?.username);
   const userEmailOnRedux = useSelector((store) => store?.user?.email);
   const [form] = Form.useForm();
+  const [formModalChangePassword] = Form.useForm();
   const [selectedKey, setSelectedKey] = useState("profile");
   const [loading, setLoading] = useState(false);
+  const [openModalChangePass, setOpenModalChangePass] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleMenuClick = ({ key }) => {
@@ -95,32 +106,33 @@ const ProfilePage = () => {
     setSelectedKey(key); // cập nhật nội dung hiển thị
   };
 
- const handleFinish = async (values) => {
-  setLoading(true);
-  try {
-    
-    // Nếu người dùng chọn ảnh mới
-    if (values.profileImageUrl && values.profileImageUrl[0]?.originFileObj) {
-      const urlImageFromFirebase = await uploadFile(values.profileImageUrl[0].originFileObj);
-      values.profileImageUrl = urlImageFromFirebase;
-    } else if (values.profileImageUrl && values.profileImageUrl[0]?.url) {
-      // Người dùng không đổi ảnh, dùng ảnh cũ
-      values.profileImageUrl = values.profileImageUrl[0].url;
-    } else {
-      values.profileImageUrl = ""; // hoặc null nếu bạn muốn gửi rỗng
+  const handleFinish = async (values) => {
+    setLoading(true);
+    try {
+      // Nếu người dùng chọn ảnh mới
+      if (values.profileImageUrl && values.profileImageUrl[0]?.originFileObj) {
+        const urlImageFromFirebase = await uploadFile(
+          values.profileImageUrl[0].originFileObj
+        );
+        values.profileImageUrl = urlImageFromFirebase;
+      } else if (values.profileImageUrl && values.profileImageUrl[0]?.url) {
+        // Người dùng không đổi ảnh, dùng ảnh cũ
+        values.profileImageUrl = values.profileImageUrl[0].url;
+      } else {
+        values.profileImageUrl = ""; // hoặc null nếu bạn muốn gửi rỗng
+      }
+
+      dispatch(updateProfile(values));
+        await updateProfileApi(accountId,values)
+      console.log("Values:", values)
+      toast.info("Updated profile successfully!");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Error while handling logic!!"
+      );
     }
-
-    dispatch(updateProfile(values));
-    console.log("values", values)
-    toast.info("Updated profile successfully!");
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message || "Error while handling logic!"
-    );
-  }
-  setLoading(false);
-};
-
+    setLoading(false);
+  };
 
   useEffect(() => {
     form.setFieldsValue({
@@ -175,6 +187,14 @@ const ProfilePage = () => {
                     <div className=" text-[#7d8082] font-semibold text-[12px]">
                       {userEmailOnRedux}
                     </div>
+                    <button
+                      onClick={() => {
+                        setOpenModalChangePass(true);
+                      }}
+                      className="mt-2 cursor-pointer bg-amber-100 font-bold px-4 py-0.5 hover:text-[14.5px] rounded-2xl"
+                    >
+                      Change Your Password
+                    </button>
                   </div>
                 </Col>
                 <Col span={16}>
@@ -189,7 +209,6 @@ const ProfilePage = () => {
                     size="large"
                   >
                     <Row gutter={16}>
-                      
                       <Col span={12}>
                         <Form.Item
                           name="fullName"
@@ -241,7 +260,7 @@ const ProfilePage = () => {
                             fileList={fileList}
                             onPreview={handlePreview}
                             onChange={handleChange}
-                            //  showUploadList={{ showRemoveIcon: false }} 
+                            //  showUploadList={{ showRemoveIcon: false }}
                           >
                             {fileList.length >= 8 ? null : uploadButton}
                           </Upload>
@@ -264,6 +283,7 @@ const ProfilePage = () => {
                   </Form>
                 </Col>
               </Row>
+              <HIVTreatmentInfoCard/>
             </div>
           </div>
         );
@@ -299,19 +319,55 @@ const ProfilePage = () => {
       setPreviewOpen(true);
     });
 
-
   const handleChange = ({ fileList: newFileList }) => {
-  const latestFileList = newFileList.slice(-1);
-  setFileList(latestFileList);
-  form.setFieldsValue({ profileImageUrl: latestFileList });
-};
-
+    const latestFileList = newFileList.slice(-1);
+    setFileList(latestFileList);
+    form.setFieldsValue({ profileImageUrl: latestFileList });
+  };
 
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       <PlusOutlined />
       <div style={{ marginTop: 8 }}>Upload</div>
     </button>
+  );
+  const handleChangePassword = async (values) => {
+    setLoading(true);
+    try {
+      await changePasswordApi(accountId, values);
+      showSuccessToast("Change Password Successfully!!");
+      formModalChangePassword.resetFields();
+      setOpenModalChangePass(false);
+      localStorage.clear();
+      dispatch(removeInformation());
+      navigate("/login-page");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Error while handling logic"
+      );
+    }
+    setLoading(false);
+  };
+  const formItem = (
+    <>
+      <Form.Item
+        name="oldPassword"
+        label="Old Password"
+        rules={[{ required: true, message: "Please input your old password!" }]}
+      >
+        <Input.Password className="rounded-md py-2" />
+      </Form.Item>
+      <Form.Item
+        name="newPassword"
+        label="New Password"
+        rules={[
+          { required: true, message: "Please input your new password!" },
+          { min: 6, message: "Password must be at least 6 characters" },
+        ]}
+      >
+        <Input.Password className="rounded-md py-2" />
+      </Form.Item>
+    </>
   );
   return (
     <Layout className="h-screen mt-[78px]">
@@ -342,6 +398,16 @@ const ProfilePage = () => {
           src={previewImage}
         />
       )}
+
+      <ModalDynamic
+        openModal={openModalChangePass}
+        setOpenModal={setOpenModalChangePass}
+        loading={loading}
+        handleSubmit={handleChangePassword}
+        titleModal={"Change Your Password"}
+        formItem={formItem}
+        formModal={formModalChangePassword}
+      />
     </Layout>
   );
 };
