@@ -245,7 +245,15 @@ const ExperienceManagement = () => {
     return (
         <div className="p-6">
             <Card
-                title="Experience Management"
+                title={
+                    <div style={{ 
+                        fontSize: '24px', 
+                        fontWeight: 'bold',
+                        padding: '12px 0'
+                    }}>
+                        Experience Management
+                    </div>
+                }
                 extra={
                     <Button 
                         type="primary" 
@@ -253,10 +261,12 @@ const ExperienceManagement = () => {
                         onClick={handleAdd}
                         loading={loading}
                         disabled={isLoading}
+                        size="large"
                     >
                         Add Experience
                     </Button>
                 }
+                className="experience-management-card"
             >
                 <Table
                     columns={columns}
@@ -265,12 +275,46 @@ const ExperienceManagement = () => {
                         spinning: status === 'loading' || isLoading,
                         indicator: <LoadingOutlined style={{ fontSize: 24 }} spin />
                     }}
-                    rowKey="id"
+                    rowKey={record => record.key || record.id}
                     locale={{
                         emptyText: status === 'loading' ? 'Loading...' : 'No experience records found'
                     }}
+                    pagination={{
+                        defaultPageSize: 10,
+                        showSizeChanger: true,
+                        showTotal: (total) => `Total ${total} items`,
+                        className: 'flex justify-center',
+                        position: ['bottomCenter']
+                    }}
+                    className="experience-table"
                 />
             </Card>
+
+            <style jsx="true">{`
+                .experience-management-card {
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+                }
+                
+                .experience-management-card :global(.ant-card-head) {
+                    background-color: #f8f9fa;
+                    border-bottom: 2px solid #e9ecef;
+                }
+
+                .experience-table :global(.ant-pagination) {
+                    margin-top: 20px;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                .experience-table :global(.ant-table-thead > tr > th) {
+                    background-color: #f8f9fa;
+                    font-weight: 600;
+                }
+
+                .experience-table :global(.ant-table-tbody > tr:hover > td) {
+                    background-color: #f8f9fa;
+                }
+            `}</style>
 
             <Modal
                 title={editingExperience ? "Update Experience" : "Add New Experience"}
@@ -280,11 +324,13 @@ const ExperienceManagement = () => {
                 maskClosable={!loading}
                 closable={!loading}
                 keyboard={!loading}
+                width={600}
             >
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
+                    className="experience-form"
                 >
                     <Form.Item
                         name="position"
@@ -351,7 +397,7 @@ const ExperienceManagement = () => {
                         />
                     </Form.Item>
 
-                    <Form.Item>
+                    <Form.Item className="form-actions">
                         <Space>
                             <Button 
                                 type="primary" 

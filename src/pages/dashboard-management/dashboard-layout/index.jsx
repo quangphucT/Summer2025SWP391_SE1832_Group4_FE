@@ -44,6 +44,7 @@ const DashboardLayout = () => {
     getItem("Customer management", "customer-management", <DesktopOutlined />),
     getItem("Account management", "account-management", <UserOutlined />),
     getItem("Experience management", "experience-management", <MedicineBoxOutlined />),
+    getItem("Certificate management", "certificate-management", <MedicineBoxOutlined />),
     {
       key: "logout",
       icon: <LogoutOutlined />,

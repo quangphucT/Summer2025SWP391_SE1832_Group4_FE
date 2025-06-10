@@ -19,6 +19,7 @@ import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
 import ResetPassword from "./pages/authentication-pages/reset-password-page";
 import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
 import ExperienceManagement from "./pages/dashboard-management/doctor/experience-management";
+import CertificateManagement from "./pages/dashboard-management/doctor/certificate-management";
 import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 
 import { ToastContainer } from "react-toastify";
@@ -111,6 +112,10 @@ const App = () => {
         {
           path: endPoint.EXPERIENCEMANAGEMENT,
           element: <ExperienceManagement />,
+        },
+        {
+          path: endPoint.CERTIFICATEMANAGEMENT,
+          element: <CertificateManagement />,
         },
         {
           path: endPoint.BLOGMANAGEMENT,

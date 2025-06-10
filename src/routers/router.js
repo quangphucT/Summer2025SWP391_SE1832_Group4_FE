@@ -30,5 +30,6 @@ const endPoint = {
 
 
     EXPERIENCEMANAGEMENT: "experience-management",
+    CERTIFICATEMANAGEMENT: "certificate-management",
 }
 export default endPoint
