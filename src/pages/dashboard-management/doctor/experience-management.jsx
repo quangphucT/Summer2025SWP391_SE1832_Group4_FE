@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
     Card,
     Button,
@@ -28,11 +29,13 @@ import {
     updateExperienceById,
     deleteExperienceById
 } from '../../../redux/feature/experienceWorkingSlice';
+import endPoint from '../../../routers/router';
 import dayjs from 'dayjs';
 
 const ExperienceManagement = () => {
     const [form] = Form.useForm();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { doctorExperiences, status, error, isLoading } = useSelector((state) => state.experienceWorking);
     const user = useSelector((state) => state.user);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -40,34 +43,26 @@ const ExperienceManagement = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        if (!user?.accountID) {
+            message.error('Please login to access this page');
+            navigate(endPoint.LOGIN);
+            return;
+        }
+
+        if (user?.role !== 'Doctor') {
+            message.error('You don\'t have permission to access this page');
+            navigate('/'); // Navigate to home or previous page
+            return;
+        }
+
         if (user?.accountID) {
             console.log('Fetching experience for doctor:', user.accountID);
             dispatch(fetchDoctorExperience(user.accountID));
         }
-    }, [dispatch, user]);
+    }, [dispatch, user, navigate]);
 
     const safeExperiences = Array.isArray(doctorExperiences) ? doctorExperiences : [];
     console.log('Current experiences:', safeExperiences);
-
-    if (!user?.accountID) {
-        return (
-            <Result
-                status="403"
-                title="Access Denied"
-                subTitle="Please log in to view this page"
-            />
-        );
-    }
-
-    if (user?.role !== 'Doctor') {
-        return (
-            <Result
-                status="403"
-                title="Access Denied"
-                subTitle="You don't have permission to view this page"
-            />
-        );
-    }
 
     if (status === 'failed') {
         console.error('Failed to load experiences:', error);

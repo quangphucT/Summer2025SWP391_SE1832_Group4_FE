@@ -129,7 +129,6 @@ const CertificateManagement = () => {
                 issuedBy: values.issuedBy,
                 description: values.description,
                 issuedDate: values.issuedDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-                expiryDate: values.expiryDate ? values.expiryDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null,
                 doctor: {
                     doctorId: user.accountID,
                     fullName: user.fullName,
@@ -205,12 +204,6 @@ const CertificateManagement = () => {
             dataIndex: 'issuedDate',
             key: 'issuedDate',
             render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : '-',
-        },
-        {
-            title: 'Expiry Date',
-            dataIndex: 'expiryDate',
-            key: 'expiryDate',
-            render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : 'No Expiry',
         },
         {
             title: 'Description',
@@ -378,37 +371,6 @@ const CertificateManagement = () => {
                             style={{ width: '100%' }}
                             disabledDate={current => current && current > dayjs().endOf('day')}
                             disabled={loading}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="expiryDate"
-                        label="Expiry Date"
-                        dependencies={['issuedDate']}
-                        rules={[
-                            ({ getFieldValue }) => ({
-                                validator(_, value) {
-                                    const issuedDate = getFieldValue('issuedDate');
-                                    if (!value || !issuedDate) {
-                                        return Promise.resolve();
-                                    }
-                                    if (value.isBefore(issuedDate)) {
-                                        return Promise.reject(new Error('Expiry date cannot be earlier than issue date'));
-                                    }
-                                    return Promise.resolve();
-                                }
-                            })
-                        ]}
-                    >
-                        <DatePicker 
-                            format="DD/MM/YYYY" 
-                            style={{ width: '100%' }}
-                            disabledDate={current => {
-                                const issuedDate = form.getFieldValue('issuedDate');
-                                return issuedDate && current && current.isBefore(issuedDate);
-                            }}
-                            disabled={loading}
-                            placeholder="Leave empty if no expiry date"
                         />
                     </Form.Item>
 
