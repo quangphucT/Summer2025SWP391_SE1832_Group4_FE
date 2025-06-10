@@ -14,12 +14,14 @@ import {
     message,
     Result,
     Spin,
+    Tooltip,
 } from 'antd';
 import {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
-    LoadingOutlined
+    LoadingOutlined,
+    CloseOutlined,
 } from '@ant-design/icons';
 import {
     fetchCertificates,
@@ -127,6 +129,7 @@ const CertificateManagement = () => {
                 issuedBy: values.issuedBy,
                 description: values.description,
                 issuedDate: values.issuedDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+                expiryDate: values.expiryDate ? values.expiryDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null,
                 doctor: {
                     doctorId: user.accountID,
                     fullName: user.fullName,
@@ -204,6 +207,12 @@ const CertificateManagement = () => {
             render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : '-',
         },
         {
+            title: 'Expiry Date',
+            dataIndex: 'expiryDate',
+            key: 'expiryDate',
+            render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : 'No Expiry',
+        },
+        {
             title: 'Description',
             dataIndex: 'description',
             key: 'description',
@@ -219,23 +228,26 @@ const CertificateManagement = () => {
         {
             title: 'Actions',
             key: 'action',
+            width: 120,
             render: (_, record) => (
-                <Space key={`actions-${record.key}`}>
+                <Space size="small" key={`actions-${record.key}`}>
                     <Button
                         key={`edit-${record.key}`}
+                        type="primary"
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
-                    >
-                        Edit
-                    </Button>
+                        size="middle"
+                    />
                     <Popconfirm
                         key={`delete-${record.key}`}
                         title="Are you sure you want to delete?"
                         onConfirm={() => handleDelete(record.id)}
                     >
-                        <Button danger icon={<DeleteOutlined />}>
-                            Delete
-                        </Button>
+                        <Button 
+                            danger 
+                            icon={<DeleteOutlined />}
+                            size="middle"
+                        />
                     </Popconfirm>
                 </Space>
             ),
@@ -244,29 +256,21 @@ const CertificateManagement = () => {
 
     return (
         <div className="p-6">
+            <h1 className="text-[#1890ff] text-3xl font-bold mb-6">Certificate Management</h1>
             <Card
-                title={
-                    <div style={{ 
-                        fontSize: '24px', 
-                        fontWeight: 'bold',
-                        padding: '12px 0'
-                    }}>
-                        Certificate Management
-                    </div>
-                }
-                extra={
-                    <Button 
-                        type="primary" 
-                        icon={<PlusOutlined />} 
-                        onClick={handleAdd}
-                        loading={loading}
-                        disabled={isLoading}
-                        size="large"
-                    >
-                        Add Certificate
-                    </Button>
-                }
                 className="certificate-management-card"
+                extra={
+                    <Tooltip title="Add Certificate">
+                        <Button 
+                            type="primary" 
+                            icon={<PlusOutlined />} 
+                            onClick={handleAdd}
+                            loading={loading}
+                            disabled={isLoading}
+                            size="large"
+                        />
+                    </Tooltip>
+                }
             >
                 <Table
                     columns={columns}
@@ -299,23 +303,24 @@ const CertificateManagement = () => {
                 }
                 
                 .certificate-management-card :global(.ant-card-head) {
-                    background-color: #f8f9fa;
-                    border-bottom: 2px solid #e9ecef;
+                    background-color: #f0f5ff;
+                    border-bottom: 2px solid #1890ff;
+                }
+
+                .certificate-table :global(.ant-table-thead > tr > th) {
+                    background-color: #f0f5ff;
+                    font-weight: 600;
+                    color: #1890ff;
+                }
+
+                .certificate-table :global(.ant-table-tbody > tr:hover > td) {
+                    background-color: #f0f5ff;
                 }
 
                 .certificate-table :global(.ant-pagination) {
                     margin-top: 20px;
                     display: flex;
                     justify-content: center;
-                }
-
-                .certificate-table :global(.ant-table-thead > tr > th) {
-                    background-color: #f8f9fa;
-                    font-weight: 600;
-                }
-
-                .certificate-table :global(.ant-table-tbody > tr:hover > td) {
-                    background-color: #f8f9fa;
                 }
             `}</style>
 
@@ -327,11 +332,13 @@ const CertificateManagement = () => {
                 maskClosable={!loading}
                 closable={!loading}
                 keyboard={!loading}
+                width={600}
             >
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
+                    className="certificate-form"
                 >
                     <Form.Item
                         name="title"
@@ -374,13 +381,43 @@ const CertificateManagement = () => {
                         />
                     </Form.Item>
 
-                    <Form.Item>
+                    <Form.Item
+                        name="expiryDate"
+                        label="Expiry Date"
+                        dependencies={['issuedDate']}
+                        rules={[
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    const issuedDate = getFieldValue('issuedDate');
+                                    if (!value || !issuedDate) {
+                                        return Promise.resolve();
+                                    }
+                                    if (value.isBefore(issuedDate)) {
+                                        return Promise.reject(new Error('Expiry date cannot be earlier than issue date'));
+                                    }
+                                    return Promise.resolve();
+                                }
+                            })
+                        ]}
+                    >
+                        <DatePicker 
+                            format="DD/MM/YYYY" 
+                            style={{ width: '100%' }}
+                            disabledDate={current => {
+                                const issuedDate = form.getFieldValue('issuedDate');
+                                return issuedDate && current && current.isBefore(issuedDate);
+                            }}
+                            disabled={loading}
+                            placeholder="Leave empty if no expiry date"
+                        />
+                    </Form.Item>
+
+                    <Form.Item className="form-actions">
                         <Space>
                             <Button 
                                 type="primary" 
                                 htmlType="submit"
                                 loading={loading}
-                                icon={loading ? <LoadingOutlined /> : null}
                                 disabled={isLoading}
                             >
                                 {editingCertificate ? 'Update' : 'Add'}
@@ -388,9 +425,8 @@ const CertificateManagement = () => {
                             <Button 
                                 onClick={handleCancel}
                                 disabled={loading || isLoading}
-                            >
-                                Cancel
-                            </Button>
+                                icon={<CloseOutlined />}
+                            />
                         </Space>
                     </Form.Item>
                 </Form>

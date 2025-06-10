@@ -13,12 +13,14 @@ import {
     message,
     Result,
     Spin,
+    Tooltip
 } from 'antd';
 import {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
-    LoadingOutlined
+    LoadingOutlined,
+    CloseOutlined
 } from '@ant-design/icons';
 import {
     fetchDoctorExperience,
@@ -221,21 +223,26 @@ const ExperienceManagement = () => {
         {
             title: 'Actions',
             key: 'action',
+            width: 120,
             render: (_, record) => (
-                <Space>
+                <Space size="small" key={`actions-${record.key}`}>
                     <Button
+                        key={`edit-${record.key}`}
+                        type="primary"
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
-                    >
-                        Edit
-                    </Button>
+                        size="middle"
+                    />
                     <Popconfirm
+                        key={`delete-${record.key}`}
                         title="Are you sure you want to delete?"
                         onConfirm={() => handleDelete(record.id)}
                     >
-                        <Button danger icon={<DeleteOutlined />}>
-                            Delete
-                        </Button>
+                        <Button 
+                            danger 
+                            icon={<DeleteOutlined />}
+                            size="middle"
+                        />
                     </Popconfirm>
                 </Space>
             ),
@@ -244,29 +251,21 @@ const ExperienceManagement = () => {
 
     return (
         <div className="p-6">
+            <h1 className="text-[#1890ff] text-3xl font-bold mb-6">Experience Management</h1>
             <Card
-                title={
-                    <div style={{ 
-                        fontSize: '24px', 
-                        fontWeight: 'bold',
-                        padding: '12px 0'
-                    }}>
-                        Experience Management
-                    </div>
-                }
-                extra={
-                    <Button 
-                        type="primary" 
-                        icon={<PlusOutlined />} 
-                        onClick={handleAdd}
-                        loading={loading}
-                        disabled={isLoading}
-                        size="large"
-                    >
-                        Add Experience
-                    </Button>
-                }
                 className="experience-management-card"
+                extra={
+                    <Tooltip title="Add Experience">
+                        <Button 
+                            type="primary" 
+                            icon={<PlusOutlined />} 
+                            onClick={handleAdd}
+                            loading={loading}
+                            disabled={isLoading}
+                            size="large"
+                        />
+                    </Tooltip>
+                }
             >
                 <Table
                     columns={columns}
@@ -296,23 +295,24 @@ const ExperienceManagement = () => {
                 }
                 
                 .experience-management-card :global(.ant-card-head) {
-                    background-color: #f8f9fa;
-                    border-bottom: 2px solid #e9ecef;
+                    background-color: #f0f5ff;
+                    border-bottom: 2px solid #1890ff;
+                }
+
+                .experience-table :global(.ant-table-thead > tr > th) {
+                    background-color: #f0f5ff;
+                    font-weight: 600;
+                    color: #1890ff;
+                }
+
+                .experience-table :global(.ant-table-tbody > tr:hover > td) {
+                    background-color: #f0f5ff;
                 }
 
                 .experience-table :global(.ant-pagination) {
                     margin-top: 20px;
                     display: flex;
                     justify-content: center;
-                }
-
-                .experience-table :global(.ant-table-thead > tr > th) {
-                    background-color: #f8f9fa;
-                    font-weight: 600;
-                }
-
-                .experience-table :global(.ant-table-tbody > tr:hover > td) {
-                    background-color: #f8f9fa;
                 }
             `}</style>
 
@@ -403,7 +403,6 @@ const ExperienceManagement = () => {
                                 type="primary" 
                                 htmlType="submit"
                                 loading={loading}
-                                icon={loading ? <LoadingOutlined /> : null}
                                 disabled={isLoading}
                             >
                                 {editingExperience ? 'Update' : 'Add'}
@@ -411,9 +410,8 @@ const ExperienceManagement = () => {
                             <Button 
                                 onClick={handleCancel}
                                 disabled={loading || isLoading}
-                            >
-                                Cancel
-                            </Button>
+                                icon={<CloseOutlined />}
+                            />
                         </Space>
                     </Form.Item>
                 </Form>
