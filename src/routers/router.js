@@ -23,6 +23,7 @@ const endPoint = {
     DASHBOARD: "/dashboard",
     DASHBOARDSTATISTICS: "dashboard-statistics",
     CUSTOMERMANAGEMENT: "customer-management",
+    DOCTORMANAGEMENT: "doctor-management",
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
     BLOGMANAGEMENT: "blog-management",

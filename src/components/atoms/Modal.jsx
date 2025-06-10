@@ -1,15 +1,12 @@
 
-import { Modal, Form, Input, Button } from 'antd';
+import { Modal, Form, Button } from 'antd';
 
 const ModalDynamic = ({ openModal, setOpenModal,formModal,loading,handleSubmit,titleModal, formItem }) => {
-  const [form] = Form.useForm();
-
-
   return (
        <Modal
       title={<h2 className="text-xl font-bold text-center">{titleModal}</h2>}
       open={openModal}
-      onCancel={() => {setOpenModal(false); form.resetFields()}}
+      onCancel={() => {setOpenModal(false); formModal.resetFields()}}
      footer={[
           <Button onClick={() => {setOpenModal(false); formModal.resetFields()}}>Cancel</Button>,
           <Button loading={loading} onClick={() => {formModal.submit()}}>Save</Button>

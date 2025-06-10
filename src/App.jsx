@@ -24,6 +24,7 @@ import BlogManagement from "./pages/dashboard-management/manager/blog-management
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DoctorManagement from "./pages/dashboard-management/doctor-management";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -105,6 +106,13 @@ const App = () => {
           path: endPoint.CUSTOMERMANAGEMENT,
           element: <CustomerManagement />,
         },
+
+         {
+          path: endPoint.DOCTORMANAGEMENT,
+          element: <DoctorManagement />,
+        },
+
+
         {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,

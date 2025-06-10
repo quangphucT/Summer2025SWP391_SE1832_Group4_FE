@@ -43,6 +43,7 @@ const DashboardLayout = () => {
     getItem("Protocal management", "protocal-management", <DesktopOutlined />),
     getItem("Customer management", "customer-management", <DesktopOutlined />),
     getItem("Account management", "account-management", <UserOutlined />),
+    getItem("Doctor management", "doctor-management", <UserOutlined />),
     getItem("Experience management", "experience-management", <MedicineBoxOutlined />),
     getItem("Certificate management", "certificate-management", <MedicineBoxOutlined />),
     {
