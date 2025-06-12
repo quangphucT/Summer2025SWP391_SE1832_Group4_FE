@@ -5,6 +5,7 @@ import {
     updateCertificate,
     deleteCertificate,
     getCertificateById,
+    getCertificatesByDoctorId
 } from '../../apis/doctorApi/certificateApi';
 
 // Async thunks
@@ -73,7 +74,9 @@ export const createNewCertificate = createAsyncThunk(
     'certificates/create',
     async (data, { rejectWithValue }) => {
         try {
+            console.log('Creating certificate with data:', data); // Debug log
             const response = await createCertificate(data);
+            console.log('Create response:', response); // Debug log
             return response?.data || response;
         } catch (error) {
             return rejectWithValue(error.message || "Could not create certificate.");
@@ -105,10 +108,37 @@ export const deleteCertificateById = createAsyncThunk(
     }
 );
 
+export const fetchCertificatesByDoctorId = createAsyncThunk(
+    'certificates/fetchByDoctorId',
+    async (doctorId, { rejectWithValue }) => {
+        try {
+            const data = await getCertificatesByDoctorId(doctorId);
+            console.log('API Response data:', data);
+
+            // Map the data to our expected format
+            const formattedData = (data || []).map(item => ({
+                certificateId: item.certificateId,
+                key: `cert-${item.certificateId}`,
+                title: item.title || '',
+                description: item.description || '',
+                issuedDate: item.issuedDate || null,
+                issuedBy: item.issuedBy || '',
+                doctorName: item.doctorName || ''
+            }));
+
+            console.log('Formatted certificate data:', formattedData);
+            return formattedData;
+        } catch (error) {
+            console.error("[API] Error fetching certificates by doctorId:", error);
+            return rejectWithValue(error.message || "Could not fetch certificates. Please try again later.");
+        }
+    }
+);
+
 const initialState = {
     certificates: [],
     currentCertificate: null,
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: 'idle',
     error: null,
     isLoading: false,
     pagination: {
@@ -249,6 +279,31 @@ const certificateSlice = createSlice({
                 state.status = 'failed';
                 state.isLoading = false;
                 state.error = action.error.message;
+            })
+
+            // Fetch certificates by doctor ID
+            .addCase(fetchCertificatesByDoctorId.pending, (state) => {
+                state.status = 'loading';
+                state.isLoading = true;
+                state.error = null;
+                state.certificates = []; // Clear existing certificates while loading
+            })
+            .addCase(fetchCertificatesByDoctorId.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isLoading = false;
+                state.certificates = action.payload || [];
+                state.error = null;
+                // Update pagination
+                state.pagination = {
+                    ...state.pagination,
+                    total: (action.payload || []).length
+                };
+            })
+            .addCase(fetchCertificatesByDoctorId.rejected, (state, action) => {
+                state.status = 'failed';
+                state.isLoading = false;
+                state.error = action.payload || "Failed to fetch certificates";
+                state.certificates = [];
             });
     }
 });

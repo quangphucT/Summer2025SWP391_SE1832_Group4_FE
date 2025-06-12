@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Card,
     Button,
@@ -21,7 +21,8 @@ import {
     EditOutlined,
     DeleteOutlined,
     LoadingOutlined,
-    CloseOutlined
+    CloseOutlined,
+    ArrowLeftOutlined
 } from '@ant-design/icons';
 import {
     fetchDoctorExperience,
@@ -33,6 +34,7 @@ import endPoint from '../../../routers/router';
 import dayjs from 'dayjs';
 
 const ExperienceManagement = () => {
+    const { doctorId } = useParams();
     const [form] = Form.useForm();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -49,20 +51,27 @@ const ExperienceManagement = () => {
             return;
         }
 
-        if (user?.role !== 'Doctor') {
+        if (user?.role !== 'Admin') {
             message.error('You don\'t have permission to access this page');
-            navigate('/'); // Navigate to home or previous page
+            navigate('/');
             return;
         }
 
-        if (user?.accountID) {
-            console.log('Fetching experience for doctor:', user.accountID);
-            dispatch(fetchDoctorExperience(user.accountID));
+        if (!doctorId) {
+            message.error('Doctor ID is required');
+            navigate('/dashboard/doctor-management');
+            return;
         }
-    }, [dispatch, user, navigate]);
+
+        dispatch(fetchDoctorExperience(doctorId));
+    }, [dispatch, user, navigate, doctorId]);
 
     const safeExperiences = Array.isArray(doctorExperiences) ? doctorExperiences : [];
     console.log('Current experiences:', safeExperiences);
+
+    const handleBack = () => {
+        navigate('/dashboard/doctor-management');
+    };
 
     if (status === 'failed') {
         console.error('Failed to load experiences:', error);
@@ -76,8 +85,8 @@ const ExperienceManagement = () => {
                         type="primary" 
                         key="retry" 
                         onClick={() => {
-                            console.log('Retrying fetch for doctor:', user.accountID);
-                            dispatch(fetchDoctorExperience(user.accountID));
+                            console.log('Retrying fetch for doctor:', doctorId);
+                            dispatch(fetchDoctorExperience(doctorId));
                         }}
                     >
                         Try Again
@@ -113,9 +122,10 @@ const ExperienceManagement = () => {
             setLoading(true);
             await dispatch(deleteExperienceById(id)).unwrap();
             message.success('Experience has been deleted successfully');
-            dispatch(fetchDoctorExperience(user.accountID));
-        } catch {
-            message.error('Failed to delete experience');
+            dispatch(fetchDoctorExperience(doctorId));
+        } catch (error) {
+            console.error('Delete error:', error);
+            message.error('Failed to delete experience: ' + (error.message || 'An unknown error occurred'));
         } finally {
             setLoading(false);
         }
@@ -126,7 +136,7 @@ const ExperienceManagement = () => {
             setLoading(true);
             console.log('Form values:', values);
             const data = {
-                doctorId: user.accountID,
+                doctorId: doctorId,
                 hospitalName: values.hospitalName,
                 position: values.position,
                 fromDate: values.fromDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
@@ -135,24 +145,15 @@ const ExperienceManagement = () => {
 
             if (editingExperience) {
                 console.log('Updating experience with ID:', editingExperience.id);
-                const updateData = {
-                    doctorId: user.accountID,
-                    hospitalName: values.hospitalName,
-                    position: values.position,
-                    fromDate: values.fromDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-                    toDate: values.toDate ? values.toDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null,
-                };
-                console.log('Update payload:', updateData);
-                
                 try {
                     const result = await dispatch(updateExperienceById({ 
                         id: editingExperience.id,
-                        data: updateData
+                        data: data
                     })).unwrap();
                     console.log('Update result:', result);
                     
                     if (result) {
-                        await dispatch(fetchDoctorExperience(user.accountID));
+                        await dispatch(fetchDoctorExperience(doctorId));
                         message.success('Experience has been updated successfully');
                     } else {
                         throw new Error('Update operation failed');
@@ -163,11 +164,8 @@ const ExperienceManagement = () => {
                     return;
                 }
             } else {
-                await dispatch(createNewExperience({
-                    ...data,
-                    doctorId: user.accountID
-                })).unwrap();
-                await dispatch(fetchDoctorExperience(user.accountID));
+                await dispatch(createNewExperience(data)).unwrap();
+                await dispatch(fetchDoctorExperience(doctorId));
                 message.success('New experience has been added successfully');
             }
         } catch (error) {
@@ -246,7 +244,18 @@ const ExperienceManagement = () => {
 
     return (
         <div className="p-6">
-            <h1 className="text-[#1890ff] text-3xl font-bold mb-6">Experience Management</h1>
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                    <Button
+                        icon={<ArrowLeftOutlined />}
+                        onClick={handleBack}
+                        className="mr-4"
+                    >
+                        Back to Doctors
+                    </Button>
+                    <h1 className="text-[#1890ff] text-3xl font-bold m-0">Experience Management</h1>
+                </div>
+            </div>
             <Card
                 className="experience-management-card"
                 extra={

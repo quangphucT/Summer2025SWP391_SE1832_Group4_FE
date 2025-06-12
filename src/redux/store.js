@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import userSlice from '../redux/feature/userSlice';
 import experienceWorkingSlice from '../redux/feature/experienceWorkingSlice';
 import certificateSlice from '../redux/feature/certificateSlice';
+import doctorSlice from '../redux/feature/doctorSlice';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
   user: userSlice,
   experienceWorking: experienceWorkingSlice,
   certificates: certificateSlice,
+  doctor: doctorSlice,
 });
 
 // ✅ Bọc rootReducer bằng persistReducer

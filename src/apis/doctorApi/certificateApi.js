@@ -15,9 +15,32 @@ export const getAllCertificates = async () => {
     }
 };
 
+// Get certificates by doctor ID
+export const getCertificatesByDoctorId = async (doctorId) => {
+    try {
+        const response = await api.get(`/api/certificates/doctor/${doctorId}`);
+        const data = response.data;
+        
+        // Handle different response formats
+        if (Array.isArray(data)) {
+            return data;
+        }
+        if (data?.data && Array.isArray(data.data)) {
+            return data.data;
+        }
+        console.warn("[API] Unexpected format in getCertificatesByDoctorId:", data);
+        return [];
+    } catch (err) {
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getCertificatesByDoctorId failed:", msg);
+        throw new Error(msg);
+    }
+};
+
 // Create a new certificate
 export const createCertificate = async (data) => {
     try {
+        console.log('Creating certificate with data:', data); // Debug log
         const response = await api.post('/api/certificates', data);
         return response;
     } catch (err) {
