@@ -15,6 +15,8 @@ const endPoint = {
 
 
     BLOGSPAGE: "/blogs-page",
+    SCHEDULEACONSULTATION: "/schedule-consultation",
+
     HIVTREATMENT: "/services/hiv_treatment",
     TESTINGSTDS: "/services/testing_stds",
     HIVTESTING: "/services/hiv_testing",
@@ -22,10 +24,14 @@ const endPoint = {
     DASHBOARD: "/dashboard",
     DASHBOARDSTATISTICS: "dashboard-statistics",
     CUSTOMERMANAGEMENT: "customer-management",
+    DOCTORMANAGEMENT: "doctor-management",
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
+    BLOGMANAGEMENT: "blog-management",
     
 
 
+    EXPERIENCEMANAGEMENT: "experience-management",
+    CERTIFICATEMANAGEMENT: "certificate-management",
 }
 export default endPoint

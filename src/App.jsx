@@ -17,12 +17,15 @@ import AppointmentMenuPage from "./pages/menu-profile/appointmentMenu-page";
 import TransactionMenuPage from "./pages/menu-profile/transactionMenu-page";
 import MedicalRecordMenuPage from "./pages/menu-profile/medicalRecordMenu-page";
 import ResetPassword from "./pages/authentication-pages/reset-password-page";
-
 import AccountManagement from "./pages/dashboard-management/admin/account-management/account-management";
+import ExperienceManagement from "./pages/dashboard-management/doctor/experience-management";
+import CertificateManagement from "./pages/dashboard-management/doctor/certificate-management";
+import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import DoctorManagement from "./pages/dashboard-management/doctor-management";
+import ScheduleAConsultation from "./pages/schedule-consultation-page";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -39,42 +42,37 @@ const App = () => {
           element: <BlogsPages />,
         },
          {
+          path: endPoint.SCHEDULEACONSULTATION,
+          element: <ScheduleAConsultation />,
+        },
+        {
           path: endPoint.HIVTREATMENT,
           element: <HivTreatmentPage />,
         },
-
-         {
+        {
           path: endPoint.TESTINGSTDS,
           element: <HivTreatmentPage />,
         },
-         {
+        {
           path: endPoint.HIVTESTING,
           element: <HivTreatmentPage />,
         },
-
-
-          {
+        {
           path: endPoint.PROFILEPAGE,
           element: <ProfilePage />,
         },
-
-          {
+        {
           path: endPoint.APPOINTMENT,
           element: <AppointmentMenuPage/>,
         },
-
-         {
+        {
           path: endPoint.TRANSACTION,
           element: <TransactionMenuPage/>,
         },
-
-         {
+        {
           path: endPoint.MEDICALRECORD,
           element: <MedicalRecordMenuPage/>,
         },
-    
-      
-
       ],
     },
     {
@@ -89,7 +87,7 @@ const App = () => {
       path: endPoint.RESETPASSWORD,
       element: <ResetPassword/>,
     },
-      {
+    {
       path: endPoint.PASSWORDAFTERREGISTER,
       element: <SetUpPasswordAfterRegister/>,
     },
@@ -106,16 +104,40 @@ const App = () => {
           element: <DashboardStatistics />,
         },
         {
-          path: endPoint.CUSTOMERMANAGEMENT,
-          element: <CustomerManagement />,
-        },
-        {
-          path: endPoint.AccountManagement,
+          path: endPoint.PROTOCOLMANAGEMENT,
           element: <ProtocolManagement />,
         },
         {
+          path: endPoint.CUSTOMERMANAGEMENT,
+          element: <CustomerManagement />,
+        },
+
+         {
+          path: endPoint.DOCTORMANAGEMENT,
+          element: <DoctorManagement />,
+        },
+
+         {
+          path: endPoint.BLOGMANAGEMENT,
+          element: <BlogManagement />,
+        },
+
+
+        {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,
+        },
+        {
+          path: endPoint.EXPERIENCEMANAGEMENT,
+          element: <ExperienceManagement />,
+        },
+        {
+          path: endPoint.CERTIFICATEMANAGEMENT,
+          element: <CertificateManagement />,
+        },
+        {
+          path: endPoint.BLOGMANAGEMENT,
+          element: <BlogManagement />,
         },
       ],
     },

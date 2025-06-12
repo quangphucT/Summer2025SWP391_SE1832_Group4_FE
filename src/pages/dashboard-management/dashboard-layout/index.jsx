@@ -1,49 +1,91 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   DesktopOutlined,
-  FileOutlined,
+  LogoutOutlined,
   PieChartOutlined,
-  TeamOutlined,
   UserOutlined,
-} from '@ant-design/icons';
-import { Layout, Menu, theme } from 'antd';
-import { Link, Outlet } from 'react-router-dom';
-const { Header, Content, Footer, Sider } = Layout;
-function getItem(label, key, icon, children) {
+  MedicineBoxOutlined,
+} from "@ant-design/icons";
+import { Layout, Menu, Modal, theme } from "antd";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { removeInformation } from "../../../redux/feature/userSlice";
+const { Header, Content, Sider } = Layout;
+function getItem(label, key, icon, children, onClick) {
   return {
     key,
     icon,
     children,
-    label: <Link to={`/dashboard/${key}`}>{label}</Link>,
+    label: onClick ? (
+      <span onClick={onClick} style={{ cursor: "pointer" }}>
+        {label}
+      </span>
+    ) : (
+      <Link to={`/dashboard/${key}`}>{label}</Link>
+    ),
   };
 }
-const items = [
-  getItem('Dashboard statistics', 'dashboard-statistics', <PieChartOutlined />),
-  getItem('Protocal management', 'protocal-management', <DesktopOutlined />),
-  getItem('Customer management', 'customer-management', <DesktopOutlined />),
-  getItem('User', 'sub1', <UserOutlined />, [
-    getItem('Tom', '3'),
-    getItem('Bill', '4'),
-    getItem('Alex', '5'),
-  ]),
-  getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-  getItem('Files', '9', <FileOutlined />),
-];
+
 const DashboardLayout = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+    const handleLogout = () => {
+    dispatch(removeInformation());
+    localStorage.clear();
+    navigate("/login-page");
+  };
+  const items = [
+    getItem(
+      "Dashboard statistics",
+      "dashboard-statistics",
+      <PieChartOutlined />
+    ),
+    getItem("Protocal management", "protocal-management", <DesktopOutlined />),
+    getItem("Customer management", "customer-management", <DesktopOutlined />),
+    getItem("Account management", "account-management", <UserOutlined />),
+    getItem("Doctor management", "doctor-management", <UserOutlined />),
+      getItem("Blog management", "blog-management", <UserOutlined />),
+    getItem("Experience management", "experience-management", <MedicineBoxOutlined />),
+    getItem("Certificate management", "certificate-management", <MedicineBoxOutlined />),
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: (
+        <div onClick={handleLogout}>
+          <span>Logout</span>
+        </div>
+      ),
+    },
+  ];
+
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+
+
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider width={280}  collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
+    <Layout style={{ minHeight: "100vh" }}>
+      <Sider
+        width={280}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+      >
         <div className="demo-logo-vertical" />
-        <Menu  style={{ fontSize: "15px", fontWeight: "400" }}  theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
+        <Menu
+          style={{ fontSize: "15px", fontWeight: "400" }}
+          theme="dark"
+          defaultSelectedKeys={["1"]}
+          mode="inline"
+          items={items}
+        
+        />
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }} />
-        <Content style={{ margin: '0 16px' }}>
-          
+        <Content style={{ margin: "0 16px" }}>
           <div
             style={{
               padding: 24,
@@ -52,10 +94,9 @@ const DashboardLayout = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            <Outlet/>
+            <Outlet />
           </div>
         </Content>
-        
       </Layout>
     </Layout>
   );

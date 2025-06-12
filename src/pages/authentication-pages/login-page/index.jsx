@@ -63,7 +63,7 @@ const Login = () => {
             name="password"
             rules={[
               { required: true, message: 'Please input your password!' },
-              { min: 6, message: 'Password must be at least 6 characters!' }
+              { min: 5, message: 'Password must be at least 5 characters!' }
             ]}
           >
             <Input.Password placeholder="Enter your password" />
