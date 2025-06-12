@@ -15,6 +15,7 @@ const endPoint = {
 
 
     BLOGSPAGE: "/blogs-page",
+    SCHEDULEACONSULTATION: "/schedule-consultation",
 
     HIVTREATMENT: "/services/hiv_treatment",
     TESTINGSTDS: "/services/testing_stds",
