@@ -4,7 +4,6 @@ import {
   LogoutOutlined,
   PieChartOutlined,
   UserOutlined,
-  MedicineBoxOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Modal, theme } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
@@ -43,8 +42,9 @@ const DashboardLayout = () => {
     getItem("Protocal management", "protocal-management", <DesktopOutlined />),
     getItem("Customer management", "customer-management", <DesktopOutlined />),
     getItem("Account management", "account-management", <UserOutlined />),
-    getItem("Experience management", "experience-management", <MedicineBoxOutlined />),
-    getItem("Certificate management", "certificate-management", <MedicineBoxOutlined />),
+    getItem("Doctor management", "doctor-management", <UserOutlined />),
+    // getItem("Certificate management", "certificate-management", <UserOutlined />),
+    // getItem("Experience management", "experience-management", <UserOutlined />),    
     {
       key: "logout",
       icon: <LogoutOutlined />,

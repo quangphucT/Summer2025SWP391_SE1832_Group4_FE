@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Card,
     Button,
@@ -13,7 +13,6 @@ import {
     Popconfirm,
     message,
     Result,
-    Spin,
     Tooltip,
 } from 'antd';
 import {
@@ -22,22 +21,23 @@ import {
     DeleteOutlined,
     LoadingOutlined,
     CloseOutlined,
+    ArrowLeftOutlined
 } from '@ant-design/icons';
 import {
-    fetchCertificates,
+    fetchCertificatesByDoctorId,
     createNewCertificate,
     updateCertificateById,
     deleteCertificateById,
-    setPagination
 } from '../../../redux/feature/certificateSlice';
 import endPoint from '../../../routers/router';
 import dayjs from 'dayjs';
 
 const CertificateManagement = () => {
+    const { doctorId } = useParams();
     const [form] = Form.useForm();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { certificates, status, error, isLoading, pagination } = useSelector((state) => state.certificates);
+    const { certificates, status, error, isLoading } = useSelector((state) => state.certificates);
     const user = useSelector((state) => state.user);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingCertificate, setEditingCertificate] = useState(null);
@@ -50,40 +50,33 @@ const CertificateManagement = () => {
             return;
         }
 
-        if (user?.role !== 'Doctor') {
+        if (user?.role !== 'Admin') {
             message.error('You don\'t have permission to access this page');
-            navigate('/'); // Navigate to home or previous page
+            navigate('/');
             return;
         }
 
-        dispatch(fetchCertificates());
-    }, [dispatch, user, navigate]);
+        if (!doctorId) {
+            message.error('Doctor ID is required');
+            navigate('/dashboard/doctor-management');
+            return;
+        }
+
+        console.log('Component mounted with doctorId:', doctorId); // Debug log
+        dispatch(fetchCertificatesByDoctorId(doctorId));
+    }, [dispatch, user, navigate, doctorId]);
+
+    // Debug logs
+    console.log('Current certificates:', certificates);
+    console.log('Loading status:', status);
+    console.log('Error:', error);
 
     const safeCertificates = Array.isArray(certificates) ? certificates : [];
     console.log('Current certificates:', safeCertificates);
 
-    if (status === 'failed') {
-        console.error('Failed to load certificates:', error);
-        return (
-            <Result
-                status="error"
-                title="Failed to load data"
-                subTitle={error || "An error occurred while loading certificate data"}
-                extra={[
-                    <Button 
-                        type="primary" 
-                        key="retry" 
-                        onClick={() => {
-                            console.log('Retrying fetch for doctor:', user.accountID);
-                            dispatch(fetchCertificates());
-                        }}
-                    >
-                        Try Again
-                    </Button>
-                ]}
-            />
-        );
-    }
+    const handleBack = () => {
+        navigate('/dashboard/doctor-management');
+    };
 
     const handleAdd = () => {
         form.resetFields();
@@ -111,9 +104,10 @@ const CertificateManagement = () => {
             setLoading(true);
             await dispatch(deleteCertificateById(id)).unwrap();
             message.success('Certificate has been deleted successfully');
-            dispatch(fetchCertificates());
-        } catch {
-            message.error('Failed to delete certificate');
+            dispatch(fetchCertificatesByDoctorId(doctorId));
+        } catch (error) {
+            console.error('Delete error:', error);
+            message.error('Failed to delete certificate: ' + (error.message || 'An unknown error occurred'));
         } finally {
             setLoading(false);
         }
@@ -123,33 +117,30 @@ const CertificateManagement = () => {
         try {
             setLoading(true);
             console.log('Form values:', values);
+            console.log('Current doctorId:', doctorId); // Debug log
+
             const data = {
-                doctorId: user.accountID,
                 title: values.title,
                 issuedBy: values.issuedBy,
                 description: values.description,
                 issuedDate: values.issuedDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-                doctor: {
-                    doctorId: user.accountID,
-                    fullName: user.fullName,
-                    specialty: user.specialty || null,
-                    qualifications: user.qualifications || null,
-                    yearsOfExperience: user.yearsOfExperience || null,
-                    description: user.description || null
-                }
+                doctorId: doctorId
             };
 
+            console.log('Submitting data:', data); // Debug log
+
             if (editingCertificate) {
-                console.log('Updating certificate with ID:', editingCertificate.id);
                 try {
                     const result = await dispatch(updateCertificateById({ 
-                        id: editingCertificate.id,
-                        data: data
+                        id: editingCertificate.certificateId,
+                        data: {
+                            ...data,
+                            certificateId: editingCertificate.certificateId
+                        }
                     })).unwrap();
-                    console.log('Update result:', result);
                     
                     if (result) {
-                        await dispatch(fetchCertificates());
+                        await dispatch(fetchCertificatesByDoctorId(doctorId));
                         message.success('Certificate has been updated successfully');
                     } else {
                         throw new Error('Update operation failed');
@@ -160,9 +151,15 @@ const CertificateManagement = () => {
                     return;
                 }
             } else {
-                await dispatch(createNewCertificate(data)).unwrap();
-                await dispatch(fetchCertificates());
-                message.success('New certificate has been added successfully');
+                try {
+                    await dispatch(createNewCertificate(data)).unwrap();
+                    await dispatch(fetchCertificatesByDoctorId(doctorId));
+                    message.success('New certificate has been added successfully');
+                } catch (createError) {
+                    console.error('Create error:', createError);
+                    message.error('Failed to create certificate: ' + (createError.message || 'An unknown error occurred'));
+                    return;
+                }
             }
         } catch (error) {
             console.error('Submit error:', error);
@@ -186,24 +183,30 @@ const CertificateManagement = () => {
         setEditingCertificate(null);
     };
 
+    // Add debug log for certificates data
+    console.log('Current certificates state:', certificates);
+
     const columns = [
         {
             title: 'Certificate Title',
             dataIndex: 'title',
             key: 'title',
             render: (text) => text || '-',
+            width: '20%'
         },
         {
             title: 'Issued By',
             dataIndex: 'issuedBy',
             key: 'issuedBy',
             render: (text) => text || '-',
+            width: '15%'
         },
         {
             title: 'Issue Date',
             dataIndex: 'issuedDate',
             key: 'issuedDate',
             render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : '-',
+            width: '15%'
         },
         {
             title: 'Description',
@@ -211,35 +214,39 @@ const CertificateManagement = () => {
             key: 'description',
             ellipsis: true,
             render: (text) => text || '-',
+            width: '20%'
         },
         {
             title: 'Doctor Name',
             dataIndex: 'doctorName',
             key: 'doctorName',
             render: (text) => text || '-',
+            width: '15%'
         },
         {
             title: 'Actions',
             key: 'action',
-            width: 120,
+            width: '15%',
             render: (_, record) => (
-                <Space size="small" key={`actions-${record.key}`}>
+                <Space size="small">
                     <Button
-                        key={`edit-${record.key}`}
                         type="primary"
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
                         size="middle"
+                        title="Edit Certificate"
                     />
                     <Popconfirm
-                        key={`delete-${record.key}`}
-                        title="Are you sure you want to delete?"
-                        onConfirm={() => handleDelete(record.id)}
+                        title="Are you sure you want to delete this certificate?"
+                        onConfirm={() => handleDelete(record.certificateId)}
+                        okText="Yes"
+                        cancelText="No"
                     >
                         <Button 
                             danger 
                             icon={<DeleteOutlined />}
                             size="middle"
+                            title="Delete Certificate"
                         />
                     </Popconfirm>
                 </Space>
@@ -247,9 +254,51 @@ const CertificateManagement = () => {
         },
     ];
 
+    // Ensure certificates is always an array and each item has a unique key
+    const certificateData = Array.isArray(certificates) ? 
+        certificates.filter(cert => cert && typeof cert === 'object').map(cert => ({
+            ...cert,
+            key: `cert-${cert.certificateId || Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        })) : [];
+    console.log('Certificate data for table:', certificateData);
+
+    if (status === 'failed') {
+        console.error('Failed to load certificates:', error);
+        return (
+            <Result
+                status="error"
+                title="Failed to load data"
+                subTitle={error || "An error occurred while loading certificate data"}
+                extra={[
+                    <Button 
+                        type="primary" 
+                        key="retry" 
+                        onClick={() => {
+                            console.log('Retrying fetch for doctor:', doctorId);
+                            dispatch(fetchCertificatesByDoctorId(doctorId));
+                        }}
+                    >
+                        Try Again
+                    </Button>
+                ]}
+            />
+        );
+    }
+
     return (
         <div className="p-6">
-            <h1 className="text-[#1890ff] text-3xl font-bold mb-6">Certificate Management</h1>
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                    <Button
+                        icon={<ArrowLeftOutlined />}
+                        onClick={handleBack}
+                        className="mr-4"
+                    >
+                        Back to Doctors
+                    </Button>
+                    <h1 className="text-[#1890ff] text-3xl font-bold m-0">Certificate Management</h1>
+                </div>
+            </div>
             <Card
                 className="certificate-management-card"
                 extra={
@@ -267,25 +316,16 @@ const CertificateManagement = () => {
             >
                 <Table
                     columns={columns}
-                    dataSource={safeCertificates}
+                    dataSource={certificateData}
                     loading={{ 
                         spinning: status === 'loading' || isLoading,
                         indicator: <LoadingOutlined style={{ fontSize: 24 }} spin />
                     }}
-                    rowKey={record => record.key || record.id}
+                    rowKey={(record) => record.key}
                     locale={{
                         emptyText: status === 'loading' ? 'Loading...' : 'No certificates found'
                     }}
-                    pagination={{
-                        current: pagination.current,
-                        pageSize: pagination.pageSize,
-                        total: pagination.total,
-                        onChange: (page, pageSize) => {
-                            dispatch(setPagination({ current: page, pageSize }));
-                        },
-                        className: 'flex justify-center',
-                        position: ['bottomCenter']
-                    }}
+                    pagination={false}
                     className="certificate-table"
                 />
             </Card>
