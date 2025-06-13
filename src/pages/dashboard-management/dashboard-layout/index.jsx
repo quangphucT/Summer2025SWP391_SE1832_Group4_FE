@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   DesktopOutlined,
   LogoutOutlined,
+  MedicineBoxOutlined,
   PieChartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
