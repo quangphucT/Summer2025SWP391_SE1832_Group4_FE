@@ -24,8 +24,10 @@ import BlogManagement from "./pages/dashboard-management/manager/blog-management
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import DoctorManagement from "./pages/dashboard-management/doctor-management";
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
+
 
 const App = () => {
   const router = createBrowserRouter([
@@ -128,11 +130,15 @@ const App = () => {
           element: <AccountManagement />,
         },
         {
-          path: endPoint.EXPERIENCEMANAGEMENT,
+          path: endPoint.DOCTORMANAGEMENT,
+          element: <DoctorManagement />,
+        },
+        {
+          path: "experience-management/:doctorId",
           element: <ExperienceManagement />,
         },
         {
-          path: endPoint.CERTIFICATEMANAGEMENT,
+          path: "certificate-management/:doctorId",
           element: <CertificateManagement />,
         },
         {
@@ -162,3 +168,4 @@ const App = () => {
 };
 
 export default App;
+
