@@ -28,8 +28,11 @@ const endPoint = {
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
     BLOGMANAGEMENT: "blog-management",
-    DOCTORMANAGEMENT: "doctor-management",
+    
     EXPERIENCEMANAGEMENT: "experience-management",
     CERTIFICATEMANAGEMENT: "certificate-management",
+
+    // dashboard
+    APPOINTMENTMANAGEMENT: "appointment-management"
 }
 export default endPoint
