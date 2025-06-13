@@ -18,6 +18,7 @@ import Symstom from "../../components/atoms/Symstom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { getAllDoctorsApi } from "../../apis/doctorApi/getAllDoctorsApi";
+import { createAppointment } from "../../apis/appointmentAPI/createAppointmentApi";
 
 dayjs.extend(customParseFormat);
 
@@ -26,20 +27,21 @@ const ScheduleAConsultation = () => {
   const [selectedType, setSelectedType] = useState("online-video");
   const [dataDoctors, setDataDoctors] = useState([]);
 
-  const onFinish = (values) => {
-    const formattedDate = values.appointmentDate.format("YYYY-MM-DD");
+  const onFinish = async(values) => {
+  try {
+      const formattedDate = values.appointmentDate.format("YYYY-MM-DD");
     const formattedTime = values.appointmentTime.format("HH:mm:ss");
     const goodValues = {
- ...values,
+      ...values,
       appointmentDate: formattedDate,
       appointmentTime: formattedTime
     }
-     
-    
-    console.log("📅 Ngày hẹn:", formattedDate);
-    console.log("🕒 Giờ hẹn:", formattedTime);
-    console.log("✅ Tất cả giá trị form:", goodValues);
-
+     await createAppointment(goodValues)
+     toast.success("Successfully!");
+     form.resetFields();
+  } catch (error) {
+    toast.error(error?.response?.data?.message)
+  }
     // Hiển thị ra UI nếu muốn (ví dụ cập nhật state để show bên ngoài)
   };
   const fetchingAllDataDoctors = async () => {
@@ -186,28 +188,13 @@ const ScheduleAConsultation = () => {
                     </Radio.Group>
                   </Form.Item>
 
-                  {/* {selectedType === "InPerson" && (
-                    <Form.Item
-                      name="location"
-                      label="Location"
-                      rules={[
-                        { required: true, message: "Location is required!" },
-                      ]}
-                    >
-                      <Select
-                        className="w-full !h-[45px]"
-                        placeholder="Select location"
-                        options={[
-                          { value: "hanoi", label: "Hà Nội - 123 Đường ABC" },
-                          { value: "hcm", label: "TP.HCM - 456 Đường XYZ" },
-                        ]}
-                      />
-                    </Form.Item>
-                  )} */}
+                  {selectedType === "InPerson" && (
+                       <h1><strong>Address:</strong> Thủ Dức, đường số 2, 92/15/5/2</h1>
+                  )}
 
-                  <Form.Item name="isAnonymous" valuePropName="checked">
-                    <Checkbox>Is Anonymous Consultation</Checkbox>
-                  </Form.Item>
+                  {/* <Form.Item name="isAnonymous" valuePropName="checked">
+                    <Checkbox> Is Anonymous Consultation</Checkbox>
+                  </Form.Item> */}
                 </Col>
 
                 {/* Ghi chú */}
