@@ -33,6 +33,12 @@ import DoctorProfile from "./pages/dashboard-management/doctor/profile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
+
+import ScheduleAConsultation from "./pages/schedule-consultation-page";
+
+
+
 const App = () => {
   const router = createBrowserRouter([
     {
@@ -46,6 +52,10 @@ const App = () => {
         {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
+        },
+         {
+          path: endPoint.SCHEDULEACONSULTATION,
+          element: <ScheduleAConsultation />,
         },
         {
           path: endPoint.HIVTREATMENT,
@@ -113,6 +123,18 @@ const App = () => {
           path: endPoint.CUSTOMERMANAGEMENT,
           element: <CustomerManagement />,
         },
+
+         {
+          path: endPoint.DOCTORMANAGEMENT,
+          element: <DoctorManagement />,
+        },
+
+         {
+          path: endPoint.BLOGMANAGEMENT,
+          element: <BlogManagement />,
+        },
+
+
         {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,
