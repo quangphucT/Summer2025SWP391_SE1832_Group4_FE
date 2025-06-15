@@ -34,8 +34,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
-
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
+import AppointmentManagement from "./pages/dashboard-management/staff/appointment-management";
 
 
 
@@ -128,6 +128,10 @@ const App = () => {
           path: endPoint.DOCTORMANAGEMENT,
           element: <DoctorManagement />,
         },
+         {
+          path: endPoint.APPOINTMENTMANAGEMENT,
+          element: <AppointmentManagement />,
+        },
 
          {
           path: endPoint.BLOGMANAGEMENT,
@@ -139,11 +143,12 @@ const App = () => {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,
         },
+      
         {
-          path: endPoint.DOCTORMANAGEMENT,
-          element: <DoctorManagement />,
+          path: "experience-management/:doctorId",
+          element: <ExperienceManagement />,
         },
-        {
+         {
           path: "experience-management/:doctorId",
           element: <ExperienceManagement />,
         },
