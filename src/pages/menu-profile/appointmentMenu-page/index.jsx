@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { getAllAppointments } from "../../../apis/appointmentAPI/getAllAppointmentsApi";
 import { Table, Tag, Typography, Spin } from "antd";
 import dayjs from "dayjs";
 import "./index.scss";
+import { getAllAppointmentsOfCustomer } from "../../../apis/appointmentAPI/getAllAppointmentsOfCustomerApi";
 
 const { Title } = Typography;
 
@@ -14,8 +14,9 @@ const AppointmentMenuPage = () => {
   const fetchingDataAppointmentCustomer = async () => {
     setLoading(true);
     try {
-      const response = await getAllAppointments();
-      setData(response.data.data?.rowDatas || []);
+      const response = await getAllAppointmentsOfCustomer();
+    const sortedData =  (response.data.data || []).sort((a,b ) => b.appointmentId - a.appointmentId);
+    setData(sortedData)
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Error loading appointments"

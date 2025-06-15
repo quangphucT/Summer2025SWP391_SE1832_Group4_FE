@@ -33,7 +33,7 @@ const endPoint = {
     CERTIFICATEMANAGEMENT: "certificate-management",
 
     // dashboard
-    APPOINTMENTMANAGEMENT: "appointment-management"
+    APPOINTMENTMANAGEMENT: "appointment-management",
 
     // Doctor Layout Endpoints
     DOCTOR: "/doctor",

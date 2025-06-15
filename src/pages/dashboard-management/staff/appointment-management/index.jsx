@@ -34,7 +34,8 @@ const AppointmentManagement = () => {
     setLoading(true);
     try {
       const response = await getAllAppointments();
-      setDataAppointments(response.data.data.rowDatas);
+     const sortedData =  (response.data.data.rowDatas).sort((a,b) => b.appointmentId - a.appointmentId);
+     setDataAppointments(sortedData)
     } catch (error) {
       toast.error(error?.response?.data?.message);
     }
@@ -238,7 +239,7 @@ const AppointmentManagement = () => {
             gap: "8px",
           }}
         >
-          <CalendarOutlined style={{ fontSize: "24px", color: "#1e88e5" }} />
+          <CalendarOutlined style={{ fontSize: "40px", color: "#1e88e5" }} />
           <Title level={3} style={{ color: "#1976d2", fontWeight: '650', fontSize: '30px' }}>
             Appointment Management
           </Title>

@@ -35,7 +35,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
-import DoctorManagement from "./pages/dashboard-management/doctor/doctor-management";
 import AppointmentManagement from "./pages/dashboard-management/staff/appointment-management";
 
 
