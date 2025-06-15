@@ -29,5 +29,12 @@ const endPoint = {
     DOCTORMANAGEMENT: "doctor-management",
     EXPERIENCEMANAGEMENT: "experience-management",
     CERTIFICATEMANAGEMENT: "certificate-management",
+
+    // Doctor Layout Endpoints
+    DOCTOR: "/doctor",
+    DOCTORDASHBOARD: "dashboard",
+    DOCTORPATIENTRECORDS: "patient-records",
+    DOCTORAPPOINTMENTS: "appointments",
+    DOCTORPROFILE: "profile",
 }
 export default endPoint
