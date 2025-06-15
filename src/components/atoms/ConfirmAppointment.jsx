@@ -3,9 +3,9 @@ import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const { Paragraph } = Typography;
 
-const ConfirmAppointmentModal = ({ open, onCancel, onConfirm, appointmentInfo, title }) => {
+const ConfirmAppointmentModal = ({ open, onCancel, onConfirm, appointmentInfo, title, loading }) => {
   return (
-    <Modal
+    <Modal loading={loading}
       open={open}
       onCancel={onCancel}
       onOk={onConfirm}
