@@ -421,7 +421,7 @@ const AccountManagement = () => {
 
       {/* Table dữ liệu, nằm trong vùng cuộn riêng */}
       {!loading && !error && (
-        <div className="account-mgmt-table-wrap">
+        
           <table
             className="account-mgmt-table"
             border="0"
@@ -611,7 +611,7 @@ const AccountManagement = () => {
               )}
             </tbody>
           </table>
-        </div>
+       
       )}
     </div>
   );
