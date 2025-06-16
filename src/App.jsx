@@ -26,6 +26,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DoctorManagement from "./pages/dashboard-management/doctor-management";
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
+import ArvManagement from "./pages/dashboard-management/admin/arvstandard-management/arvstandard-management";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -138,6 +139,10 @@ const App = () => {
         {
           path: endPoint.BLOGMANAGEMENT,
           element: <BlogManagement />,
+        },
+        {
+          path: endPoint.ARVMANAGEMENT,
+          element: <ArvManagement />,
         },
       ],
     },
