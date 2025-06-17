@@ -421,7 +421,7 @@ const AccountManagement = () => {
 
       {/* Table dữ liệu, nằm trong vùng cuộn riêng */}
       {!loading && !error && (
-        <div className="account-mgmt-table-wrap">
+        
           <table
             className="account-mgmt-table"
             border="0"
@@ -440,7 +440,7 @@ const AccountManagement = () => {
                 <th>Last Login</th>
                 <th>Phone</th>
                 <th>Profile Image</th>
-                <th style={{ minWidth: 180 }}>Hành động</th>
+                <th style={{ minWidth: 180 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -521,17 +521,18 @@ const AccountManagement = () => {
                             handleEditSave(acc.accountId ?? acc.id)
                           }
                         >
-                          Lưu
+                          Save
                         </button>
                         <button
                           className="account-mgmt-btn cancel"
                           onClick={handleEditCancel}
                         >
-                          Hủy
+                          Cancel
                         </button>
                       </td>
                     </>
                   ) : (
+                    
                     <>
                       {/* Chế độ hiển thị thông thường */}
                       <td>{acc.accountId ?? acc.id}</td>
@@ -583,7 +584,7 @@ const AccountManagement = () => {
                           className="account-mgmt-btn edit"
                           onClick={() => startEdit(acc)}
                         >
-                          Sửa
+                          Edit
                         </button>
                         <button
                           className="account-mgmt-btn delete"
@@ -591,7 +592,7 @@ const AccountManagement = () => {
                             handleDelete(acc.accountId ?? acc.id)
                           }
                         >
-                          Xóa
+                          Delete
                         </button>
                       </td>
                     </>
@@ -610,7 +611,7 @@ const AccountManagement = () => {
               )}
             </tbody>
           </table>
-        </div>
+       
       )}
     </div>
   );

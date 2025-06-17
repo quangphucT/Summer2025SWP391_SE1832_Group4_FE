@@ -36,6 +36,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
+import ArvManagement from "./pages/dashboard-management/admin/arvstandard-management/arvstandard-management";
 
 
 
@@ -154,6 +155,10 @@ const App = () => {
         {
           path: endPoint.BLOGMANAGEMENT,
           element: <BlogManagement />,
+        },
+        {
+          path: endPoint.ARVMANAGEMENT,
+          element: <ArvManagement />,
         },
       ],
     },
