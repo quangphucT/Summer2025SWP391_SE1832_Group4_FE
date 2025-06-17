@@ -1,0 +1,298 @@
+/* --- Đảm bảo cha (AppLayout) đã có height:100vh & display:flex --- */
+/* Ở đây chỉ cần styling cho phần AccountManagement sao cho chiếm */
+/* toàn không gian bên phải của sidebar và scroll nội bộ.        */
+
+/* Box-sizing toàn phần */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Phần gốc của AccountManagement */
+.arv-mgmt-root {
+  flex: 1;                     /* chiếm hết không gian còn lại của parent flex */
+  display: flex;
+  flex-direction: column;
+  height: 100%;                /* 100% so với .app-layout (đã là 100vh) */
+  background: #ffffff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;            /* Ẩn overflow bên ngoài, chỉ internal scroll ở table-wrap */
+}
+
+.arv-mgmt-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 16px 24px 8px;
+  color: #1976d2;
+  letter-spacing: 1px;
+}
+
+/* Form filter cố định trên đầu vùng content */
+.arv-mgmt-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 24px;
+  background: #f5f8fa;
+  border-bottom: 1px solid #d0d0d0;
+}
+.arv-mgmt-form input,
+.arv-mgmt-form select,
+.arv-mgmt-form textarea {
+  flex: 1 1 200px;
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+.arv-mgmt-form input:focus,
+.arv-mgmt-form select:focus,
+.arv-mgmt-form textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+  border-width: 1.5px;
+}
+.arv-mgmt-form button {
+  flex: 0 0 auto;
+  padding: 8px 24px;
+  background: #1976d2;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 40px;
+  align-self: flex-end;
+  transition: background-color 0.2s;
+}
+.arv-mgmt-form button:hover {
+  background: #1251a3;
+}
+
+/* Specific styles for the add regimen form, if it needs differentiation */
+.arv-mgmt-form.add-form {
+  background: #e3eafc;
+  margin-top: 10px;
+}
+.arv-mgmt-form.add-form h3 {
+  width: 100%;
+  margin-bottom: 10px;
+  color: #1976d2;
+}
+
+/* Phần table-wrap chiếm phần còn lại và cho phép scroll */
+.arv-mgmt-table-wrap {
+  flex: 1;              /* chiếm toàn bộ vùng còn lại dưới form */
+  overflow: auto;       /* scroll dọc + ngang nếu nội dung quá lớn */
+  padding: 0 24px 24px;
+  background: #ffffff;
+}
+.arv-mgmt-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1rem;
+  min-width: 1000px;     /* Increased min-width for more columns */
+}
+.arv-mgmt-table th {
+  position: sticky;
+  top: 0;
+  background: #e3eafc;
+  color: #1976d2;
+  font-weight: 700;
+  padding: 12px 8px;
+  border-bottom: 2px solid #b6c6e3;
+  z-index: 10;
+  text-align: left;
+}
+.arv-mgmt-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+.arv-mgmt-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+.arv-mgmt-table tr:hover {
+  background: #e3eafc33;
+}
+
+.arv-mgmt-btn {
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-right: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.arv-mgmt-btn.edit {
+  background: #e3eafc;
+  color: #1976d2;
+}
+.arv-mgmt-btn.edit:hover {
+  background: #1976d2;
+  color: #ffffff;
+}
+.arv-mgmt-btn.delete {
+  background: #ffeaea;
+  color: #d32f2f;
+}
+.arv-mgmt-btn.delete:hover {
+  background: #d32f2f;
+  color: #ffffff;
+}
+.arv-mgmt-btn.save {
+  background: #43a047;
+  color: #ffffff;
+}
+.arv-mgmt-btn.save:hover {
+  background: #2e7031;
+}
+.arv-mgmt-btn.cancel {
+  background: #bdbdbd;
+  color: #ffffff;
+}
+.arv-mgmt-btn.cancel:hover {
+  background: #757575;
+}
+
+.arv-mgmt-profile-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #e3eafc;
+  background: #f5f8fa;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-bottom: 20px;
+
+  button {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover:not(:disabled) {
+      background-color: #f5f5f5;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  span {
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+/* Responsive: khi viewport < 900px */
+@media (max-width: 900px) {
+  .arv-mgmt-form {
+    gap: 8px;
+    padding: 8px 16px;
+  }
+  .arv-mgmt-form input,
+  .arv-mgmt-form select,
+  .arv-mgmt-form textarea {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .arv-mgmt-form button {
+    width: 100%;
+    margin-top: 4px;
+  }
+  .arv-mgmt-table th,
+  .arv-mgmt-table td {
+    font-size: 0.9rem;
+    padding: 6px 4px;
+  }
+  .arv-mgmt-table {
+    min-width: 600px;
+  }
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .arv-mgmt-form-modal {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      label {
+        display: block;
+        margin-bottom: -8px; /* Adjust as needed to pull label closer to input */
+        color: #555;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      input, textarea {
+        padding: 8px 10px;
+        border: 1px solid #cfd8dc;
+        border-radius: 6px;
+        font-size: 1rem;
+        background: #ffffff;
+        transition: border-color 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: #1976d2;
+          border-width: 1.5px;
+        }
+      }
+
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+    }
+  }
+}
