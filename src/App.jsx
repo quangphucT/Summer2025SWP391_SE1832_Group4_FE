@@ -166,6 +166,10 @@ const App = () => {
           path: endPoint.BLOGMANAGEMENT, 
           element: <BlogManagement />,
         },
+        {
+          path: endPoint.ARVMANAGEMENT,
+          element: <ArvManagement />,
+        },
       ],
     },
     {
