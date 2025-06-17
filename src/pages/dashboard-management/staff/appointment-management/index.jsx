@@ -67,7 +67,6 @@ const AppointmentManagement = () => {
     } catch (error) {
       toast.error(error?.response?.data?.message);
     }
-    setOpenModalConfirm(false);
     setLoading(false);
   };
 

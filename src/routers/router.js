@@ -34,7 +34,9 @@ const endPoint = {
 
     // dashboard
     APPOINTMENTMANAGEMENT: "appointment-management",
-
+    TODAYAPPOINTMENTMANAGEMENT: "today-appointment-management",
+    // dashboard Doctor
+    CHECKEDINAPPOINTMENTTODAY: "checked-in-appointment-today",
     // Doctor Layout Endpoints
     DOCTOR: "/doctor",
     DOCTORDASHBOARD: "dashboard",

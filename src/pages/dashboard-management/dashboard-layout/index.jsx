@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Modal, theme } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../redux/feature/userSlice";
 const { Header, Content, Sider } = Layout;
 function getItem(label, key, icon, children, isGroup = false) {
@@ -25,6 +25,8 @@ function getItem(label, key, icon, children, isGroup = false) {
 }
 
 const DashboardLayout = () => {
+ 
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
     const handleLogout = () => {
@@ -32,26 +34,28 @@ const DashboardLayout = () => {
     localStorage.clear();
     navigate("/login-page");
   };
- const items = [
+   const roleUser = useSelector((store) => store?.user?.role)
+ const baseItems  = [
   getItem("Dashboard", "dashboard-statistics", <PieChartOutlined />),
-
-  getItem("Management", "management", <DesktopOutlined />, [
+    getItem("Management", "management", <DesktopOutlined />, [
     getItem("Protocol Management", "protocal-management", <DesktopOutlined />),
     getItem("Customer Management", "customer-management", <DesktopOutlined />),
     getItem("Account Management", "account-management", <UserOutlined />),
     getItem("Doctor Management", "doctor-management", <UserOutlined />),
   ], true), // ✅ Không cho click
 
-  getItem("Content", "content", <MedicineBoxOutlined />, [
+     getItem("Content", "content", <MedicineBoxOutlined />, [
     getItem("Blog Management", "blog-management", <UserOutlined />),
     getItem("Experience Management", "experience-management", <MedicineBoxOutlined />),
     getItem("Certificate Management", "certificate-management", <MedicineBoxOutlined />),
   ], true), // ✅ Không cho click
 
-  getItem("Appointments", "appointments", <MedicineBoxOutlined />, [
+    getItem("Appointments", "appointments", <MedicineBoxOutlined />, [
     getItem("Confirm Appointment", "appointment-management", <MedicineBoxOutlined />),
+    getItem("Today Appointments", "today-appointment-management", <MedicineBoxOutlined />),
   ], true), // ✅ Không cho click
 
+  getItem("Checked-In Appointment", "checked-in-appointment-today", <MedicineBoxOutlined />),
   {
     key: "logout",
     icon: <LogoutOutlined />,
@@ -63,7 +67,7 @@ const DashboardLayout = () => {
   },
 ];
 
-
+   const items = baseItems.filter(Boolean);
 
   const [collapsed, setCollapsed] = useState(false);
   const {
