@@ -37,6 +37,7 @@ import ScheduleAConsultation from "./pages/schedule-consultation-page";
 import AppointmentManagement from "./pages/dashboard-management/staff/appointment-management";
 import AppointmentTodayManagement from "./pages/dashboard-management/staff/appointmentToday";
 import CheckedInAppointmentToday from "./pages/dashboard-management/doctor/checked-In-Appointment-Today";
+import ArvManagement from "./pages/dashboard-management/admin/arvstandard-management/arvstandard-management";
 
 const App = () => {
   const router = createBrowserRouter([
