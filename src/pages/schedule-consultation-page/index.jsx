@@ -26,8 +26,9 @@ const ScheduleAConsultation = () => {
   const [form] = Form.useForm();
   const [selectedType, setSelectedType] = useState("online-video");
   const [dataDoctors, setDataDoctors] = useState([]);
-
+  const [loading, setLoading] = useState(false)
   const onFinish = async(values) => {
+    setLoading(true)
   try {
       const formattedDate = values.appointmentDate.format("YYYY-MM-DD");
     const formattedTime = values.appointmentTime.format("HH:mm:ss");
@@ -42,6 +43,7 @@ const ScheduleAConsultation = () => {
   } catch (error) {
     toast.error(error?.response?.data?.message)
   }
+  setLoading(false)
     // Hiển thị ra UI nếu muốn (ví dụ cập nhật state để show bên ngoài)
   };
   const fetchingAllDataDoctors = async () => {
@@ -210,7 +212,7 @@ const ScheduleAConsultation = () => {
                 {/* Nút submit */}
                 <Col span={24}>
                   <Form.Item>
-                    <Button
+                    <Button loading={loading}
                       type="primary"
                       htmlType="submit"
                       className="w-full !h-[47px] !font-bold !rounded-4xl"

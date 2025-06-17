@@ -16,3 +16,4 @@ export * as confirmAppointmentApi from './appointmentAPI/confirmAppointmentApi'
 export * as cancelAppointmentApi from './appointmentAPI/cancelAppointmentApi'
 
 export * as getAllAppointmentsOfCustomerApi from './appointmentAPI/getAllAppointmentsOfCustomerApi'
+export * as getAllAppointmentsTodayApi from './appointmentAPI/getAllAppointmentsTodayApi'

@@ -421,7 +421,7 @@ const AccountManagement = () => {
 
       {/* Table dữ liệu, nằm trong vùng cuộn riêng */}
       {!loading && !error && (
-        <div className="account-mgmt-table-wrap">
+        
           <table
             className="account-mgmt-table"
             border="0"
@@ -532,6 +532,7 @@ const AccountManagement = () => {
                       </td>
                     </>
                   ) : (
+                    
                     <>
                       {/* Chế độ hiển thị thông thường */}
                       <td>{acc.accountId ?? acc.id}</td>
@@ -610,7 +611,7 @@ const AccountManagement = () => {
               )}
             </tbody>
           </table>
-        </div>
+       
       )}
     </div>
   );
