@@ -19,3 +19,4 @@ export * as getAllAppointmentsOfCustomerApi from './appointmentAPI/getAllAppoint
 export * as getAllAppointmentsTodayApi from './appointmentAPI/getAllAppointmentsTodayApi'
 export * as getAvailableSchedulesDoctors from './doctorApi/getAvailableSchedulesDoctorsApi'
 export * as searchAppointmentByPhone from './appointmentAPI/searchAppointmentByPhoneApi'
+export * as checkInAppointment from './appointmentAPI/checkInAppointmentApi'

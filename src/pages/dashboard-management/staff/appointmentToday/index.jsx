@@ -3,13 +3,17 @@ import "./index.scss";
 import { toast } from "react-toastify";
 import { getAllAppointmentsToday } from "../../../../apis/appointmentAPI/getAllAppointmentsTodayApi";
 import { searchAppointmentByPhone } from "../../../../apis/appointmentAPI/searchAppointmentByPhoneApi";
-import { Table, Input } from "antd";
+import { Table, Input, Modal, Button } from "antd";
+import { CheckCircleOutlined, CloseOutlined } from "@ant-design/icons";
+import { checkInAppointment } from "../../../../apis/appointmentAPI/checkInAppointmentApi";
 
 const { Search } = Input;
 
 const AppointmentTodayManagement = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [idAppointment, setIdAppointment] = useState(null)
+  const [openModalConfirmCheckIn, setOpenModalConfirmCheckIn] = useState(false)
   const fetchingData = async () => {
     setLoading(true);
     try {
@@ -28,6 +32,11 @@ const AppointmentTodayManagement = () => {
   }, []);
 
   const columns = [
+     {
+      title: "Appointment ID",
+      dataIndex: "appointmentId",
+      key: "appointmentId",
+    },
     {
       title: "Patient Name",
       dataIndex: "patientName",
@@ -77,8 +86,24 @@ const AppointmentTodayManagement = () => {
         return <span style={{ color }}>{text}</span>;
       },
     },
-  ];
+    {
+    title: "Check-In",
+    dataIndex: "appointmentId",
+    key: "appointmentId",
+    render: (appointmentId) => {
 
+      return (
+        <Button type="primary" onClick={() => {handleOpenModalConfirmCheckIn(appointmentId)}}>
+          Check-In
+        </Button>
+      );
+    },
+  },
+  ];
+ const handleOpenModalConfirmCheckIn = (id) =>{
+  setIdAppointment(id)
+  setOpenModalConfirmCheckIn(true)
+  }
   const handleSearch = async (value) => {
     if (!value) {
       fetchingData();
@@ -93,6 +118,19 @@ const AppointmentTodayManagement = () => {
     }
     setLoading(false);
   };
+  const handleConfirmCheckInAppointment = async() =>{
+    setLoading(true)
+    try {
+       await checkInAppointment(idAppointment);
+       toast.success("Checked successfully!!");
+       setIdAppointment(null);
+       setOpenModalConfirmCheckIn(false)
+       fetchingData();
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Error while handling logic!!")
+    }
+    setLoading(false)
+  }
   return (
     <div>
       <h2 className="font-bold text-[30px] mb-3 text-[#1976d2]">
@@ -117,6 +155,40 @@ const AppointmentTodayManagement = () => {
         scroll={{ x: "max-content" }}
         pagination={{ pageSize: 5 }}
       />
+   <Modal
+  title={
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 20 }} />
+      <span style={{ fontWeight: 'bold' }}>Check-In Confirmation</span>
+    </div>
+  }
+  open={openModalConfirmCheckIn}
+  onCancel={() => setOpenModalConfirmCheckIn(false)}
+  footer={[
+    <Button
+      key="cancel"
+      icon={<CloseOutlined />}
+      onClick={() => setOpenModalConfirmCheckIn(false)}
+      style={{ borderColor: '#d9d9d9' }}
+    >
+      Cancel
+    </Button>,
+    <Button
+      key="ok"
+      type="primary"
+      icon={<CheckCircleOutlined />}
+      loading={loading}
+      onClick={handleConfirmCheckInAppointment}
+      style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+    >
+      Confirm
+    </Button>,
+  ]}
+>
+  <p style={{ fontSize: 16 }}>
+    Are you sure you want to <strong>check in</strong> this appointment?
+  </p>
+</Modal>
     </div>
   );
 };
