@@ -17,3 +17,5 @@ export * as cancelAppointmentApi from './appointmentAPI/cancelAppointmentApi'
 
 export * as getAllAppointmentsOfCustomerApi from './appointmentAPI/getAllAppointmentsOfCustomerApi'
 export * as getAllAppointmentsTodayApi from './appointmentAPI/getAllAppointmentsTodayApi'
+export * as getAvailableSchedulesDoctors from './doctorApi/getAvailableSchedulesDoctorsApi'
+export * as searchAppointmentByPhone from './appointmentAPI/searchAppointmentByPhoneApi'
