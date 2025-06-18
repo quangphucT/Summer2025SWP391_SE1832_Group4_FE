@@ -34,7 +34,7 @@ const AppointmentManagement = () => {
     setLoading(true);
     try {
       const response = await getAllAppointments();
-     const sortedData =  (response.data.data.rowDatas).sort((a,b) => b.appointmentId - a.appointmentId);
+     const sortedData =  (response.data.data.rowDatas).filter((item) => item.status !== "CheckedIn").sort((a,b) => b.appointmentId - a.appointmentId);
      setDataAppointments(sortedData)
     } catch (error) {
       toast.error(error?.response?.data?.message);

@@ -1,105 +1,265 @@
-import { Card, List, Typography, Button, Modal, Form, Input, message } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
-import { useState } from 'react';
-import './index.scss';
-
-const { Text } = Typography;
-
-const mockData = [
-  {
-    id: 1,
-    patientName: 'Nguyen Van A',
-    time: '08:30 AM',
-    service: 'Tư vấn HIV',
-  },
-  {
-    id: 2,
-    patientName: 'Tran Thi B',
-    time: '09:45 AM',
-    service: 'Khám da liễu',
-  },
-  {
-    id: 3,
-    patientName: 'Le Van C',
-    time: '11:00 AM',
-    service: 'Tư vấn sức khỏe',
-  },
-];
+import { toast } from "react-toastify";
+import "./index.scss";
+import { getAllAppointments } from "../../../../apis/appointmentAPI/getAllAppointmentsApi";
+import { useEffect, useState } from "react";
+import { Button, Checkbox, Col, DatePicker, Form, Input, Modal, Radio, Row, Select, Table, TimePicker } from "antd";
+import { FileTextOutlined } from "@ant-design/icons";
 
 const CheckedInAppointmentToday = () => {
-  const [open, setOpen] = useState(false);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [openModalFormAdvice, setOpenModalFormAdvice] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [showHivForm, setShowHivForm] = useState(false);
   const [form] = Form.useForm();
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const fetchingAppointmentCheckedIn = async () => {
+  setLoading(true);
+  try {
+    const response = await getAllAppointments();
+    const responseAfterFilterCheckedIn =
+      response.data.data.rowDatas
+        ?.filter((item) => item.status === "CheckedIn")
+        .sort((a, b) => {
+          // Chuyển thời gian thành dạng số để so sánh
+          const timeA = a.appointmentTime;
+          const timeB = b.appointmentTime;
+          return timeA.localeCompare(timeB); // Tăng dần
+        }) || [];
 
-  const handleOpenModal = (item) => {
-    setSelectedPatient(item);
-    setOpen(true);
+    setData(responseAfterFilterCheckedIn);
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message?.error || "Error while fetching"
+    );
+  }
+  setLoading(false);
+};
+
+  useEffect(() => {
+    fetchingAppointmentCheckedIn();
+  }, []);
+
+  const columns = [
+    {
+      title: "No.",
+      dataIndex: "appointmentId",
+      key: "index",
+      render: (text, record, index) => index + 1,
+    },
+    {
+      title: "Patient Info",
+      key: "patientInfo",
+      render: (_, record) => {
+        const patientCode = record?.patient?.patientCodeAtFacility || "N/A";
+        const name = record?.patientName || "N/A";
+        const phone = record?.patient?.account?.phoneNumber || "N/A";
+        return (
+          <div>
+            <div>
+              <strong>Name:</strong> {name}
+            </div>
+            <div>
+              <strong>Code:</strong> {patientCode}
+            </div>
+            <div>
+              <strong>Phone:</strong> {phone}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Appointment Info",
+      key: "appointmentInfo",
+      render: (_, record) => {
+        return (
+          <div>
+            <div>
+              <strong>Time:</strong> {record.appointmentTime}
+            </div>
+            <div>
+              <strong>Type:</strong> {record.appointmentType}
+            </div>
+            <div>
+              <strong>Service:</strong> {record.appointmentService}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Doctor",
+      key: "doctor",
+      render: (_, record) => {
+        return record?.doctor?.account?.fullName || "N/A";
+      },
+    },
+    {
+      title: "Action",
+      dataIndex: "appointmentId",
+      key: "appointmentId",
+      render: (text, record) => {
+        return (
+          <Button onClick={() => {handleOpenFormAdvise(record)}}
+            type="primary"
+            icon={<FileTextOutlined />}
+            style={{
+              backgroundColor: "#d32f2f", // đỏ đậm biểu tượng y tế / cảnh báo
+              borderColor: "#b71c1c",
+              color: "white",
+              fontWeight: "bold",
+              borderRadius: 6,
+            }}
+          >
+            Advice / Notes
+          </Button>
+        );
+      },
+    },
+  ];
+
+ const handleOpenFormAdvise = (record) => {
+  setSelectedRecord(record);
+  setOpenModalFormAdvice(true);
+};
+
+ const handleConsentChange = (e) => {
+    setShowHivForm(e.target.value === true);
   };
 
-  const handleFinish = (values) => {
-    console.log('Tư vấn:', {
-      ...values,
-      patientId: selectedPatient.id,
-    });
-    message.success('Đã lưu lời khuyên tư vấn');
-    setOpen(false);
-    form.resetFields();
-  };
+const handleFinish = (values) =>{
+  console.log("Values:", values)
+}
 
   return (
-    <>
-      <Card
-        title="Lịch hẹn đã Check-in hôm nay"
-        bordered={false}
-        className="checked-in-card"
+    <div className="checked-in-appointment-table">
+      <h2
+        style={{
+          marginBottom: 0,
+          color: "#2968a7",
+          fontWeight: "bold",
+          fontSize: "30px",
+        }}
       >
-        <List
-          itemLayout="vertical"
-          dataSource={mockData}
-          renderItem={(item) => (
-            <List.Item
-              key={item.id}
-              className="checked-in-item"
-              actions={[
-                <Text type="success">
-                  <CheckCircleOutlined /> Đã check-in
-                </Text>,
-                <Button type="primary" onClick={() => handleOpenModal(item)}>
-                  Tư vấn
-                </Button>,
-              ]}
-            >
-              <List.Item.Meta
-                title={<Text strong>{item.patientName}</Text>}
-                description={
-                  <>
-                    <div><Text type="secondary">Giờ hẹn:</Text> {item.time}</div>
-                    <div><Text type="secondary">Dịch vụ:</Text> {item.service}</div>
-                  </>
-                }
-              />
-            </List.Item>
-          )}
-        />
-      </Card>
+        List of Checked-In Patients
+      </h2>
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={data}
+        rowKey="appointmentId"
+        pagination={false}
+      />
 
-      <Modal
-        title={`Tư vấn cho ${selectedPatient?.patientName}`}
-        open={open}
-        onCancel={() => setOpen(false)}
-        onOk={() => form.submit()}
-        okText="Lưu"
+
+
+
+
+    <Modal width={900}
+      open={openModalFormAdvice}
+      onCancel={() => {
+        form.resetFields();
+        setOpenModalFormAdvice(false);
+        setSelectedRecord(null)
+        setShowHivForm(false)
+      }}
+      onOk={() => form.submit()}
+      title="Medical Advice & HIV Test Registration"
+      okText="Submit"
+      cancelText="Cancel"
+      centered
+    >
+      <Form form={form} layout="vertical" onFinish={handleFinish}>
+
+   
+      <Form.Item
+        label="Medical Advice / Notes"
+        name="medicalNote"
+        rules={[{ required: true, message: "Please enter advice or note" }]}
       >
-        <Form layout="vertical" form={form} onFinish={handleFinish}>
-          <Form.Item name="diagnosis" label="Chẩn đoán">
-            <Input.TextArea rows={3} placeholder="Nhập chẩn đoán..." />
+        <Input.TextArea rows={5} placeholder="E.g., recommend HIV test, explain procedure..." />
+      </Form.Item>
+  
+
+ 
+      <Form.Item
+        label="Consent for HIV Test"
+        name="hivConsent"
+        rules={[{ required: true, message: "Please select an option" }]}
+      >
+        <Radio.Group onChange={handleConsentChange}>
+          <Radio value={true}>Agreed</Radio>
+          <Radio value={false}>Not Agreed</Radio>
+        </Radio.Group>
+      </Form.Item>
+    
+
+
+  {showHivForm && (
+    <div
+      style={{
+        border: "1px solid #eee",
+        padding: 16,
+        borderRadius: 8,
+        marginTop: 12,
+        backgroundColor: "#f9f9f9",
+      }}
+    >
+      <h4 style={{ color: "#2968a7" }}>HIV Test Registration</h4>
+
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item
+            label="Test Type"
+            name="hivTestType"
+            rules={[{ required: true, message: "Please select test type" }]}
+          >
+            <Select placeholder="Choose a test type">
+              <Select.Option value="RapidTest">Rapid Test</Select.Option>
+              <Select.Option value="PCR">PCR</Select.Option>
+              <Select.Option value="ELISA">ELISA</Select.Option>
+            </Select>
           </Form.Item>
-          <Form.Item name="advice" label="Lời khuyên & hướng dẫn">
-            <Input.TextArea rows={3} placeholder="Nhập lời khuyên..." />
+        </Col>
+
+        <Col span={12}>
+          <Form.Item
+            label="Test Date"
+            name="hivTestDate"
+            rules={[{ required: true, message: "Please select a test date" }]}
+          >
+            <DatePicker style={{ width: "100%" }} />
           </Form.Item>
-        </Form>
-      </Modal>
-    </>
+        </Col>
+
+        <Col span={12}>
+          <Form.Item
+            name="appointmentTime"
+            label="Choose Hour (30 minutes)"
+            rules={[{ required: true, message: "Hour is required!" }]}
+          >
+            <TimePicker
+              className="w-full h-[45px]"
+              format="HH:mm"
+              minuteStep={30}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col span={12}>
+          <Form.Item label="Test Notes" name="hivTestNote">
+            <Input.TextArea rows={2} placeholder="E.g., fasting required, previous tests..." />
+          </Form.Item>
+        </Col>
+      </Row>
+    </div>
+  )}
+</Form>
+
+    </Modal>
+
+    </div>
   );
 };
 
