@@ -10,55 +10,68 @@ import {
   Col,
   Row,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import "dayjs/locale/vi";
 import Symstom from "../../components/atoms/Symstom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { getAllDoctorsApi } from "../../apis/doctorApi/getAllDoctorsApi";
+
 import { createAppointment } from "../../apis/appointmentAPI/createAppointmentApi";
+import { getAvailableSchedulesDoctors } from "../../apis/doctorApi/getAvailableSchedulesDoctorsApi";
 
 dayjs.extend(customParseFormat);
 
 const ScheduleAConsultation = () => {
   const [form] = Form.useForm();
   const [selectedType, setSelectedType] = useState("online-video");
-  const [dataDoctors, setDataDoctors] = useState([]);
-  const [loading, setLoading] = useState(false)
-  const onFinish = async(values) => {
-    setLoading(true)
-  try {
+  const [availableSchedulesDoctors, setAvailableSchedulesDoctors] = useState(
+    []
+  );
+  const [loading, setLoading] = useState(false);
+  const onFinish = async (values) => {
+    setLoading(true);
+    try {
       const formattedDate = values.appointmentDate.format("YYYY-MM-DD");
-    const formattedTime = values.appointmentTime.format("HH:mm:ss");
-    const goodValues = {
-      ...values,
-      appointmentDate: formattedDate,
-      appointmentTime: formattedTime
+      const formattedTime = values.appointmentTime.format("HH:mm:ss");
+      const goodValues = {
+        ...values,
+        appointmentDate: formattedDate,
+        appointmentTime: formattedTime,
+      };
+      await createAppointment(goodValues);
+      toast.success("Successfully!");
+      form.resetFields();
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
     }
-     await createAppointment(goodValues)
-     toast.success("Successfully!");
-     form.resetFields();
-  } catch (error) {
-    toast.error(error?.response?.data?.message)
-  }
-  setLoading(false)
+    setLoading(false);
     // Hiển thị ra UI nếu muốn (ví dụ cập nhật state để show bên ngoài)
   };
-  const fetchingAllDataDoctors = async () => {
-    try {
-      const response = await getAllDoctorsApi();
-      setDataDoctors(response.data.data);
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Error while fetching data!"
-      );
+
+  const handleDateTimeChange = () => {
+    const date = form.getFieldValue("appointmentDate");
+    const time = form.getFieldValue("appointmentTime");
+
+    if (date && time) {
+      const formattedDate = dayjs(date).format("YYYY-MM-DD");
+      const formattedTime = dayjs(time).format("HH:mm:ss");
+
+      getAvailableSchedulesDoctors(formattedDate, formattedTime)
+        .then((res) => {
+          setAvailableSchedulesDoctors(res.data.data);
+        })
+        .catch(() => {
+          toast.error("Failed to fetch available doctors");
+          setAvailableSchedulesDoctors([]);
+        });
+    } else {
+      // Nếu chưa chọn đủ thì reset danh sách bác sĩ
+      setAvailableSchedulesDoctors([]);
     }
   };
-  useEffect(() => {
-    fetchingAllDataDoctors();
-  }, []);
+
   return (
     <div className="min-h-screen bg-[#e0e7ff] p-6 mt-[75px]">
       <Row gutter={24} justify="center">
@@ -94,9 +107,6 @@ const ScheduleAConsultation = () => {
               <Row gutter={16}>
                 {/* Cột trái */}
                 <Col xs={24} md={12}>
-
-                 
-
                   <Form.Item
                     name="appointmentDate"
                     label="Choose Date"
@@ -105,23 +115,34 @@ const ScheduleAConsultation = () => {
                     <DatePicker
                       className="w-full h-[45px]"
                       format="YYYY-MM-DD"
+                      onChange={handleDateTimeChange}
                       disabledDate={(current) =>
                         current && current < dayjs().startOf("day")
                       }
                     />
                   </Form.Item>
 
-                  <Form.Item
-                    name="appointmentTime"
-                    label="Choose Hour (30 minutes)"
-                    rules={[{ required: true, message: "Hour is required!" }]}
+                    <Form.Item
+                    name="doctorId"
+                    label="Doctor List Available"
+                    rules={[
+                      { required: true, message: "Please choose a doctor!" },
+                    ]}
                   >
-                    <TimePicker
-                      className="w-full h-[45px]"
-                      format="HH:mm"
-                      minuteStep={30}
+                    <Select
+                      className="w-full !h-[45px]"
+                      placeholder="Select a doctor"
+                      showSearch
+                      optionFilterProp="label"
+                      disabled={availableSchedulesDoctors.length === 0}
+                      options={availableSchedulesDoctors.map((doctor) => ({
+                        label: `${doctor.account.fullName} (${doctor.account.email})`,
+                        value: doctor.doctorId,
+                      }))}
                     />
                   </Form.Item>
+
+                
 
                   <Form.Item
                     name="appointmentService"
@@ -148,25 +169,19 @@ const ScheduleAConsultation = () => {
 
                 {/* Cột phải */}
                 <Col xs={24} md={12}>
-                   
-                    <Form.Item
-                    name="doctorId"
-                    label="Choose Doctor"
-                    rules={[
-                      { required: true, message: "Please choose a doctor!" },
-                    ]}
+                  <Form.Item
+                    name="appointmentTime"
+                    label="Choose Hour (30 minutes)"
+                    rules={[{ required: true, message: "Hour is required!" }]}
                   >
-                    <Select
-                      className="w-full !h-[45px]"
-                      placeholder="Select a doctor"
-                      showSearch
-                      optionFilterProp="label"
-                      options={dataDoctors.map((doctor) => ({
-                        label: `${doctor.fullName} (${doctor.email})`,
-                        value: doctor.doctorId,
-                      }))}
+                    <TimePicker
+                      className="w-full h-[45px]"
+                      format="HH:mm"
+                      minuteStep={30}
+                      onChange={handleDateTimeChange}
                     />
                   </Form.Item>
+                
 
                   <Form.Item
                     name="appointmentType"
@@ -191,7 +206,9 @@ const ScheduleAConsultation = () => {
                   </Form.Item>
 
                   {selectedType === "InPerson" && (
-                       <h1><strong>Address:</strong> Thủ Dức, đường số 2, 92/15/5/2</h1>
+                    <h1>
+                      <strong>Address:</strong> Thủ Dức, đường số 2, 92/15/5/2
+                    </h1>
                   )}
 
                   {/* <Form.Item name="isAnonymous" valuePropName="checked">
@@ -212,7 +229,8 @@ const ScheduleAConsultation = () => {
                 {/* Nút submit */}
                 <Col span={24}>
                   <Form.Item>
-                    <Button loading={loading}
+                    <Button
+                      loading={loading}
                       type="primary"
                       htmlType="submit"
                       className="w-full !h-[47px] !font-bold !rounded-4xl"
