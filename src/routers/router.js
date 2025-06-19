@@ -29,7 +29,7 @@ const endPoint = {
     ACCOUNTMANAGEMENT: "account-management",
     BLOGMANAGEMENT: "blog-management",
 
-    DOCTORMANAGEMENT: "doctor-management",
+    
 
     ARVMANAGEMENT: "arvstandard-management",
     
