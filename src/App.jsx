@@ -155,7 +155,7 @@ const App = () => {
           element: <CertificateManagement />,
         },
         {
-          path: endPoint.BLOGMANAGEMENT,
+          path: endPoint.BLOGMANAGEMENT, 
           element: <BlogManagement />,
         },
         {
