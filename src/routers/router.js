@@ -28,8 +28,14 @@ const endPoint = {
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
     BLOGMANAGEMENT: "blog-management",
+
+    DOCTORMANAGEMENT: "doctor-management",
+
     ARVMANAGEMENT: "arvstandard-management",
     
+
+
+
     EXPERIENCEMANAGEMENT: "experience-management",
     CERTIFICATEMANAGEMENT: "certificate-management",
 
