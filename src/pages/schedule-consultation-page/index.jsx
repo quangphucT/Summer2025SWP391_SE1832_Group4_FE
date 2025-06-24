@@ -39,6 +39,7 @@ const ScheduleAConsultation = () => {
         ...values,
         appointmentDate: formattedDate,
         appointmentTime: formattedTime,
+        appointmentType: "Consultation"
       };
       await createAppointment(goodValues);
       toast.success("Successfully!");
@@ -107,6 +108,47 @@ const ScheduleAConsultation = () => {
               <Row gutter={16}>
                 {/* Cột trái */}
                 <Col xs={24} md={12}>
+                 <Form.Item
+                    name="appointmentService"
+                    label="Choose Consultation Type"
+                    rules={[{ required: true, message: "Type is required!" }]}
+                  >
+                    <Select
+                      className="w-full !h-[45px]"
+                      placeholder="Choose a consultation"
+                      options={[
+                        {
+                          value: "PreTestCounseling",
+                          label:
+                            "Pre-Test Counseling (Tư vấn trước xét nghiệm)",
+                        },
+                        {
+                          value: "PostTestCounseling",
+                          label: "Post-Test Counseling (Tư vấn sau xét nghiệm)",
+                        },
+                      ]}
+                    />
+                  </Form.Item>
+                
+ <Form.Item
+                    name="appointmentTime"
+                    label="Choose Hour (30 minutes)"
+                    rules={[{ required: true, message: "Hour is required!" }]}
+                  >
+                    <TimePicker
+                      className="w-full h-[45px]"
+                      format="HH:mm"
+                      minuteStep={30}
+                      onChange={handleDateTimeChange}
+                    />
+                  </Form.Item>
+                 
+
+                 
+                </Col>
+
+                {/* Cột phải */}
+                <Col xs={24} md={12}>
                   <Form.Item
                     name="appointmentDate"
                     label="Choose Date"
@@ -121,8 +163,8 @@ const ScheduleAConsultation = () => {
                       }
                     />
                   </Form.Item>
-
-                    <Form.Item
+                 
+ <Form.Item
                     name="doctorId"
                     label="Doctor List Available"
                     rules={[
@@ -141,79 +183,7 @@ const ScheduleAConsultation = () => {
                       }))}
                     />
                   </Form.Item>
-
-                
-
-                  <Form.Item
-                    name="appointmentService"
-                    label="Choose Consultation Type"
-                    rules={[{ required: true, message: "Type is required!" }]}
-                  >
-                    <Select
-                      className="w-full !h-[45px]"
-                      placeholder="Choose a consultation"
-                      options={[
-                        { value: "HIVTesting", label: "HIV Testing" },
-                        {
-                          value: "MentalHealth",
-                          label: "Mental Health / Psychological Support",
-                        },
-                        {
-                          value: "NewlyDiagnosedHIV",
-                          label: "Newly Diagnosed with HIV",
-                        },
-                      ]}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Cột phải */}
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="appointmentTime"
-                    label="Choose Hour (30 minutes)"
-                    rules={[{ required: true, message: "Hour is required!" }]}
-                  >
-                    <TimePicker
-                      className="w-full h-[45px]"
-                      format="HH:mm"
-                      minuteStep={30}
-                      onChange={handleDateTimeChange}
-                    />
-                  </Form.Item>
-                
-
-                  <Form.Item
-                    name="appointmentType"
-                    label="Consultation Method"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Consultation method required",
-                      },
-                    ]}
-                  >
-                    <Radio.Group
-                      className="flex flex-wrap gap-2"
-                      value={selectedType}
-                      onChange={(e) => setSelectedType(e.target.value)}
-                    >
-                      <Radio.Button value="Video">Video</Radio.Button>
-                      <Radio.Button value="phone">Phone</Radio.Button>
-                      <Radio.Button value="Chat">Chat</Radio.Button>
-                      <Radio.Button value="InPerson">In Person</Radio.Button>
-                    </Radio.Group>
-                  </Form.Item>
-
-                  {selectedType === "InPerson" && (
-                    <h1>
-                      <strong>Address:</strong> Thủ Dức, đường số 2, 92/15/5/2
-                    </h1>
-                  )}
-
-                  {/* <Form.Item name="isAnonymous" valuePropName="checked">
-                    <Checkbox> Is Anonymous Consultation</Checkbox>
-                  </Form.Item> */}
+                 
                 </Col>
 
                 {/* Ghi chú */}

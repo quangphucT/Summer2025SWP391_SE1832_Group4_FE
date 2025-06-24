@@ -20,3 +20,5 @@ export * as getAllAppointmentsTodayApi from './appointmentAPI/getAllAppointments
 export * as getAvailableSchedulesDoctors from './doctorApi/getAvailableSchedulesDoctorsApi'
 export * as searchAppointmentByPhone from './appointmentAPI/searchAppointmentByPhoneApi'
 export * as checkInAppointment from './appointmentAPI/checkInAppointmentApi'
+
+export * as createAppointmentTest from './appointmentAPI/createAppointmentApi'

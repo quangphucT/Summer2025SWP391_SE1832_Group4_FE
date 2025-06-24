@@ -36,8 +36,9 @@ import "react-toastify/dist/ReactToastify.css";
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
 import AppointmentManagement from "./pages/dashboard-management/staff/appointment-management";
 import AppointmentTodayManagement from "./pages/dashboard-management/staff/appointmentToday";
-import CheckedInAppointmentToday from "./pages/dashboard-management/doctor/checked-In-Appointment-Today";
+import CheckedInAppointmentToday from "./pages/dashboard-doctor/checkedIn-Customer-List";
 import ArvManagement from "./pages/dashboard-management/admin/arvstandard-management/arvstandard-management";
+import DashboardDoctorLayout from "./pages/dashboard-doctor/layout-dashboard";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -106,6 +107,11 @@ const App = () => {
     {
       path: endPoint.FORGOTPASSWORD,
       element: <ForgotPasswordPage />,
+    },
+
+    {
+       path: endPoint.DASHBOARDLAYOUTDOCTOR,
+       element: <DashboardDoctorLayout/>
     },
     {
       path: endPoint.DASHBOARD,

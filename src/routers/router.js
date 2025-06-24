@@ -44,5 +44,11 @@ const endPoint = {
     DOCTORPATIENTRECORDS: "patient-records",
     DOCTORAPPOINTMENTS: "appointments",
     DOCTORPROFILE: "profile",
+
+
+    // dashboard doctor
+
+    DASHBOARDLAYOUTDOCTOR: "/doctor-dashboard"
+
 }
 export default endPoint
