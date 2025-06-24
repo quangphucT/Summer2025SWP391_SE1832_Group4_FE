@@ -1,9 +1,9 @@
 import api from "../../config/api";
 
-// Get all patient records
+// Get all medical records
 export const getAllPatientRecords = async () => {
     try {
-        const response = await api.get('/api/patientrecords');
+        const response = await api.get('/api/medical-records');
         return response;
     } catch (err) {
         if (!err.response) {
@@ -15,10 +15,10 @@ export const getAllPatientRecords = async () => {
     }
 };
 
-// Get patient records by patient ID
+// Get medical records by patient ID
 export const getPatientRecordsByPatientId = async (patientId) => {
     try {
-        const response = await api.get(`/api/patientrecords/patient/${patientId}`);
+        const response = await api.get(`/api/medical-records/patient/${patientId}`);
         const data = response.data;
         if (Array.isArray(data)) {
             return data;
@@ -35,10 +35,30 @@ export const getPatientRecordsByPatientId = async (patientId) => {
     }
 };
 
-// Create a new patient record
+// Get medical records by doctor ID
+export const getPatientRecordsByDoctorId = async (doctorId) => {
+    try {
+        const response = await api.get(`/api/medical-records/doctor/${doctorId}`);
+        const data = response.data;
+        if (Array.isArray(data)) {
+            return data;
+        }
+        if (data?.data && Array.isArray(data.data)) {
+            return data.data;
+        }
+        console.warn("[API] Unexpected format in getPatientRecordsByDoctorId:", data);
+        return [];
+    } catch (err) {
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getPatientRecordsByDoctorId failed:", msg);
+        throw new Error(msg);
+    }
+};
+
+// Create a new medical record
 export const createPatientRecord = async (data) => {
     try {
-        const response = await api.post('/api/patientrecords', data);
+        const response = await api.post('/api/medical-records', data);
         return response;
     } catch (err) {
         if (!err.response) {
@@ -50,10 +70,10 @@ export const createPatientRecord = async (data) => {
     }
 };
 
-// Get a specific patient record by ID
+// Get a specific medical record by ID
 export const getPatientRecordById = async (id) => {
     try {
-        const response = await api.get(`/api/patientrecords/${id}`);
+        const response = await api.get(`/api/medical-records/${id}`);
         return response;
     } catch (err) {
         if (!err.response) {
@@ -65,10 +85,10 @@ export const getPatientRecordById = async (id) => {
     }
 };
 
-// Update an existing patient record
+// Update an existing medical record
 export const updatePatientRecord = async (id, data) => {
     try {
-        const response = await api.put(`/api/patientrecords/${id}`, data);
+        const response = await api.put(`/api/medical-records/${id}`, data);
         return response;
     } catch (err) {
         if (!err.response) {
@@ -80,10 +100,10 @@ export const updatePatientRecord = async (id, data) => {
     }
 };
 
-// Delete a patient record
+// Delete a medical record
 export const deletePatientRecord = async (id) => {
     try {
-        const response = await api.delete(`/api/patientrecords/${id}`);
+        const response = await api.delete(`/api/medical-records/${id}`);
         return response;
     } catch (err) {
         if (!err.response) {

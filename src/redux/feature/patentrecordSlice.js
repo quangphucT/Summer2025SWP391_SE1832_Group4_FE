@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
     getAllPatientRecords,
     getPatientRecordsByPatientId,
+    getPatientRecordsByDoctorId,
     createPatientRecord,
     getPatientRecordById,
     updatePatientRecord,
@@ -9,48 +10,56 @@ import {
 } from '../../apis/patientApi/patentrecordApi';
 
 // Async thunks
-export const fetchAllPatientRecords = createAsyncThunk(
-    'patentRecord/fetchAllPatientRecords',
+export const fetchAllMedicalRecords = createAsyncThunk(
+    'medicalRecord/fetchAllMedicalRecords',
     async () => {
         const response = await getAllPatientRecords();
         return Array.isArray(response) ? response : [];
     }
 );
 
-export const fetchPatientRecordsByPatientId = createAsyncThunk(
-    'patentRecord/fetchPatientRecordsByPatientId',
+export const fetchMedicalRecordsByPatientId = createAsyncThunk(
+    'medicalRecord/fetchMedicalRecordsByPatientId',
     async (patientId) => {
         const response = await getPatientRecordsByPatientId(patientId);
         return Array.isArray(response) ? response : [];
     }
 );
 
-export const fetchPatientRecordById = createAsyncThunk(
-    'patentRecord/fetchPatientRecordById',
+export const fetchMedicalRecordsByDoctorId = createAsyncThunk(
+    'medicalRecord/fetchMedicalRecordsByDoctorId',
+    async (doctorId) => {
+        const response = await getPatientRecordsByDoctorId(doctorId);
+        return Array.isArray(response) ? response : [];
+    }
+);
+
+export const fetchMedicalRecordById = createAsyncThunk(
+    'medicalRecord/fetchMedicalRecordById',
     async (id) => {
         const response = await getPatientRecordById(id);
         return response;
     }
 );
 
-export const createNewPatientRecord = createAsyncThunk(
-    'patentRecord/createNewPatientRecord',
+export const createNewMedicalRecord = createAsyncThunk(
+    'medicalRecord/createNewMedicalRecord',
     async (data) => {
         const response = await createPatientRecord(data);
         return response;
     }
 );
 
-export const updatePatientRecordById = createAsyncThunk(
-    'patentRecord/updatePatientRecordById',
+export const updateMedicalRecordById = createAsyncThunk(
+    'medicalRecord/updateMedicalRecordById',
     async ({ id, data }) => {
         const response = await updatePatientRecord(id, data);
         return response;
     }
 );
 
-export const deletePatientRecordById = createAsyncThunk(
-    'patentRecord/deletePatientRecordById',
+export const deleteMedicalRecordById = createAsyncThunk(
+    'medicalRecord/deleteMedicalRecordById',
     async (id) => {
         await deletePatientRecord(id);
         return id;
@@ -58,143 +67,162 @@ export const deletePatientRecordById = createAsyncThunk(
 );
 
 const initialState = {
-    patientRecords: [],
-    currentPatientRecord: null,
+    medicalRecords: [],
+    currentMedicalRecord: null,
     status: 'idle',
     error: null,
     isLoading: false
 };
 
-const patentrecordSlice = createSlice({
-    name: 'patentRecord',
+const medicalRecordSlice = createSlice({
+    name: 'medicalRecord',
     initialState,
     reducers: {
         resetStatus: (state) => {
             state.status = 'idle';
             state.error = null;
         },
-        clearCurrentPatientRecord: (state) => {
-            state.currentPatientRecord = null;
+        clearCurrentMedicalRecord: (state) => {
+            state.currentMedicalRecord = null;
         }
     },
     extraReducers: (builder) => {
         builder
             // Fetch all
-            .addCase(fetchAllPatientRecords.pending, (state) => {
+            .addCase(fetchAllMedicalRecords.pending, (state) => {
                 state.status = 'loading';
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(fetchAllPatientRecords.fulfilled, (state, action) => {
+            .addCase(fetchAllMedicalRecords.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.isLoading = false;
-                state.patientRecords = Array.isArray(action.payload) ? action.payload : [];
+                state.medicalRecords = Array.isArray(action.payload) ? action.payload : [];
                 state.error = null;
             })
-            .addCase(fetchAllPatientRecords.rejected, (state, action) => {
+            .addCase(fetchAllMedicalRecords.rejected, (state, action) => {
                 state.status = 'failed';
                 state.isLoading = false;
                 state.error = action.error.message;
-                state.patientRecords = [];
+                state.medicalRecords = [];
             })
 
             // Fetch by patientId
-            .addCase(fetchPatientRecordsByPatientId.pending, (state) => {
+            .addCase(fetchMedicalRecordsByPatientId.pending, (state) => {
                 state.status = 'loading';
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(fetchPatientRecordsByPatientId.fulfilled, (state, action) => {
+            .addCase(fetchMedicalRecordsByPatientId.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.isLoading = false;
-                state.patientRecords = Array.isArray(action.payload) ? action.payload : [];
+                state.medicalRecords = Array.isArray(action.payload) ? action.payload : [];
                 state.error = null;
             })
-            .addCase(fetchPatientRecordsByPatientId.rejected, (state, action) => {
+            .addCase(fetchMedicalRecordsByPatientId.rejected, (state, action) => {
                 state.status = 'failed';
                 state.isLoading = false;
                 state.error = action.error.message;
-                state.patientRecords = [];
+                state.medicalRecords = [];
+            })
+
+            // Fetch by doctorId
+            .addCase(fetchMedicalRecordsByDoctorId.pending, (state) => {
+                state.status = 'loading';
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchMedicalRecordsByDoctorId.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isLoading = false;
+                state.medicalRecords = Array.isArray(action.payload) ? action.payload : [];
+                state.error = null;
+            })
+            .addCase(fetchMedicalRecordsByDoctorId.rejected, (state, action) => {
+                state.status = 'failed';
+                state.isLoading = false;
+                state.error = action.error.message;
+                state.medicalRecords = [];
             })
 
             // Fetch by id
-            .addCase(fetchPatientRecordById.pending, (state) => {
+            .addCase(fetchMedicalRecordById.pending, (state) => {
                 state.status = 'loading';
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(fetchPatientRecordById.fulfilled, (state, action) => {
+            .addCase(fetchMedicalRecordById.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.isLoading = false;
-                state.currentPatientRecord = action.payload;
+                state.currentMedicalRecord = action.payload;
                 state.error = null;
             })
-            .addCase(fetchPatientRecordById.rejected, (state, action) => {
+            .addCase(fetchMedicalRecordById.rejected, (state, action) => {
                 state.status = 'failed';
                 state.isLoading = false;
                 state.error = action.error.message;
-                state.currentPatientRecord = null;
+                state.currentMedicalRecord = null;
             })
 
             // Create
-            .addCase(createNewPatientRecord.pending, (state) => {
+            .addCase(createNewMedicalRecord.pending, (state) => {
                 state.status = 'loading';
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(createNewPatientRecord.fulfilled, (state, action) => {
+            .addCase(createNewMedicalRecord.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.isLoading = false;
                 if (action.payload) {
-                    state.patientRecords.push(action.payload);
-                    state.currentPatientRecord = action.payload;
+                    state.medicalRecords.push(action.payload);
+                    state.currentMedicalRecord = action.payload;
                 }
                 state.error = null;
             })
-            .addCase(createNewPatientRecord.rejected, (state, action) => {
+            .addCase(createNewMedicalRecord.rejected, (state, action) => {
                 state.status = 'failed';
                 state.isLoading = false;
                 state.error = action.error.message;
             })
 
             // Update
-            .addCase(updatePatientRecordById.pending, (state) => {
+            .addCase(updateMedicalRecordById.pending, (state) => {
                 state.status = 'loading';
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(updatePatientRecordById.fulfilled, (state, action) => {
+            .addCase(updateMedicalRecordById.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.isLoading = false;
-                state.currentPatientRecord = action.payload;
-                const index = state.patientRecords.findIndex(rec => rec.id === action.payload.id);
+                state.currentMedicalRecord = action.payload;
+                const index = state.medicalRecords.findIndex(rec => rec.id === action.payload.id);
                 if (index !== -1) {
-                    state.patientRecords[index] = action.payload;
+                    state.medicalRecords[index] = action.payload;
                 }
                 state.error = null;
             })
-            .addCase(updatePatientRecordById.rejected, (state, action) => {
+            .addCase(updateMedicalRecordById.rejected, (state, action) => {
                 state.status = 'failed';
                 state.isLoading = false;
                 state.error = action.error.message;
             })
 
             // Delete
-            .addCase(deletePatientRecordById.pending, (state) => {
+            .addCase(deleteMedicalRecordById.pending, (state) => {
                 state.status = 'loading';
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(deletePatientRecordById.fulfilled, (state, action) => {
+            .addCase(deleteMedicalRecordById.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.isLoading = false;
-                state.patientRecords = state.patientRecords.filter(rec => rec.id !== action.payload);
-                if (state.currentPatientRecord?.id === action.payload) {
-                    state.currentPatientRecord = null;
+                state.medicalRecords = state.medicalRecords.filter(rec => rec.id !== action.payload);
+                if (state.currentMedicalRecord?.id === action.payload) {
+                    state.currentMedicalRecord = null;
                 }
                 state.error = null;
             })
-            .addCase(deletePatientRecordById.rejected, (state, action) => {
+            .addCase(deleteMedicalRecordById.rejected, (state, action) => {
                 state.status = 'failed';
                 state.isLoading = false;
                 state.error = action.error.message;
@@ -202,5 +230,5 @@ const patentrecordSlice = createSlice({
     }
 });
 
-export const { resetStatus, clearCurrentPatientRecord } = patentrecordSlice.actions;
-export default patentrecordSlice.reducer;
+export const { resetStatus, clearCurrentMedicalRecord } = medicalRecordSlice.actions;
+export default medicalRecordSlice.reducer;
