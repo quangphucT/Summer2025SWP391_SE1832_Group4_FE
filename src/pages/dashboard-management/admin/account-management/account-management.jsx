@@ -5,6 +5,20 @@ import {
   deleteAccountById,
 } from "../../../../apis/accountsApi";
 
+const getStatusLabel = (status) => {
+  if (status === 0 || status === "Active" || status === "Acitve") return "Active";
+  if (status === 1 || status === "Inactive") return "Inactive";
+  if (status === 2 || status === "Pending") return "Pending";
+  return "Pending";
+};
+
+const getStatusClass = (status) => {
+  if (status === 0 || status === "Active" || status === "Acitve") return "active";
+  if (status === 1 || status === "Inactive") return "inactive";
+  if (status === 2 || status === "Pending") return "pending";
+  return "pending";
+};
+
 const AccountManagement = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -541,19 +555,9 @@ const AccountManagement = () => {
                       <td>{acc.fullName || ""}</td>
                       <td>
                         <span
-                          className={`account-mgmt-status ${
-                            acc.accountStatus === 0
-                              ? "active"
-                              : acc.accountStatus === 1
-                              ? "inactive"
-                              : "pending"
-                          }`}
+                          className={`account-mgmt-status ${getStatusClass(acc.accountStatus)}`}
                         >
-                          {acc.accountStatus === 0
-                            ? "Active"
-                            : acc.accountStatus === 1
-                            ? "Inactive"
-                            : "Pending"}
+                          {getStatusLabel(acc.accountStatus)}
                         </span>
                       </td>
                       <td>{acc.roleId ?? ""}</td>
