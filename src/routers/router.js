@@ -29,7 +29,6 @@ const endPoint = {
     ACCOUNTMANAGEMENT: "account-management",
     BLOGMANAGEMENT: "blog-management",
 
-    DOCTORMANAGEMENT: "doctor-management",
 
     ARVMANAGEMENT: "arvstandard-management",
     
@@ -50,5 +49,25 @@ const endPoint = {
     DOCTORPATIENTRECORDS: "patient-records",
     DOCTORAPPOINTMENTS: "appointments",
     DOCTORPROFILE: "profile",
+
+    // Service route
+    TESTINGHIVPAGE: "/testing-hiv-page",
+
+
+    // dashboard doctor testing
+
+    DASHBOARDLAYOUTDOCTORTESTING: "/doctorTesting-dashboard",
+
+    // dashboard doctor consultant
+    DASHBOARDLAYOUTDOCTORCONSULTANT: "/doctorConsultant-dashboard",
+
+    // doctor create account (staff)
+    DOCTORCREATEACCOUNTBYSTAFF: "doctor-create-account",
+
+    // doctor list management
+    DOCTORLISTMANAGEMENT: "doctor-list-management",
+
+    
+
 }
 export default endPoint

@@ -1,45 +1,67 @@
-import { Button, Form, Input, Typography } from 'antd'
-import './index.scss'
-import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-import { toast } from "react-toastify"
+import { Button, Form, Input, Typography } from "antd";
+import "./index.scss";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "react-toastify";
 import { login } from "../../../apis/authenticationApi/loginApi";
-import { useDispatch } from 'react-redux'
-import { saveInformation } from '../../../redux/feature/userSlice'
+import { useDispatch } from "react-redux";
+import { saveInformation } from "../../../redux/feature/userSlice";
 
-
-const { Title, Text } = Typography
+const { Title, Text } = Typography;
 
 const Login = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const onFinish = async (values) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await login( values)
-       toast.success("Login successful!")
-       const {token, role} = response.data
-        dispatch(saveInformation(response?.data))    
-        localStorage.setItem("token", token)
-       if(role === "Patient"){
-             navigate("/")
-             
-       }else{
-         navigate("/dashboard")
-       }
+      const response = await login(values);
+      toast.success("Login successful!");
+      const { token, role, doctorSpecialty } = response.data;
+      dispatch(saveInformation(response?.data));
+      localStorage.setItem("token", token);
+      switch (role) {
+        case "Patient":
+          navigate("/");
+          break;
+
+        case "Doctor":
+          switch (doctorSpecialty) {
+            case "Consultant":
+              navigate("/doctorConsultant-dashboard");
+              break;
+            case "Testing":
+              navigate("/doctorTesting-dashboard");
+              break;
+            // có thể thêm nhiều specialty khác ở đây
+            default:
+              navigate("/doctor-dashboard"); // fallback nếu specialty không khớp
+              break;
+          }
+          break;
+
+        default:
+          navigate("/dashboard"); // fallback cho các role khác như Admin, Nurse,...
+          break;
+      }
     } catch (error) {
-      toast.error( error?.response?.data?.message || "Error while handling logic login!")
+      toast.error(
+        error?.response?.data?.message || "Error while handling logic login!"
+      );
     }
-    setIsLoading(false)
-  }
-  
+    setIsLoading(false);
+  };
 
   return (
     <div className="login-container">
       <div className="login-box">
-        <Title level={2} className="login-title">HIV Support Portal</Title>
-        <Text className="login-subtitle">Together we fight, together we care ❤️</Text>
+        <Title level={2} className="login-title">
+          HIV Support Portal
+        </Title>
+        <Text className="login-subtitle">
+          Together we fight, together we care ❤️
+        </Text>
 
         <Form
           layout="vertical"
@@ -51,8 +73,8 @@ const Login = () => {
             label="Email"
             name="email"
             rules={[
-              { required: true, message: 'Please input your email!' },
-              { type: 'email', message: 'Invalid email!' }
+              { required: true, message: "Please input your email!" },
+              { type: "email", message: "Invalid email!" },
             ]}
           >
             <Input placeholder="Enter your email" />
@@ -62,8 +84,8 @@ const Login = () => {
             label="Password"
             name="password"
             rules={[
-              { required: true, message: 'Please input your password!' },
-              { min: 5, message: 'Password must be at least 5 characters!' }
+              { required: true, message: "Please input your password!" },
+              { min: 5, message: "Password must be at least 5 characters!" },
             ]}
           >
             <Input.Password placeholder="Enter your password" />
@@ -88,7 +110,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

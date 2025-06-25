@@ -1,0 +1,48 @@
+// index.scss
+
+.hiv-checkedin-table {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+
+  h2 {
+    color: #2968a7;
+    font-weight: bold;
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .ant-table-wrapper {
+    background-color: #f5f7fa;
+    border-radius: 12px;
+    padding: 16px;
+
+    .ant-table-thead > tr > th {
+      background-color: #F45C25;
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .ant-table-tbody > tr > td {
+      background-color: #ffffff;
+      font-size: 14px;
+      padding: 12px;
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background-color: #f0f6ff;
+    }
+  }
+
+  .ant-btn-primary {
+    background-color: #d32f2f !important;
+    border-color: #b71c1c !important;
+  }
+
+  .ant-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2968a7;
+  }
+}
