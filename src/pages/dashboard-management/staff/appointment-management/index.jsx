@@ -2,12 +2,14 @@ import { toast } from "react-toastify";
 import "./index.scss";
 import { useEffect, useState } from "react";
 import { getAllAppointments } from "../../../../apis/appointmentAPI/getAllAppointmentsApi";
-import { Table, Tag, Card, Typography, Button } from "antd";
+import { Table, Tag, Card, Typography, Button, Select, Input } from "antd";
 import dayjs from "dayjs";
-import { CalendarOutlined } from "@ant-design/icons";
+import { CalendarOutlined, SearchOutlined } from "@ant-design/icons";
 import { confirmAppointment } from "../../../../apis/appointmentAPI/confirmAppointmentApi";
 import ConfirmAppointmentModal from "../../../../components/atoms/ConfirmAppointment";
 import { cancelAppointment } from "../../../../apis/appointmentAPI/cancelAppointmentApi";
+import { getAllAppointmentsConsultant } from "../../../../apis/appointmentAPI/getAppointmentConsultantApi";
+import { getAllAppointmentsTesting } from "../../../../apis/appointmentAPI/getAllAppointmentTestingApi";
 
 const { Title } = Typography;
 
@@ -15,12 +17,24 @@ const colorMap = {
   PendingConfirmation: "orange",
   Scheduled: "green",
   Cancelled: "volcano",
+  Completed: "blue",
+  CancelledByPatient: "red",
+  CancelledByDoctor: "red",
+  CheckedIn: "cyan",
+  NoShow: "magenta",
+  InProgress: "gold",
 };
 
 const statusTextMap = {
   PendingConfirmation: "Pending Confirmation",
-  Scheduled: "Confirmed",
+  Scheduled: "Scheduled",
   Cancelled: "Cancelled",
+  Completed: "Completed",
+  CancelledByPatient: "Cancelled by Patient",
+  CancelledByDoctor: "Cancelled by Doctor",
+  CheckedIn: "Checked In",
+  NoShow: "No Show",
+  InProgress: "In Progress",
 };
 
 const AppointmentManagement = () => {
@@ -30,21 +44,53 @@ const AppointmentManagement = () => {
   const [openModalConfirmCancel, setOpenModalConfirmCancel] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
-  const fetchingAllAppointments = async () => {
+
+  const [appointmentTypeFilter, setAppointmentTypeFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [searchPatientName, setSearchPatientName] = useState("");
+
+  // Load all appointments when component mounts
+  useEffect(() => {
+    fetchingAllAppointments();
+  }, []);
+
+  // get All Appointment Consultant
+  const fetchingAllAppointmentsConsultant = async () => {
     setLoading(true);
     try {
-      const response = await getAllAppointments();
-     const sortedData =  (response.data.data.rowDatas).filter((item) => item.status !== "CheckedIn").sort((a,b) => b.appointmentId - a.appointmentId);
-     setDataAppointments(sortedData)
+      const response = await getAllAppointmentsConsultant();
+      setDataAppointments([])
+    setDataAppointments(response.data.data.rowDatas)
     } catch (error) {
       toast.error(error?.response?.data?.message);
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchingAllAppointments();
-  }, []);
+  // get All Appointment Testing
+  const fetchingAllAppointmentsTesting = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllAppointmentsTesting();
+      setDataAppointments([])
+    setDataAppointments(response.data.data.rowDatas)
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+    setLoading(false);
+  };
+  // get All Appointment
+  const fetchingAllAppointments = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllAppointments();
+      const sortedData = response.data.data.rowDatas
+      setDataAppointments(sortedData);
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+    setLoading(false);
+  };
 
   const handleOpenModalConfirm = (record) => {
     setSelectedAppointment(record);
@@ -71,18 +117,36 @@ const AppointmentManagement = () => {
   };
 
   const handleConfirmAppointment = async () => {
+
     setLoading(true);
     try {
       await confirmAppointment(selectedAppointment.appointmentId);
       toast.success("Confirm Success!");
-      fetchingAllAppointments();
+      // Refresh data based on current filter
+      if (appointmentTypeFilter === "Consultation") {
+        fetchingAllAppointmentsConsultant();
+      } else if (appointmentTypeFilter === "Testing") {
+        fetchingAllAppointmentsTesting();
+      } else {
+        fetchingAllAppointments();
+      }
       setSelectedAppointment(null);
+      setOpenModalConfirm(false);
     } catch (error) {
       toast.error(error?.response?.data?.message);
     }
-    setOpenModalConfirm(false);
     setLoading(false);
   };
+
+  // Filter data based on status and patient name
+  const filteredData = dataAppointments.filter(appointment => {
+    const statusMatch = statusFilter === "All" || appointment.status === statusFilter;
+    const nameMatch = !searchPatientName || 
+      appointment?.patient?.account?.fullName?.toLowerCase().includes(searchPatientName.toLowerCase()) ||
+      appointment?.patient?.patientCodeAtFacility?.toLowerCase().includes(searchPatientName.toLowerCase());
+    
+    return statusMatch && nameMatch;
+  });
 
   const columns = [
     {
@@ -137,13 +201,7 @@ const AppointmentManagement = () => {
       render: (_, record) => {
         const time = record.appointmentTime?.slice(0, 5) || "--:--";
         const doctor = record?.doctor?.account?.fullName || "Unknown";
-        const type =
-          record.appointmentType === "InPerson"
-            ? "In Person"
-            : record.appointmentType === "Online"
-            ? "Online"
-            : "N/A";
-
+        const appointmentType = record.appointmentType || "Unknown";
         return (
           <div>
             <div>
@@ -152,8 +210,8 @@ const AppointmentManagement = () => {
             <div>
               <strong>Doctor Name:</strong> {doctor}
             </div>
-            <div>
-              <strong>Type:</strong> {type} (Offline)
+             <div>
+              <strong>Appointent Type:</strong> {appointmentType}
             </div>
           </div>
         );
@@ -221,13 +279,12 @@ const AppointmentManagement = () => {
   ];
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px",marginTop: "-84px" }}>
       <Card
         bordered={false}
         style={{
           borderRadius: "12px",
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    
         }}
       >
         <div
@@ -239,20 +296,139 @@ const AppointmentManagement = () => {
           }}
         >
           <CalendarOutlined style={{ fontSize: "40px", color: "#1e88e5" }} />
-          <Title level={3} style={{ color: "#1976d2", fontWeight: '650', fontSize: '30px' }}>
+          <Title
+            level={3}
+            style={{ color: "#1976d2", fontWeight: "650", fontSize: "30px" }}
+          >
             Appointment Management
           </Title>
+        </div>
+        <div 
+          style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "24px", 
+            marginBottom: '24px',
+            padding: "16px",
+            backgroundColor: "#f8fafc",
+            borderRadius: "8px",
+            border: "1px solid #e2e8f0",
+            flexWrap: "wrap"
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span 
+              style={{ 
+                fontWeight: "600", 
+                color: "#1976d2",
+                fontSize: "16px",
+                minWidth: "140px"
+              }}
+            >
+              Appointment Type:
+            </span>
+            <Select
+              style={{ 
+                width: 220, 
+                height: "40px"
+              }}
+              placeholder="Filter by Appointment Type"
+              value={appointmentTypeFilter}
+              onChange={(value) => {
+                setAppointmentTypeFilter(value);
+                if (value === "Consultation") {
+                  fetchingAllAppointmentsConsultant();
+                } else if (value === "Testing") {
+                  fetchingAllAppointmentsTesting();
+                } else if(value === "Therapy"){
+                  toast.info("Therapy appointments are not implemented yet.");
+                } else if (value === "All") {
+                  fetchingAllAppointments();
+                }
+              }}
+              allowClear
+            >
+              <Select.Option value="All">🗂️ All Appointments</Select.Option>
+              <Select.Option value="Consultation">👨‍⚕️ Consultation</Select.Option>
+              <Select.Option value="Testing">🧪 Testing</Select.Option>
+              <Select.Option value="Therapy">💊 Therapy</Select.Option>
+            </Select>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span 
+              style={{ 
+                fontWeight: "600", 
+                color: "#1976d2",
+                fontSize: "16px",
+                minWidth: "100px"
+              }}
+            >
+              Status:
+            </span>
+            <Select
+              style={{ 
+                width: 200, 
+                height: "40px"
+              }}
+              placeholder="Filter by Status"
+              value={statusFilter}
+              onChange={(value) => {
+                setStatusFilter(value);
+              }}
+              allowClear
+            >
+              <Select.Option value="All">📋 All Status</Select.Option>
+              <Select.Option value="PendingConfirmation">⏳ Pending Confirmation</Select.Option>
+              <Select.Option value="Scheduled">✅ Scheduled</Select.Option>
+              <Select.Option value="Completed">🎯 Completed</Select.Option>
+              <Select.Option value="CheckedIn">🏥 Checked In</Select.Option>
+              <Select.Option value="InProgress">⚡ In Progress</Select.Option>
+              <Select.Option value="CancelledByPatient">❌ Cancelled by Patient</Select.Option>
+              <Select.Option value="CancelledByDoctor">🚫 Cancelled by Doctor</Select.Option>
+              <Select.Option value="NoShow">👻 No Show</Select.Option>
+            </Select>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span 
+              style={{ 
+                fontWeight: "600", 
+                color: "#1976d2",
+                fontSize: "16px",
+                minWidth: "120px"
+              }}
+            >
+              Search Patient:
+            </span>
+            <Input
+              style={{ 
+                width: 250, 
+                height: "40px"
+              }}
+              placeholder="Search by patient name or code..."
+              prefix={<SearchOutlined style={{ color: "#1976d2" }} />}
+              value={searchPatientName}
+              onChange={(e) => setSearchPatientName(e.target.value)}
+              allowClear
+            />
+          </div>
         </div>
 
         <Table
           loading={loading}
           columns={columns}
-          dataSource={dataAppointments}
+          dataSource={filteredData}
           rowKey="appointmentId"
           pagination={{ pageSize: 8 }}
-          scroll={{ x: "max-content" }}
+    
           bordered
           size="middle"
+          className="custom-table"
+          style={{
+            '--header-bg': '#1976d2',
+            '--header-color': 'white'
+          }}
         />
       </Card>
 

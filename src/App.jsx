@@ -33,13 +33,16 @@ import DoctorProfile from "./pages/dashboard-management/doctor/profile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
 import AppointmentManagement from "./pages/dashboard-management/staff/appointment-management";
 import AppointmentTodayManagement from "./pages/dashboard-management/staff/appointmentToday";
-import CheckedInAppointmentToday from "./pages/dashboard-doctor/checkedIn-Customer-List";
+
 import ArvManagement from "./pages/dashboard-management/admin/arvstandard-management/arvstandard-management";
-import DashboardDoctorLayout from "./pages/dashboard-doctor/layout-dashboard";
+import TestingHIVPage from "./pages/service-pages/testing-hiv-page";
+import DashboardDoctorTestingLayout from "./pages/dashboard-doctor/dashboard-doctor-testing/layout-dashboard";
+import DashboardDoctorConsultantLayout from "./pages/dashboard-doctor/dashboard-doctor-consultant/layout-dashboard";
+import DoctorCreationManagement from "./pages/dashboard-management/manager/doctor-createAccount-management";
+import DoctorListManagement from "./pages/dashboard-management/manager/doctor-list-management";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -55,7 +58,15 @@ const App = () => {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
         },
-         {
+
+        // service system
+
+        {
+          path: endPoint.TESTINGHIVPAGE,
+          element: <TestingHIVPage />,
+        },
+
+        {
           path: endPoint.SCHEDULEACONSULTATION,
           element: <ScheduleAConsultation />,
         },
@@ -77,15 +88,15 @@ const App = () => {
         },
         {
           path: endPoint.APPOINTMENT,
-          element: <AppointmentMenuPage/>,
+          element: <AppointmentMenuPage />,
         },
         {
           path: endPoint.TRANSACTION,
-          element: <TransactionMenuPage/>,
+          element: <TransactionMenuPage />,
         },
         {
           path: endPoint.MEDICALRECORD,
-          element: <MedicalRecordMenuPage/>,
+          element: <MedicalRecordMenuPage />,
         },
       ],
     },
@@ -99,20 +110,26 @@ const App = () => {
     },
     {
       path: endPoint.RESETPASSWORD,
-      element: <ResetPassword/>,
+      element: <ResetPassword />,
     },
     {
       path: endPoint.PASSWORDAFTERREGISTER,
-      element: <SetUpPasswordAfterRegister/>,
+      element: <SetUpPasswordAfterRegister />,
     },
     {
       path: endPoint.FORGOTPASSWORD,
       element: <ForgotPasswordPage />,
     },
-
+    // dashboard for doctor testing
     {
-       path: endPoint.DASHBOARDLAYOUTDOCTOR,
-       element: <DashboardDoctorLayout/>
+      path: endPoint.DASHBOARDLAYOUTDOCTORTESTING,
+      element: <DashboardDoctorTestingLayout />,
+    },
+
+    // dashboard for doctor consultant
+    {
+      path: endPoint.DASHBOARDLAYOUTDOCTORCONSULTANT,
+      element: <DashboardDoctorConsultantLayout />,
     },
     {
       path: endPoint.DASHBOARD,
@@ -131,37 +148,61 @@ const App = () => {
           element: <CustomerManagement />,
         },
 
-         {
+        {
           path: endPoint.DOCTORMANAGEMENT,
           element: <DoctorManagement />,
         },
+
+
+        {
+          path: endPoint.DOCTORCREATEACCOUNTBYSTAFF,
+          element: <DoctorCreationManagement />,
+        },
+
          {
+          path: endPoint.DOCTORLISTMANAGEMENT,
+          element: <DoctorListManagement/>,
+        },
+
+
+
+
+        {
           path: endPoint.APPOINTMENTMANAGEMENT,
           element: <AppointmentManagement />,
         },
 
-         {
+        {
+          path: endPoint.CHECKEDINAPPOINTMENTTODAY,
+          element: <AppointmentTodayManagement />,
+        },
+
+        {
+          path: endPoint.TODAYAPPOINTMENTMANAGEMENT,
+          element: <AppointmentTodayManagement />,
+        },
+
+        {
           path: endPoint.BLOGMANAGEMENT,
           element: <BlogManagement />,
         },
-
 
         {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,
         },
-      
+
         {
           path: "experience-management/:doctorId",
           element: <ExperienceManagement />,
         },
-        
+
         {
           path: "certificate-management/:doctorId",
           element: <CertificateManagement />,
         },
         {
-          path: endPoint.BLOGMANAGEMENT, 
+          path: endPoint.BLOGMANAGEMENT,
           element: <BlogManagement />,
         },
         {
@@ -217,4 +258,3 @@ const App = () => {
 };
 
 export default App;
-

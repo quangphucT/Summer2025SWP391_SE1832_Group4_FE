@@ -22,3 +22,17 @@ export * as searchAppointmentByPhone from './appointmentAPI/searchAppointmentByP
 export * as checkInAppointment from './appointmentAPI/checkInAppointmentApi'
 
 export * as createAppointmentTest from './appointmentAPI/createAppointmentApi'
+
+export * as getAvailableSchedulesDoctorTesting from './doctorApi/getAvailableSchedulesDoctorTestingApi'
+
+
+// filter
+     // consultant
+export * as getAllAppointmentsConsultant from './appointmentAPI/getAppointmentConsultantApi'
+    // testing
+export * as getAllAppointmentsTesting from './appointmentAPI/getAllAppointmentTestingApi'
+
+
+
+// doctor 
+export * as createAccountDoctorFollowingType from './doctorApi/createAccountDoctorFollowingTypeApi'

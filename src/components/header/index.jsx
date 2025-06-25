@@ -15,16 +15,16 @@ const Header = () => {
   const urlImageProfile = useSelector((store) => store?.user?.profileImageUrl);
   const fullname = useSelector((store) => store?.user?.fullName);
 
-  const isWhiteBackgroundPage =
-    [
-      "/booking-appointment",
-      "/services/hiv_treatment",
-      "/services/testing_stds",
-      "/services/hiv_testing",
-      "/blogs-page",
-      "/profile-page",
-      "/schedule-consultation",
-    ].includes(location.pathname);
+  const isWhiteBackgroundPage = [
+    "/booking-appointment",
+    "/services/hiv_treatment",
+    "/services/testing_stds",
+    "/services/hiv_testing",
+    "/blogs-page",
+    "/profile-page",
+    "/schedule-consultation",
+    "/testing-hiv-page",
+  ].includes(location.pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,30 +40,19 @@ const Header = () => {
 
   const serviceMenu = (
     <Menu
+      style={{ width: "300px", display: "flex", flexDirection: "column" }}
       items={[
         {
-          key: "hiv_treatment",
+          key: "testing_HIV",
           label: (
-            <span onClick={() => navigate("/services/hiv_treatment")}>
-              HIV Treatment
+            <span onClick={() => navigate("/testing-hiv-page")}>
+              HIV Testing – Fast & Confidential
             </span>
           ),
         },
         {
           key: "testing_stds",
-          label: (
-            <span onClick={() => navigate("/services/testing_stds")}>
-              STD Testing
-            </span>
-          ),
-        },
-        {
-          key: "hiv_testing",
-          label: (
-            <span onClick={() => navigate("/services/hiv_testing")}>
-              HIV Testing
-            </span>
-          ),
+          label: <span onClick={() => navigate("")}>HIV Treatment</span>,
         },
       ]}
     />
@@ -79,29 +68,29 @@ const Header = () => {
 
   const headerClasses =
     isWhiteBackgroundPage || scrolled
-      ? "bg-white text-black shadow-md"
-      : "bg-white/10 text-white backdrop-blur";
+      ? "bg-white text-black shadow-sm"
+      : "bg-white/70 backdrop-blur text-black";
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 px-6 py-3 flex items-center justify-between transition-all duration-300 ${headerClasses}`}
+      className={`fixed top-0 left-0 w-full z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${headerClasses}`}
     >
       {/* Left: Logo */}
-      <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate("/")}>
-        <Image src={logo} width={45} preview={false} />
-        <h1 className="text-[17px] font-semibold bg-gradient-to-r from-[#1e88e5] to-purple-600 bg-clip-text text-transparent hidden md:block">
-          HIV TREATMENT
+      <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+       
+        <h1 className="text-xl font-extrabold text-indigo-700 hidden md:block">
+          LifeLink HIV 
         </h1>
       </div>
 
       {/* Middle: Menu */}
-      <div className="hidden md:flex gap-8 font-semibold text-[16px] items-center">
+      <div className="hidden md:flex gap-10 font-medium text-[15px] items-center text-gray-700">
         {menuItemsHeader.map((item) => (
           <span
             key={item.path}
             onClick={() => handleNavigate(item.path)}
-            className={`cursor-pointer hover:text-[#1e88e5] transition duration-200 ${
-              location.pathname === item.path ? "text-[#1e88e5] underline" : ""
+            className={`cursor-pointer hover:text-indigo-600 transition-colors duration-200 ${
+              location.pathname === item.path ? "text-indigo-600 font-semibold" : ""
             }`}
           >
             {item.label}
@@ -110,8 +99,8 @@ const Header = () => {
 
         {isAuthenticated && (
           <Dropdown overlay={serviceMenu} placement="bottom">
-            <span className="cursor-pointer hover:text-[#1e88e5] transition duration-200">
-              Services <DownOutlined style={{ fontSize: "12px" }} />
+            <span className="cursor-pointer hover:text-indigo-600 transition">
+              Services <DownOutlined style={{ fontSize: "12px", marginLeft: "4px" }} />
             </span>
           </Dropdown>
         )}
@@ -122,22 +111,22 @@ const Header = () => {
         {isAuthenticated ? (
           <div
             onClick={() => navigate("/profile-page")}
-            className="flex items-center gap-3 px-3 py-1 rounded-full transition cursor-pointer"
+            className="flex items-center gap-3 px-3 py-1 rounded-full transition cursor-pointer bg-gray-100 hover:bg-gray-200"
           >
-            <p className="text-sm font-medium">{fullname}</p>
+            <p className="text-sm font-medium text-gray-700">{fullname}</p>
             <img
               src={urlImageProfile}
               alt="User Avatar"
-              className="w-10 h-10 rounded-full object-cover border border-gray-300 shadow-md"
+              className="w-10 h-10 rounded-full object-cover border border-gray-300 shadow-sm"
             />
           </div>
         ) : (
-          <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-lg text-sm font-semibold cursor-pointer">
-            <span onClick={() => navigate("/login-page")} className="hover:text-[#1e88e5]">
+          <div className="flex items-center space-x-2 bg-indigo-50 px-4 py-2 rounded-full text-sm font-medium text-indigo-700 cursor-pointer shadow-sm">
+            <span onClick={() => navigate("/login-page")} className="hover:text-indigo-600">
               Login
             </span>
             <span>/</span>
-            <span onClick={() => navigate("/register-page")} className="hover:text-[#1e88e5]">
+            <span onClick={() => navigate("/register-page")} className="hover:text-indigo-600">
               Register
             </span>
           </div>

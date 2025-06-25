@@ -25,7 +25,6 @@ dayjs.extend(customParseFormat);
 
 const ScheduleAConsultation = () => {
   const [form] = Form.useForm();
-  const [selectedType, setSelectedType] = useState("online-video");
   const [availableSchedulesDoctors, setAvailableSchedulesDoctors] = useState(
     []
   );
@@ -39,7 +38,7 @@ const ScheduleAConsultation = () => {
         ...values,
         appointmentDate: formattedDate,
         appointmentTime: formattedTime,
-        appointmentType: "Consultation"
+        appointmentType: "Consultation",
       };
       await createAppointment(goodValues);
       toast.success("Successfully!");
@@ -108,7 +107,7 @@ const ScheduleAConsultation = () => {
               <Row gutter={16}>
                 {/* Cột trái */}
                 <Col xs={24} md={12}>
-                 <Form.Item
+                  <Form.Item
                     name="appointmentService"
                     label="Choose Consultation Type"
                     rules={[{ required: true, message: "Type is required!" }]}
@@ -129,8 +128,8 @@ const ScheduleAConsultation = () => {
                       ]}
                     />
                   </Form.Item>
-                
- <Form.Item
+
+                  <Form.Item
                     name="appointmentTime"
                     label="Choose Hour (30 minutes)"
                     rules={[{ required: true, message: "Hour is required!" }]}
@@ -142,9 +141,6 @@ const ScheduleAConsultation = () => {
                       onChange={handleDateTimeChange}
                     />
                   </Form.Item>
-                 
-
-                 
                 </Col>
 
                 {/* Cột phải */}
@@ -163,8 +159,8 @@ const ScheduleAConsultation = () => {
                       }
                     />
                   </Form.Item>
-                 
- <Form.Item
+
+                  <Form.Item
                     name="doctorId"
                     label="Doctor List Available"
                     rules={[
@@ -183,14 +179,13 @@ const ScheduleAConsultation = () => {
                       }))}
                     />
                   </Form.Item>
-                 
                 </Col>
 
                 {/* Ghi chú */}
                 <Col span={24}>
                   <Form.Item name="appointmentNotes" label="Notes">
                     <Input.TextArea
-                      rows={3}
+                      rows={5}
                       placeholder="Taking notes (if having)"
                     />
                   </Form.Item>

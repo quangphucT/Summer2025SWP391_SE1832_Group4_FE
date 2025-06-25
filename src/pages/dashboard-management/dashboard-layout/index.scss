@@ -1,0 +1,239 @@
+// Management Dashboard Professional Styles
+.management-dashboard-layout {
+  .management-sidebar {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    box-shadow: 2px 0 15px rgba(25, 118, 210, 0.2);
+    
+    .management-logo-section {
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      
+      .management-logo {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        
+        .anticon {
+          font-size: 28px;
+          color: #1976d2;
+        }
+      }
+      
+      .management-title {
+        color: white;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      
+      .management-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+    
+    .management-menu {
+      background: transparent !important;
+      border: none !important;
+      padding: 16px 8px;
+      
+      .ant-menu-item,
+      .ant-menu-submenu {
+        margin: 4px 8px !important;
+        border-radius: 12px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+          transform: translateX(4px);
+        }
+        
+        &.ant-menu-item-selected,
+        &.ant-menu-submenu-selected {
+          background: rgba(255, 255, 255, 0.2) !important;
+          color: white !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .ant-menu-title-content {
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .anticon {
+          color: rgba(255, 255, 255, 0.8) !important;
+          font-size: 16px;
+        }
+      }
+      
+      .ant-menu-submenu-title {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 600 !important;
+        
+        &:hover {
+          color: white !important;
+        }
+      }
+      
+      .ant-menu-sub {
+        background: rgba(0, 0, 0, 0.1) !important;
+        border-radius: 8px;
+        margin: 4px 0;
+        
+        .ant-menu-item {
+          padding-left: 48px !important;
+          font-size: 14px !important;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+          }
+        }
+      }
+    }
+  }
+  
+  .management-header {
+    background: linear-gradient(90deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    .management-header-left {
+      .management-breadcrumb {
+        color: #64748b;
+        font-size: 14px;
+        
+        .current-page {
+          color: #1976d2;
+          font-weight: 600;
+        }
+      }
+    }
+    
+    .management-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      
+      .management-user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 16px;
+        background: #f8fafc;
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        
+        .management-user-name {
+          color: #1e293b;
+          font-weight: 600;
+          font-size: 14px;
+        }
+        
+        .management-user-role {
+          color: #64748b;
+          font-size: 12px;
+        }
+        
+        .management-avatar {
+          border: 2px solid #1976d2;
+        }
+      }
+    }
+  }
+  
+  .management-content {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: calc(100vh - 64px);
+    margin-top: -10px;
+    .management-content-wrapper {
+   
+      background: rgb(202, 192, 192);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin: 24px;
+      padding-top: 90px;
+      min-height: calc(100vh - 152px);
+      border: 1px solid #e2e8f0;
+    }
+  }
+  
+  // Collapse state styles
+  &.collapsed {
+    .management-logo-section {
+      padding: 16px 8px;
+      
+      .management-title,
+      .management-subtitle {
+        display: none;
+      }
+      
+      .management-logo {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 0;
+        
+        .anticon {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .management-dashboard-layout {
+    .management-sidebar {
+      width: 240px !important;
+    }
+    
+    .management-header {
+      padding: 0 16px;
+      
+      .management-header-right {
+        .management-user-info {
+          .management-user-name,
+          .management-user-role {
+            display: none;
+          }
+        }
+      }
+    }
+    
+    .management-content {
+      .management-content-wrapper {
+        margin: 16px;
+        padding: 20px;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .management-dashboard-layout {
+    .management-sidebar {
+      width: 200px !important;
+    }
+    
+    .management-content {
+      .management-content-wrapper {
+        margin: 8px;
+        padding: 16px;
+        border-radius: 12px;
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import "./index.scss";
-import { getAllAppointments } from "../../../apis/appointmentAPI/getAllAppointmentsApi";
+import { getAllAppointments } from "../../../../apis/appointmentAPI/getAllAppointmentsApi";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -16,7 +16,8 @@ import {
   TimePicker,
 } from "antd";
 import { FileTextOutlined } from "@ant-design/icons";
-import { createAppointmentTest } from "../../../apis/appointmentAPI/createAppointmentTestApi";
+import { createAppointmentTest } from "../../../../apis/appointmentAPI/createAppointmentTestApi";
+import { getAvailableSchedulesDoctorsTesting } from "../../../../apis/doctorApi/getAvailableSchedulesDoctorTestingApi";
 
 const CheckedInAppointmentToday = () => {
   const [data, setData] = useState([]);
@@ -24,6 +25,12 @@ const CheckedInAppointmentToday = () => {
   const [loadingFormCreateTest, setLoadingFormCreateTest] = useState(false);
   const [openModalFormAdvice, setOpenModalFormAdvice] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
+
+
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [availableDoctors, setAvailableDoctors] = useState([]);
+
   const [form] = Form.useForm();
 
   const fetchingAppointmentCheckedIn = async () => {
@@ -46,6 +53,21 @@ const CheckedInAppointmentToday = () => {
       );
     }
     setLoading(false);
+  };
+  console.log("Available doctor:", availableDoctors)
+  const fetchAvailableDoctors = async (date, time) => {
+    try {
+      const payload = {
+        appointmentDate: date.format("YYYY-MM-DD"),
+        appointmentTime: time.format("HH:mm:ss"),
+      };
+      const res = await getAvailableSchedulesDoctorsTesting(payload); // API cần truyền params ngày + giờ
+      setAvailableDoctors(res.data.data || []);
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message?.error || "Error fetching doctors"
+      );
+    }
   };
 
   useEffect(() => {
@@ -143,37 +165,39 @@ const CheckedInAppointmentToday = () => {
 
     try {
       const formatted = {
-     
-          patientId: selectedRecord?.patient?.patientCodeAtFacility,
-          appointmentDate: values.appointmentDate?.format("YYYY-MM-DD"),
-          appointmentTime: values.appointmentTime?.format("HH:mm:ss"),
-          appointmentType: "Testing",
-          appointmentService: values.hivTestType,
-          appointmentNotes: values.medicalNote,
-      
+        doctorId: values.doctorId,
+        patientId: selectedRecord?.patient?.patientId,
+        appointmentDate: values.appointmentDate?.format("YYYY-MM-DD"),
+        appointmentTime: values.appointmentTime?.format("HH:mm:ss"),
+        appointmentType: "Testing",
+        appointmentService: values.hivTestType,
+        appointmentNotes: values.medicalNote,
       };
+      console.log("Formatted:", formatted);
       await createAppointmentTest(formatted);
       toast.success("Created successfuly");
       form.resetFields();
       setOpenModalFormAdvice(false);
     } catch (error) {
       toast.error(
-        error?.response?.data?.message?.error || "Error while handling logic!"
+        error?.response?.data?.message || "Error while handling logic!"
       );
     }
+    setLoadingFormCreateTest(false);
   };
+
 
   return (
     <div className="checked-in-appointment-table">
       <h2
         style={{
           marginBottom: 0,
-          color: "#2968a7",
+          color: "#000",
           fontWeight: "bold",
           fontSize: "30px",
         }}
       >
-        List of Checked-In Patients
+        List of Checked-In Patients (Consultant)
       </h2>
       <Table
         loading={loading}
@@ -186,6 +210,25 @@ const CheckedInAppointmentToday = () => {
       <Modal
         width={900}
         open={openModalFormAdvice}
+        footer={[
+          <Button
+            onClick={() => {
+              form.resetFields();
+              setOpenModalFormAdvice(false);
+              setSelectedRecord(null);
+            }}
+          >
+            Cancel
+          </Button>,
+          <Button
+            loading={loadingFormCreateTest}
+            onClick={() => {
+              form.submit();
+            }}
+          >
+            Submit
+          </Button>,
+        ]}
         onCancel={() => {
           form.resetFields();
           setOpenModalFormAdvice(false);
@@ -229,7 +272,15 @@ const CheckedInAppointmentToday = () => {
                     { required: true, message: "Please select a test date" },
                   ]}
                 >
-                  <DatePicker style={{ width: "100%" }} />
+                  <DatePicker
+                    style={{ width: "100%", height: "45px" }}
+                    onChange={(date) => {
+                      setSelectedDate(date);
+                      if (date && selectedTime) {
+                        fetchAvailableDoctors(date, selectedTime);
+                      }
+                    }}
+                  />
                 </Form.Item>
               </Col>
 
@@ -244,7 +295,34 @@ const CheckedInAppointmentToday = () => {
                     format="HH:mm"
                     minuteStep={30}
                     style={{ width: "100%" }}
+                    onChange={(time) => {
+                      setSelectedTime(time);
+                      if (selectedDate && time) {
+                        fetchAvailableDoctors(selectedDate, time);
+                      }
+                    }}
                   />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Available Doctor"
+                  name="doctorId"
+                  rules={[
+                    { required: true, message: "Please select a doctor" },
+                  ]}
+                >
+                  <Select
+                    className="!h-[45px]"
+                    placeholder="Choose an available doctor"
+                    loading={availableDoctors.length === 0}
+                  >
+                    {availableDoctors.map((doc) => (
+                      <Select.Option key={doc.doctorId} value={doc.doctorId}>
+                        {doc.account.email}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
               </Col>
 
@@ -256,7 +334,10 @@ const CheckedInAppointmentToday = () => {
                     { required: true, message: "Please select test type" },
                   ]}
                 >
-                  <Select placeholder="Choose a test type">
+                  <Select
+                    className="!h-[45px]"
+                    placeholder="Choose a test type"
+                  >
                     <Select.Option value="RapidTest">Rapid Test</Select.Option>
                     <Select.Option value="PCR">PCR</Select.Option>
                     <Select.Option value="ELISA">ELISA</Select.Option>
