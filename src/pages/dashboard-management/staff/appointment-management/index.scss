@@ -1,0 +1,43 @@
+.ant-table {
+  font-size: 14px;
+}
+
+.ant-card {
+  background-color: #ffffff;
+}
+
+// Custom table header styling
+.custom-table {
+  .ant-table-thead > tr > th {
+    background:  #451b9a !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    text-align: center !important;
+    border-bottom: 2px solid #4a148c !important;
+    padding: 16px 12px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    position: relative !important;
+    
+   
+  }
+  
+  // Style for table body
+  .ant-table-tbody > tr {
+    &:hover > td {
+      background-color: #f0f8ff !important;
+    }
+    
+    > td {
+      padding: 12px !important;
+      font-size: 14px !important;
+      vertical-align: middle !important;
+    }
+  }
+  
+  // Custom border styling
+  .ant-table-container {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+}

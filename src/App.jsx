@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/layout";
 import HomePage from "./pages/home-page";
 import DashboardLayout from "./pages/dashboard-management/dashboard-layout";
+import DoctorLayout from "./pages/dashboard-management/doctor/doctor-layout";
 import CustomerManagement from "./pages/dashboard-management/manager/customer-management";
 import ProtocolManagement from "./pages/dashboard-management/manager/protocal-management";
 import DashboardStatistics from "./pages/dashboard-management/admin/dashboard-statistics";
@@ -21,12 +22,27 @@ import AccountManagement from "./pages/dashboard-management/admin/account-manage
 import ExperienceManagement from "./pages/dashboard-management/doctor/experience-management";
 import CertificateManagement from "./pages/dashboard-management/doctor/certificate-management";
 import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
+import DoctorManagement from "./pages/dashboard-management/doctor/doctor-management";
+
+// Doctor pages
+import DoctorDashboard from "./pages/dashboard-management/doctor/dashboard";
+import PatientRecords from "./pages/dashboard-management/doctor/patient-records";
+import Appointments from "./pages/dashboard-management/doctor/appointments";
+import DoctorProfile from "./pages/dashboard-management/doctor/profile";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DoctorManagement from "./pages/dashboard-management/doctor-management";
+
 import ScheduleAConsultation from "./pages/schedule-consultation-page";
+import AppointmentManagement from "./pages/dashboard-management/staff/appointment-management";
+import AppointmentTodayManagement from "./pages/dashboard-management/staff/appointmentToday";
+
 import ArvManagement from "./pages/dashboard-management/admin/arvstandard-management/arvstandard-management";
+import TestingHIVPage from "./pages/service-pages/testing-hiv-page";
+import DashboardDoctorTestingLayout from "./pages/dashboard-doctor/dashboard-doctor-testing/layout-dashboard";
+import DashboardDoctorConsultantLayout from "./pages/dashboard-doctor/dashboard-doctor-consultant/layout-dashboard";
+import DoctorCreationManagement from "./pages/dashboard-management/manager/doctor-createAccount-management";
+import DoctorListManagement from "./pages/dashboard-management/manager/doctor-list-management";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -42,7 +58,15 @@ const App = () => {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
         },
-         {
+
+        // service system
+
+        {
+          path: endPoint.TESTINGHIVPAGE,
+          element: <TestingHIVPage />,
+        },
+
+        {
           path: endPoint.SCHEDULEACONSULTATION,
           element: <ScheduleAConsultation />,
         },
@@ -64,15 +88,15 @@ const App = () => {
         },
         {
           path: endPoint.APPOINTMENT,
-          element: <AppointmentMenuPage/>,
+          element: <AppointmentMenuPage />,
         },
         {
           path: endPoint.TRANSACTION,
-          element: <TransactionMenuPage/>,
+          element: <TransactionMenuPage />,
         },
         {
           path: endPoint.MEDICALRECORD,
-          element: <MedicalRecordMenuPage/>,
+          element: <MedicalRecordMenuPage />,
         },
       ],
     },
@@ -86,15 +110,26 @@ const App = () => {
     },
     {
       path: endPoint.RESETPASSWORD,
-      element: <ResetPassword/>,
+      element: <ResetPassword />,
     },
     {
       path: endPoint.PASSWORDAFTERREGISTER,
-      element: <SetUpPasswordAfterRegister/>,
+      element: <SetUpPasswordAfterRegister />,
     },
     {
       path: endPoint.FORGOTPASSWORD,
       element: <ForgotPasswordPage />,
+    },
+    // dashboard for doctor testing
+    {
+      path: endPoint.DASHBOARDLAYOUTDOCTORTESTING,
+      element: <DashboardDoctorTestingLayout />,
+    },
+
+    // dashboard for doctor consultant
+    {
+      path: endPoint.DASHBOARDLAYOUTDOCTORCONSULTANT,
+      element: <DashboardDoctorConsultantLayout />,
     },
     {
       path: endPoint.DASHBOARD,
@@ -113,27 +148,57 @@ const App = () => {
           element: <CustomerManagement />,
         },
 
-         {
+        {
           path: endPoint.DOCTORMANAGEMENT,
           element: <DoctorManagement />,
         },
 
+
+        {
+          path: endPoint.DOCTORCREATEACCOUNTBYSTAFF,
+          element: <DoctorCreationManagement />,
+        },
+
          {
+          path: endPoint.DOCTORLISTMANAGEMENT,
+          element: <DoctorListManagement/>,
+        },
+
+
+
+
+        {
+          path: endPoint.APPOINTMENTMANAGEMENT,
+          element: <AppointmentManagement />,
+        },
+
+        {
+          path: endPoint.CHECKEDINAPPOINTMENTTODAY,
+          element: <AppointmentTodayManagement />,
+        },
+
+        {
+          path: endPoint.TODAYAPPOINTMENTMANAGEMENT,
+          element: <AppointmentTodayManagement />,
+        },
+
+        {
           path: endPoint.BLOGMANAGEMENT,
           element: <BlogManagement />,
         },
-
 
         {
           path: endPoint.ACCOUNTMANAGEMENT,
           element: <AccountManagement />,
         },
+
         {
-          path: endPoint.EXPERIENCEMANAGEMENT,
+          path: "experience-management/:doctorId",
           element: <ExperienceManagement />,
         },
+
         {
-          path: endPoint.CERTIFICATEMANAGEMENT,
+          path: "certificate-management/:doctorId",
           element: <CertificateManagement />,
         },
         {
@@ -143,6 +208,32 @@ const App = () => {
         {
           path: endPoint.ARVMANAGEMENT,
           element: <ArvManagement />,
+        },
+      ],
+    },
+    {
+      path: endPoint.DOCTOR,
+      element: <DoctorLayout />,
+      children: [
+        {
+          path: endPoint.DOCTORDASHBOARD,
+          element: <DoctorDashboard />,
+        },
+        {
+          path: endPoint.DOCTORPATIENTRECORDS,
+          element: <PatientRecords />,
+        },
+        {
+          path: endPoint.DOCTORAPPOINTMENTS,
+          element: <Appointments />,
+        },
+        {
+          path: endPoint.DOCTORPROFILE,
+          element: <DoctorProfile />,
+        },
+        {
+          path: "",
+          element: <DoctorDashboard />,
         },
       ],
     },
