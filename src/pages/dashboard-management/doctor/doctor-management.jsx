@@ -12,6 +12,7 @@ import {
     message,
     Result,
     Descriptions,
+    Tabs
 } from 'antd';
 import {
     EyeOutlined,
@@ -23,7 +24,12 @@ import {
 import {
     fetchAllDoctors,
 } from '../../../redux/feature/doctorSlice';
+import { fetchDoctorExperience } from '../../../redux/feature/experienceWorkingSlice';
+import { fetchCertificatesByDoctorId } from '../../../redux/feature/certificateSlice';
+import dayjs from 'dayjs';
 import endPoint from '../../../routers/router';
+
+const { TabPane } = Tabs;
 
 const DoctorManagement = () => {
     const dispatch = useDispatch();
@@ -32,6 +38,9 @@ const DoctorManagement = () => {
     const user = useSelector((state) => state.user);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const { doctorExperiences } = useSelector((state) => state.experienceWorking);
+    const { certificates } = useSelector((state) => state.certificates);
+    const [activeTab, setActiveTab] = useState('1');
 
     useEffect(() => {
         if (!user?.accountID) {
@@ -88,6 +97,8 @@ const DoctorManagement = () => {
     const handleViewDetail = (record) => {
         setSelectedDoctor(record);
         setIsModalVisible(true);
+        dispatch(fetchDoctorExperience(record.doctorId));
+        dispatch(fetchCertificatesByDoctorId(record.doctorId));
     };
 
     const handleCancel = () => {
@@ -102,6 +113,64 @@ const DoctorManagement = () => {
     const handleViewExperience = (doctorId) => {
         navigate(`/dashboard/experience-management/${doctorId}`);
     };
+
+    const experienceColumns = [
+        {
+            title: 'Position',
+            dataIndex: 'position',
+            key: 'position',
+            width: '20%'
+        },
+        {
+            title: 'Hospital/Clinic',
+            dataIndex: 'hospitalName',
+            key: 'hospitalName',
+            width: '25%'
+        },
+        {
+            title: 'Start Date',
+            dataIndex: 'fromDate',
+            key: 'fromDate',
+            width: '15%',
+            render: (date) => dayjs(date).format('DD/MM/YYYY')
+        },
+        {
+            title: 'End Date',
+            dataIndex: 'toDate',
+            key: 'toDate',
+            width: '15%',
+            render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : 'Present'
+        }
+    ];
+
+    const certificateColumns = [
+        {
+            title: 'Certificate Title',
+            dataIndex: 'title',
+            key: 'title',
+            width: '25%'
+        },
+        {
+            title: 'Issued By',
+            dataIndex: 'issuedBy',
+            key: 'issuedBy',
+            width: '20%'
+        },
+        {
+            title: 'Issue Date',
+            dataIndex: 'issuedDate',
+            key: 'issuedDate',
+            width: '15%',
+            render: (date) => dayjs(date).format('DD/MM/YYYY')
+        },
+        {
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+            width: '40%',
+            ellipsis: true
+        }
+    ];
 
     const columns = [
         {
@@ -213,32 +282,54 @@ const DoctorManagement = () => {
                 width={800}
             >
                 {selectedDoctor && (
-                    <Descriptions bordered column={1}>
-                        <Descriptions.Item label="Doctor ID">
-                            {selectedDoctor.doctorId}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Full Name">
-                            {selectedDoctor.fullName}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Email">
-                            {selectedDoctor.email}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Phone Number">
-                            {selectedDoctor.phoneNumber}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Specialty">
-                            {selectedDoctor.specialty}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Qualifications">
-                            {selectedDoctor.qualifications}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Years of Experience">
-                            {selectedDoctor.yearsOfExperience}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Short Description">
-                            {selectedDoctor.shortDescription}
-                        </Descriptions.Item>
-                    </Descriptions>
+                    <Tabs defaultActiveKey="1" onChange={setActiveTab}>
+                        <TabPane tab="Basic Information" key="1">
+                            <Descriptions bordered column={1}>
+                                <Descriptions.Item label="Doctor ID">
+                                    {selectedDoctor.doctorId}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Full Name">
+                                    {selectedDoctor.fullName}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Email">
+                                    {selectedDoctor.email}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Phone Number">
+                                    {selectedDoctor.phoneNumber}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Specialty">
+                                    {selectedDoctor.specialty}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Qualifications">
+                                    {selectedDoctor.qualifications}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Years of Experience">
+                                    {selectedDoctor.yearsOfExperience}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Short Description">
+                                    {selectedDoctor.shortDescription}
+                                </Descriptions.Item>
+                            </Descriptions>
+                        </TabPane>
+                        <TabPane tab="Experience" key="2">
+                            <Table
+                                columns={experienceColumns}
+                                dataSource={doctorExperiences}
+                                rowKey={(record) => record.id}
+                                pagination={false}
+                                className="experience-table"
+                            />
+                        </TabPane>
+                        <TabPane tab="Certificates" key="3">
+                            <Table
+                                columns={certificateColumns}
+                                dataSource={certificates}
+                                rowKey={(record) => record.certificateId}
+                                pagination={false}
+                                className="certificate-table"
+                            />
+                        </TabPane>
+                    </Tabs>
                 )}
             </Modal>
 
@@ -266,6 +357,14 @@ const DoctorManagement = () => {
                     margin-top: 20px;
                     display: flex;
                     justify-content: center;
+                }
+
+                .experience-table, .certificate-table {
+                    margin-top: 16px;
+                }
+
+                :global(.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
+                    color: #1890ff;
                 }
             `}</style>
         </div>

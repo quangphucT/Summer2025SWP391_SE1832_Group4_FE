@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
     getAllDoctors,
     getDoctorById,
-    getDoctorsBySpecialty
+    getDoctorsBySpecialty,
+    getDoctorByAccountId
 } from '../../apis/doctorApi/doctorApi';
 
 // Async thunks
@@ -27,6 +28,14 @@ export const fetchDoctorsBySpecialty = createAsyncThunk(
     async (specialty) => {
         const response = await getDoctorsBySpecialty(specialty);
         return response?.data || [];
+    }
+);
+
+export const fetchDoctorByAccountId = createAsyncThunk(
+    'doctor/fetchDoctorByAccountId',
+    async (accountId) => {
+        const response = await getDoctorByAccountId(accountId);
+        return response?.data;
     }
 );
 
@@ -111,6 +120,24 @@ const doctorSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
                 state.filteredDoctors = [];
+            })
+
+            // Fetch doctor by Account ID
+            .addCase(fetchDoctorByAccountId.pending, (state) => {
+                state.status = 'loading';
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchDoctorByAccountId.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isLoading = false;
+                state.currentDoctor = action.payload;
+                state.error = null;
+            })
+            .addCase(fetchDoctorByAccountId.rejected, (state, action) => {
+                state.status = 'failed';
+                state.isLoading = false;
+                state.error = action.error.message;
             });
     }
 });

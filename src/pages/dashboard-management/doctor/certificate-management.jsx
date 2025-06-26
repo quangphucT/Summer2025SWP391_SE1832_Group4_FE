@@ -262,29 +262,6 @@ const CertificateManagement = () => {
         })) : [];
     console.log('Certificate data for table:', certificateData);
 
-    if (status === 'failed') {
-        console.error('Failed to load certificates:', error);
-        return (
-            <Result
-                status="error"
-                title="Failed to load data"
-                subTitle={error || "An error occurred while loading certificate data"}
-                extra={[
-                    <Button 
-                        type="primary" 
-                        key="retry" 
-                        onClick={() => {
-                            console.log('Retrying fetch for doctor:', doctorId);
-                            dispatch(fetchCertificatesByDoctorId(doctorId));
-                        }}
-                    >
-                        Try Again
-                    </Button>
-                ]}
-            />
-        );
-    }
-
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -314,6 +291,11 @@ const CertificateManagement = () => {
                     </Tooltip>
                 }
             >
+                {status === 'failed' && (
+                    <div style={{ color: 'red', marginBottom: 16 }}>
+                        {error || "An error occurred while loading certificate data"}
+                    </div>
+                )}
                 <Table
                     columns={columns}
                     dataSource={certificateData}
@@ -323,7 +305,11 @@ const CertificateManagement = () => {
                     }}
                     rowKey={(record) => record.key}
                     locale={{
-                        emptyText: status === 'loading' ? 'Loading...' : 'No certificates found'
+                        emptyText: status === 'loading'
+                            ? 'Loading...'
+                            : (status === 'failed'
+                                ? 'Failed to load data'
+                                : 'No certificates found')
                     }}
                     pagination={false}
                     className="certificate-table"

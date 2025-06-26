@@ -1,94 +1,161 @@
-import React, { useState } from 'react';
-import { Table, Card, Input, Button, Space, Modal, Descriptions, Tag, Typography } from 'antd';
-import { SearchOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Table, Card, Input, Button, Space, Modal, Descriptions, Tag, Typography, Spin, Form, DatePicker, message } from 'antd';
+import { SearchOutlined, EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDoctorByAccountId } from '../../../../redux/feature/doctorSlice';
+import { getPatientRecordsByDoctorId, createPatientRecord, updatePatientRecord, deletePatientRecord } from '../../../../apis/patientApi/patentrecordApi';
+import { toast } from 'react-toastify';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 const { Search } = Input;
+const { TextArea } = Input;
 
 const PatientRecords = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
+  const dispatch = useDispatch();
+  const accountId = useSelector((state) => state.user?.accountID);
+  const [currentDoctorId, setCurrentDoctorId] = useState(null);
 
-  const patients = [
-    {
-      id: 1,
-      name: 'Nguyễn Văn A',
-      age: 30,
-      gender: 'Nam',
-      phone: '0123456789',
-      email: 'nguyenvana@email.com',
-      diagnosis: 'Cảm cúm',
-      status: 'Đang điều trị',
-      lastVisit: '2024-01-10',
-    },
-    {
-      id: 2,
-      name: 'Trần Thị B',
-      age: 25,
-      gender: 'Nữ',
-      phone: '0987654321',
-      email: 'tranthib@email.com',
-      diagnosis: 'Đau đầu',
-      status: 'Đã khỏi',
-      lastVisit: '2024-01-08',
-    },
-    {
-      id: 3,
-      name: 'Lê Văn C',
-      age: 45,
-      gender: 'Nam',
-      phone: '0555666777',
-      email: 'levanc@email.com',
-      diagnosis: 'Tiểu đường',
-      status: 'Đang điều trị',
-      lastVisit: '2024-01-12',
-    },
-  ];
+  const fetchRecords = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (!accountId) {
+        toast.error('Không tìm thấy account ID');
+        setLoading(false);
+        return;
+      }
+      // Lấy doctorId từ accountId
+      const doctorRes = await dispatch(fetchDoctorByAccountId(accountId)).unwrap();
+      const doctorId = doctorRes?.data?.doctorId;
+      setCurrentDoctorId(doctorId);
+      if (!doctorId) {
+        toast.error('Không tìm thấy doctor ID');
+        setLoading(false);
+        return;
+      }
+      // Lấy danh sách hồ sơ bệnh nhân của doctor
+      const res = await getPatientRecordsByDoctorId(doctorId);
+      setPatients(res?.data || []);
+    } catch (error) {
+      toast.error(error?.message || 'Lỗi khi tải hồ sơ bệnh nhân');
+    }
+    setLoading(false);
+  }, [accountId, dispatch]);
+
+  useEffect(() => {
+    if (accountId) fetchRecords();
+  }, [accountId, fetchRecords]);
+
+  const handleCreate = async (values) => {
+    try {
+      setLoading(true);
+      const data = {
+        ...values,
+        doctorId: currentDoctorId,
+        consultationDate: values.consultationDate.format('YYYY-MM-DD'),
+      };
+      await createPatientRecord(data);
+      message.success('Tạo hồ sơ bệnh nhân thành công');
+      setIsCreateModalVisible(false);
+      form.resetFields();
+      fetchRecords();
+    } catch (error) {
+      message.error(error?.message || 'Lỗi khi tạo hồ sơ bệnh nhân');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = async (values) => {
+    try {
+      setLoading(true);
+      const data = {
+        ...values,
+        doctorId: currentDoctorId,
+        consultationDate: values.consultationDate.format('YYYY-MM-DD'),
+      };
+      await updatePatientRecord(selectedPatient.appointmentId, data);
+      message.success('Cập nhật hồ sơ bệnh nhân thành công');
+      setIsEditModalVisible(false);
+      form.resetFields();
+      fetchRecords();
+    } catch (error) {
+      message.error(error?.message || 'Lỗi khi cập nhật hồ sơ bệnh nhân');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      setLoading(true);
+      await deletePatientRecord(id);
+      message.success('Xóa hồ sơ bệnh nhân thành công');
+      fetchRecords();
+    } catch (error) {
+      message.error(error?.message || 'Lỗi khi xóa hồ sơ bệnh nhân');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showEditModal = (record) => {
+    setSelectedPatient(record);
+    form.setFieldsValue({
+      ...record,
+      consultationDate: dayjs(record.consultationDate),
+    });
+    setIsEditModalVisible(true);
+  };
+
+  const handleSearch = (value) => {
+    if (!value) {
+      fetchRecords();
+      return;
+    }
+    const filteredPatients = patients.filter(patient => 
+      patient.patientId.toString().includes(value) ||
+      patient.symptoms?.toLowerCase().includes(value.toLowerCase()) ||
+      patient.diagnosis?.toLowerCase().includes(value.toLowerCase())
+    );
+    setPatients(filteredPatients);
+  };
 
   const columns = [
     {
-      title: 'Tên bệnh nhân',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      title: 'Record ID',
+      dataIndex: 'appointmentId',
+      key: 'appointmentId',
     },
     {
-      title: 'Tuổi',
-      dataIndex: 'age',
-      key: 'age',
-      sorter: (a, b) => a.age - b.age,
+      title: 'Patient ID',
+      dataIndex: 'patientId',
+      key: 'patientId',
     },
     {
-      title: 'Giới tính',
-      dataIndex: 'gender',
-      key: 'gender',
-      filters: [
-        { text: 'Nam', value: 'Nam' },
-        { text: 'Nữ', value: 'Nữ' },
-      ],
-      onFilter: (value, record) => record.gender === value,
+      title: 'Consultation Date',
+      dataIndex: 'consultationDate',
+      key: 'consultationDate',
+      render: (date) => date ? new Date(date).toLocaleString('vi-VN') : '',
     },
     {
-      title: 'Chẩn đoán',
+      title: 'Symptoms',
+      dataIndex: 'symptoms',
+      key: 'symptoms',
+      ellipsis: true,
+    },
+    {
+      title: 'Diagnosis',
       dataIndex: 'diagnosis',
       key: 'diagnosis',
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        let color = 'default';
-        if (status === 'Đang điều trị') color = 'processing';
-        if (status === 'Đã khỏi') color = 'success';
-        return <Tag color={color}>{status}</Tag>;
-      },
-    },
-    {
-      title: 'Lần khám cuối',
-      dataIndex: 'lastVisit',
-      key: 'lastVisit',
-      sorter: (a, b) => new Date(a.lastVisit) - new Date(b.lastVisit),
+      ellipsis: true,
     },
     {
       title: 'Hành động',
@@ -98,39 +165,101 @@ const PatientRecords = () => {
           <Button
             type="primary"
             icon={<EyeOutlined />}
-            onClick={() => showPatientDetails(record)}
+            onClick={() => {
+              setSelectedPatient(record);
+              setIsModalVisible(true);
+            }}
           >
             Chi tiết
           </Button>
           <Button
             icon={<EditOutlined />}
-            onClick={() => editPatient(record)}
+            onClick={() => showEditModal(record)}
           >
             Chỉnh sửa
+          </Button>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => Modal.confirm({
+              title: 'Xác nhận xóa',
+              content: 'Bạn có chắc chắn muốn xóa hồ sơ này?',
+              okText: 'Xóa',
+              cancelText: 'Hủy',
+              onOk: () => handleDelete(record.appointmentId)
+            })}
+          >
+            Xóa
           </Button>
         </Space>
       ),
     },
   ];
 
-  const showPatientDetails = (patient) => {
-    setSelectedPatient(patient);
-    setIsModalVisible(true);
-  };
-
-  const editPatient = (patient) => {
-    // Implement edit functionality
-    console.log('Edit patient:', patient);
-  };
-
-  const handleSearch = (value) => {
-    console.log('Search:', value);
-  };
+  const recordForm = (
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={isEditModalVisible ? handleEdit : handleCreate}
+    >
+      <Form.Item
+        name="patientId"
+        label="Patient ID"
+        rules={[{ required: true, message: 'Vui lòng nhập Patient ID' }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        name="consultationDate"
+        label="Consultation Date"
+        rules={[{ required: true, message: 'Vui lòng chọn ngày khám' }]}
+      >
+        <DatePicker style={{ width: '100%' }} />
+      </Form.Item>
+      <Form.Item
+        name="symptoms"
+        label="Symptoms"
+        rules={[{ required: true, message: 'Vui lòng nhập triệu chứng' }]}
+      >
+        <TextArea rows={4} />
+      </Form.Item>
+      <Form.Item
+        name="diagnosis"
+        label="Diagnosis"
+        rules={[{ required: true, message: 'Vui lòng nhập chẩn đoán' }]}
+      >
+        <TextArea rows={4} />
+      </Form.Item>
+      <Form.Item
+        name="doctorNotes"
+        label="Doctor Notes"
+      >
+        <TextArea rows={4} />
+      </Form.Item>
+      <Form.Item
+        name="nextSteps"
+        label="Next Steps"
+      >
+        <TextArea rows={4} />
+      </Form.Item>
+      <Form.Item
+        name="coinfectionDiseases"
+        label="Coinfection Diseases"
+      >
+        <TextArea rows={4} />
+      </Form.Item>
+      <Form.Item
+        name="drugAllergyHistory"
+        label="Drug Allergy History"
+      >
+        <TextArea rows={4} />
+      </Form.Item>
+    </Form>
+  );
 
   return (
     <div>
       <Title level={2}>Hồ sơ bệnh nhân</Title>
-      
       <Card>
         <Space style={{ marginBottom: 16 }}>
           <Search
@@ -141,22 +270,36 @@ const PatientRecords = () => {
             onSearch={handleSearch}
             style={{ width: 300 }}
           />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              form.resetFields();
+              setIsCreateModalVisible(true);
+            }}
+          >
+            Thêm mới
+          </Button>
         </Space>
-
-        <Table
-          columns={columns}
-          dataSource={patients}
-          rowKey="id"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => `Tổng ${total} bệnh nhân`,
-          }}
-        />
+        {loading ? (
+          <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 100 }} />
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={patients}
+            rowKey="appointmentId"
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng ${total} hồ sơ`,
+            }}
+          />
+        )}
       </Card>
 
+      {/* Modal xem chi tiết */}
       <Modal
-        title="Chi tiết bệnh nhân"
+        title="Chi tiết hồ sơ"
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={[
@@ -168,20 +311,67 @@ const PatientRecords = () => {
       >
         {selectedPatient && (
           <Descriptions bordered column={1}>
-            <Descriptions.Item label="Tên bệnh nhân">{selectedPatient.name}</Descriptions.Item>
-            <Descriptions.Item label="Tuổi">{selectedPatient.age}</Descriptions.Item>
-            <Descriptions.Item label="Giới tính">{selectedPatient.gender}</Descriptions.Item>
-            <Descriptions.Item label="Số điện thoại">{selectedPatient.phone}</Descriptions.Item>
-            <Descriptions.Item label="Email">{selectedPatient.email}</Descriptions.Item>
-            <Descriptions.Item label="Chẩn đoán">{selectedPatient.diagnosis}</Descriptions.Item>
-            <Descriptions.Item label="Trạng thái">
-              <Tag color={selectedPatient.status === 'Đang điều trị' ? 'processing' : 'success'}>
-                {selectedPatient.status}
-              </Tag>
+            <Descriptions.Item label="Record ID">{selectedPatient.appointmentId}</Descriptions.Item>
+            <Descriptions.Item label="Patient ID">{selectedPatient.patientId}</Descriptions.Item>
+            <Descriptions.Item label="Consultation Date">
+              {selectedPatient.consultationDate ? new Date(selectedPatient.consultationDate).toLocaleString('vi-VN') : ''}
             </Descriptions.Item>
-            <Descriptions.Item label="Lần khám cuối">{selectedPatient.lastVisit}</Descriptions.Item>
+            <Descriptions.Item label="Symptoms">{selectedPatient.symptoms}</Descriptions.Item>
+            <Descriptions.Item label="Diagnosis">{selectedPatient.diagnosis}</Descriptions.Item>
+            <Descriptions.Item label="Doctor Notes">{selectedPatient.doctorNotes}</Descriptions.Item>
+            <Descriptions.Item label="Next Steps">{selectedPatient.nextSteps}</Descriptions.Item>
+            <Descriptions.Item label="Coinfection Diseases">{selectedPatient.coinfectionDiseases}</Descriptions.Item>
+            <Descriptions.Item label="Drug Allergy History">{selectedPatient.drugAllergyHistory}</Descriptions.Item>
           </Descriptions>
         )}
+      </Modal>
+
+      {/* Modal chỉnh sửa */}
+      <Modal
+        title="Chỉnh sửa hồ sơ"
+        open={isEditModalVisible}
+        onCancel={() => {
+          setIsEditModalVisible(false);
+          form.resetFields();
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => {
+            setIsEditModalVisible(false);
+            form.resetFields();
+          }}>
+            Hủy
+          </Button>,
+          <Button key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
+            Lưu
+          </Button>,
+        ]}
+        width={800}
+      >
+        {recordForm}
+      </Modal>
+
+      {/* Modal tạo mới */}
+      <Modal
+        title="Tạo hồ sơ mới"
+        open={isCreateModalVisible}
+        onCancel={() => {
+          setIsCreateModalVisible(false);
+          form.resetFields();
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => {
+            setIsCreateModalVisible(false);
+            form.resetFields();
+          }}>
+            Hủy
+          </Button>,
+          <Button key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
+            Tạo
+          </Button>,
+        ]}
+        width={800}
+      >
+        {recordForm}
       </Modal>
     </div>
   );
