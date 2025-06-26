@@ -1,0 +1,159 @@
+// Testing Doctor Dashboard Styles
+.doctor-testing-layout {
+  .testing-sidebar {
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    box-shadow: 2px 0 12px rgba(255, 107, 53, 0.3);
+    
+    .testing-profile-section {
+      padding: 24px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      
+      .testing-avatar {
+        transition: transform 0.3s ease;
+        
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+      
+      .testing-title {
+        color: white;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        margin-top: 12px;
+      }
+    }
+    
+    .testing-menu {
+      background: transparent !important;
+      border: none !important;
+      
+      .ant-menu-item {
+        margin: 8px 12px !important;
+        border-radius: 12px !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        backdrop-filter: blur(10px);
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.15) !important;
+          color: white !important;
+          transform: translateX(4px);
+        }
+        
+        &.ant-menu-item-selected {
+          background: rgba(255, 255, 255, 0.25) !important;
+          color: white !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .anticon {
+          font-size: 16px;
+          margin-right: 12px;
+        }
+      }
+    }
+  }
+  
+  .testing-header {
+    background: linear-gradient(90deg, #FF6B35 0%, #F7931E 100%);
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+    
+    .testing-header-title {
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .testing-user-info {
+      .testing-username {
+        color: white;
+        font-weight: 600;
+        margin-right: 12px;
+      }
+      
+      .testing-avatar-header {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: transform 0.3s ease;
+        
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+  
+  .testing-content-card {
+    border-top-left-radius: 32px !important;
+    border-top-right-radius: 32px !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    
+    .testing-content-inner {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      min-height: calc(100vh - 120px);
+      border-radius: 24px;
+      padding: 24px;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .doctor-testing-layout {
+    .testing-sidebar {
+      width: 200px !important;
+      
+      .testing-profile-section {
+        padding: 16px 8px;
+        
+        .testing-avatar {
+          width: 70px !important;
+          height: 70px !important;
+        }
+        
+        .testing-title {
+          font-size: 14px;
+        }
+      }
+      
+      .testing-menu {
+        .ant-menu-item {
+          font-size: 14px !important;
+          padding: 8px 12px !important;
+        }
+      }
+    }
+    
+    .testing-header {
+      .testing-header-title {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .doctor-testing-layout {
+    .testing-sidebar {
+      width: 180px !important;
+    }
+    
+    .testing-header {
+      padding: 0 16px !important;
+      
+      .testing-header-title {
+        font-size: 14px;
+      }
+      
+      .testing-user-info {
+        .testing-username {
+          display: none;
+        }
+      }
+    }
+  }
+}

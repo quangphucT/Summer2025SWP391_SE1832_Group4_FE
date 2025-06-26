@@ -1,6 +1,6 @@
 import api from "../../config/api"
 
-export const getAvailableSchedulesDoctors = async (date, time,specialty = 'Consultation') => {
+export const getAvailableSchedulesDoctorsTesting = async (date, time,specialty = 'Testing') => {
 
     const response = await api.get('/api/appointments/available', {
       params: {
