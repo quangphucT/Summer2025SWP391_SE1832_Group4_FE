@@ -96,6 +96,7 @@ const ProfilePage = () => {
   const [openModalChangePass, setOpenModalChangePass] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(false);
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
       dispatch(removeInformation());
@@ -373,6 +374,9 @@ const ProfilePage = () => {
     <Layout className="h-[full] mt-[78px]">
       <Sider
         width={270}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
         className="!bg-white text-black shadow-lg rounded-tr-xl rounded-br-xl"
       >
         <Menu
@@ -382,6 +386,7 @@ const ProfilePage = () => {
           items={menuItems}
           className="border-r-0 text-base font-semibold"
           onClick={handleMenuClick}
+          inlineCollapsed={collapsed}
         />
       </Sider>
 

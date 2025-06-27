@@ -301,3 +301,8 @@
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1); }
 }
+.ant-table-cell {
+  white-space: normal !important;
+  word-break: break-word;
+  line-height: 1.5;
+}

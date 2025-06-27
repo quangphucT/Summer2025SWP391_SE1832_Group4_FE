@@ -2,7 +2,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/layout";
 import HomePage from "./pages/home-page";
 import DashboardLayout from "./pages/dashboard-management/dashboard-layout";
-import DoctorLayout from "./pages/dashboard-management/doctor/doctor-layout";
 import CustomerManagement from "./pages/dashboard-management/manager/customer-management";
 import ProtocolManagement from "./pages/dashboard-management/manager/protocal-management";
 import DashboardStatistics from "./pages/dashboard-management/admin/dashboard-statistics";
@@ -24,11 +23,6 @@ import CertificateManagement from "./pages/dashboard-management/doctor/certifica
 import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 import DoctorManagement from "./pages/dashboard-management/doctor/doctor-management";
 
-// Doctor pages
-import DoctorDashboard from "./pages/dashboard-management/doctor/dashboard";
-import PatientRecords from "./pages/dashboard-management/doctor/patient-records";
-import Appointments from "./pages/dashboard-management/doctor/appointments";
-import DoctorProfile from "./pages/dashboard-management/doctor/profile";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -212,32 +206,7 @@ const App = () => {
         },
       ],
     },
-    {
-      path: endPoint.DOCTOR,
-      element: <DoctorLayout />,
-      children: [
-        {
-          path: endPoint.DOCTORDASHBOARD,
-          element: <DoctorDashboard />,
-        },
-        {
-          path: endPoint.DOCTORPATIENTRECORDS,
-          element: <PatientRecords />,
-        },
-        {
-          path: endPoint.DOCTORAPPOINTMENTS,
-          element: <Appointments />,
-        },
-        {
-          path: endPoint.DOCTORPROFILE,
-          element: <DoctorProfile />,
-        },
-        {
-          path: "",
-          element: <DoctorDashboard />,
-        },
-      ],
-    },
+    
   ]);
   return (
     <div>
