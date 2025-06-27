@@ -325,7 +325,6 @@ const AppointmentListByDoctorAccountId = () => {
               <Select.Option value="InProgress">⚡ In Progress</Select.Option>
               <Select.Option value="Completed">🎯 Completed</Select.Option>
               <Select.Option value="Cancelled">❌ Cancelled</Select.Option>
-              <Select.Option value="NoShow">👻 No Show</Select.Option>
             </Select>
           </div>
 
@@ -351,10 +350,8 @@ const AppointmentListByDoctorAccountId = () => {
               allowClear
             >
               <Select.Option value="All">🗂️ All Services</Select.Option>
-              <Select.Option value="Consultation">👨‍⚕️ Consultation</Select.Option>
               <Select.Option value="PreTestCounseling">🔍 Pre-Test Counseling</Select.Option>
               <Select.Option value="PostTestCounseling">✔️ Post-Test Counseling</Select.Option>
-              <Select.Option value="HIVTesting">🧪 HIV Testing</Select.Option>
             </Select>
           </div>
 
@@ -389,7 +386,7 @@ const AppointmentListByDoctorAccountId = () => {
           dataSource={filteredData}
        
           pagination={{
-            pageSize:3,
+            pageSize:2
           }}
         />
       </Card>

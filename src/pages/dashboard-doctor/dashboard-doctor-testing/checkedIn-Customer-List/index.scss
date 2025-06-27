@@ -1,48 +1,368 @@
-// index.scss
-
+// Professional HIV Testing Dashboard Styles
 .hiv-checkedin-table {
-  background-color: #ffffff;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
   padding: 24px;
-  border-radius: 16px;
 
-  h2 {
-    color: #2968a7;
-    font-weight: bold;
-    font-size: 28px;
-    margin-bottom: 16px;
+  // Page Header
+  .page-header {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .header-icon {
+          font-size: 32px;
+          color: #d32f2f;
+          padding: 8px;
+          background: rgba(211, 47, 47, 0.1);
+          border-radius: 12px;
+        }
+
+        h2 {
+          color: #1f2937;
+          font-weight: 700;
+          font-size: 28px;
+          margin: 0;
+          background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      }
+
+      .header-stats {
+        .stat-card {
+          background: linear-gradient(135deg, #fff 0%, #f9fafb 100%);
+          border: 1px solid rgba(211, 47, 47, 0.1);
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(211, 47, 47, 0.1);
+          min-width: 160px;
+
+          .ant-card-body {
+            padding: 16px 20px;
+          }
+
+          .ant-statistic-title {
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 14px;
+          }
+        }
+      }
+    }
   }
 
-  .ant-table-wrapper {
-    background-color: #f5f7fa;
-    border-radius: 12px;
-    padding: 16px;
+  // Table Container
+  .table-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 
-    .ant-table-thead > tr > th {
-      background-color: #F45C25;
-      color: #fff;
-      font-weight: 600;
-      font-size: 15px;
-    }
+    .professional-table {
+      .ant-table {
+        background: transparent;
+        
+        // Table Header
+        .ant-table-thead > tr > th {
+          background: #4c4277;
+          color: #fff;
+          font-weight: 700;
+          font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border: none;
+          padding: 16px 12px;
+          position: relative;
+          
+        
+         
+        }
 
-    .ant-table-tbody > tr > td {
-      background-color: #ffffff;
-      font-size: 14px;
-      padding: 12px;
-    }
+        // Table Body
+        .ant-table-tbody {
+          .table-row-light > td {
+            background-color: #ffffff;
+          }
 
-    .ant-table-tbody > tr:hover > td {
-      background-color: #f0f6ff;
+          .table-row-dark > td {
+            background-color: #f9fafb;
+          }
+
+          > tr {
+            transition: all 0.3s ease;
+            
+            > td {
+              border-bottom: 1px solid #e5e7eb;
+              padding: 16px 12px;
+              vertical-align: top;
+
+              &:first-child {
+                border-left: 3px solid transparent;
+              }
+            }
+
+            &:hover {
+              background-color: rgba(211, 47, 47, 0.02) !important;
+              transform: translateY(-1px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+              > td:first-child {
+                border-left-color: #d32f2f;
+              }
+            }
+          }
+        }
+      }
+
+      // Custom Cell Styles
+      .table-index {
+        font-weight: 700;
+        color: #6b7280;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .appointment-id {
+        .ant-tag {
+          font-weight: 600;
+          border-radius: 8px;
+          font-size: 12px;
+        }
+      }
+
+      .patient-info, .doctor-info {
+        .patient-name, .doctor-name {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+          font-size: 15px;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .patient-detail, .doctor-detail {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 4px;
+          font-size: 13px;
+          color: #6b7280;
+
+          .info-icon {
+            color: #d32f2f;
+            font-size: 12px;
+          }
+        }
+      }
+
+      .appointment-info {
+        .appointment-detail {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+          font-size: 13px;
+          color: #374151;
+
+          .info-icon {
+            color: #d32f2f;
+            font-size: 12px;
+          }
+
+          &.service {
+            font-weight: 600;
+            color: #1f2937;
+          }
+        }
+
+        .ant-tag {
+          font-size: 11px;
+          border-radius: 6px;
+          margin: 0;
+        }
+      }
+
+      .action-button {
+        background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        height: 36px;
+        padding: 0 16px;
+        box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, #b71c1c 0%, #d32f2f 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(211, 47, 47, 0.4);
+        }
+
+        .anticon {
+          font-size: 14px;
+        }
+      }
+
+      // Pagination
+      .ant-pagination {
+        margin-top: 24px;
+        text-align: center;
+
+        .ant-pagination-item {
+          border-radius: 8px;
+          border: 1px solid #d1d5db;
+          
+          &:hover {
+            border-color: #d32f2f;
+          }
+
+          &.ant-pagination-item-active {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            border-color: #d32f2f;
+
+            a {
+              color: #fff;
+            }
+          }
+        }
+
+        .ant-pagination-jump-prev,
+        .ant-pagination-jump-next {
+          .ant-pagination-item-container {
+            .ant-pagination-item-link-icon {
+              color: #d32f2f;
+            }
+          }
+        }
+
+        .ant-pagination-total-text {
+          color: #6b7280;
+          font-weight: 500;
+        }
+      }
     }
   }
 
-  .ant-btn-primary {
-    background-color: #d32f2f !important;
-    border-color: #b71c1c !important;
-  }
+  // Modal styling
+  .ant-modal {
+    .ant-modal-header {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 8px 8px 0 0;
+      
+      .ant-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2968a7;
+      }
+    }
 
-  .ant-modal-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #2968a7;
+    .ant-modal-body {
+      padding: 24px;
+      background-color: #fafbfc;
+
+      .ant-divider {
+        margin: 16px 0;
+        font-weight: 600;
+        color: #2968a7;
+        
+        &::before, &::after {
+          border-top-color: #d32f2f;
+        }
+      }
+
+      .ant-form-item-label > label {
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .ant-input, .ant-select-selector {
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        transition: all 0.3s ease;
+
+        &:hover {
+          border-color: #2968a7;
+        }
+
+        &:focus, &.ant-select-focused .ant-select-selector {
+          border-color: #d32f2f;
+          box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+        }
+      }
+
+      .ant-input[disabled] {
+        background-color: #f3f4f6;
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      .ant-input-group-addon {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .ant-select-dropdown {
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .ant-modal-footer {
+      background-color: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 16px 24px;
+      border-radius: 0 0 8px 8px;
+
+      .ant-btn {
+        border-radius: 8px;
+        font-weight: 600;
+        height: 40px;
+        padding: 0 24px;
+
+        &.ant-btn-primary {
+          background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+          border: none;
+          box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+
+          &:hover {
+            background: linear-gradient(135deg, #b71c1c 0%, #d32f2f 100%);
+            transform: translateY(-1px);
+          }
+        }
+
+        &.ant-btn-default {
+          border-color: #d1d5db;
+          color: #6b7280;
+
+          &:hover {
+            border-color: #2968a7;
+            color: #2968a7;
+          }
+        }
+      }
+    }
   }
 }

@@ -136,15 +136,15 @@ const ProfilePage = () => {
 
   useEffect(() => {
     form.setFieldsValue({
-      fullName: fullInformUserOnRedux.fullName,
-      username: fullInformUserOnRedux.username,
-      phoneNumber: fullInformUserOnRedux.phone,
+      fullName: fullInformUserOnRedux?.fullName,
+      username: fullInformUserOnRedux?.username,
+      phoneNumber: fullInformUserOnRedux?.phone,
       profileImageUrl: [
         {
           uid: "-1",
           name: "profile.jpg",
           status: "done",
-          url: fullInformUserOnRedux.profileImageUrl,
+          url: fullInformUserOnRedux?.profileImageUrl,
         },
       ],
     });
@@ -153,7 +153,7 @@ const ProfilePage = () => {
         uid: "-1",
         name: "profile.jpg",
         status: "done",
-        url: fullInformUserOnRedux.profileImageUrl,
+        url: fullInformUserOnRedux?.profileImageUrl,
       },
     ]);
   }, [fullInformUserOnRedux]);
@@ -370,7 +370,7 @@ const ProfilePage = () => {
     </>
   );
   return (
-    <Layout className="h-screen mt-[78px]">
+    <Layout className="h-[full] mt-[78px]">
       <Sider
         width={270}
         className="!bg-white text-black shadow-lg rounded-tr-xl rounded-br-xl"

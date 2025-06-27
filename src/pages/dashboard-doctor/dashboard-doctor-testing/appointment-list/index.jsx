@@ -259,12 +259,13 @@ const AppointmentListByDoctorTestingAccountId = () => {
 
    
   return (
-    <div style={{ padding: "16px" }}>
+    <div  style={{ padding: "16px", height: "100%" }}>
       <Card
         bordered={false}
         style={{
           borderRadius: "12px",
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+ 
         }}
       >
         <div
@@ -273,6 +274,7 @@ const AppointmentListByDoctorTestingAccountId = () => {
             display: "flex",
             alignItems: "center",
             gap: "8px",
+
           }}
         >
           <CalendarOutlined style={{ fontSize: "28px", color: "#1976d2" }} />
@@ -326,38 +328,11 @@ const AppointmentListByDoctorTestingAccountId = () => {
               <Select.Option value="InProgress">⚡ In Progress</Select.Option>
               <Select.Option value="Completed">🎯 Completed</Select.Option>
               <Select.Option value="Cancelled">❌ Cancelled</Select.Option>
-              <Select.Option value="NoShow">👻 No Show</Select.Option>
+     
             </Select>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span 
-              style={{ 
-                fontWeight: "600", 
-                color: "#1976d2",
-                fontSize: "14px",
-                minWidth: "55px"
-              }}
-            >
-              Service:
-            </span>
-            <Select
-              style={{ 
-                width: 180, 
-                height: "36px"
-              }}
-              placeholder="Filter by Service"
-              value={serviceFilter}
-              onChange={(value) => setServiceFilter(value)}
-              allowClear
-            >
-              <Select.Option value="All">🗂️ All Services</Select.Option>
-              <Select.Option value="Consultation">👨‍⚕️ Consultation</Select.Option>
-              <Select.Option value="PreTestCounseling">🔍 Pre-Test Counseling</Select.Option>
-              <Select.Option value="PostTestCounseling">✔️ Post-Test Counseling</Select.Option>
-              <Select.Option value="HIVTesting">🧪 HIV Testing</Select.Option>
-            </Select>
-          </div>
+       
 
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span 
@@ -388,9 +363,9 @@ const AppointmentListByDoctorTestingAccountId = () => {
           loading={loading} 
           columns={columns} 
           dataSource={filteredData}
-       
+          
           pagination={{
-            pageSize:3,
+            pageSize:2
           }}
         />
       </Card>

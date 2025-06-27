@@ -41,8 +41,9 @@ import ArvManagement from "./pages/dashboard-management/admin/arvstandard-manage
 import TestingHIVPage from "./pages/service-pages/testing-hiv-page";
 import DashboardDoctorTestingLayout from "./pages/dashboard-doctor/dashboard-doctor-testing/layout-dashboard";
 import DashboardDoctorConsultantLayout from "./pages/dashboard-doctor/dashboard-doctor-consultant/layout-dashboard";
-import DoctorCreationManagement from "./pages/dashboard-management/manager/doctor-createAccount-management";
-import DoctorListManagement from "./pages/dashboard-management/manager/doctor-list-management";
+import DoctorCreationManagement from "./pages/dashboard-management/admin/doctor-createAccount-management";
+import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list-management";
+
 
 const App = () => {
   const router = createBrowserRouter([

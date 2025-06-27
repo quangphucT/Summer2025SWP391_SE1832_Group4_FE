@@ -1,6 +1,5 @@
 import { toast } from "react-toastify";
 import "./index.scss";
-import { getAllAppointments } from "../../../../apis/appointmentAPI/getAllAppointmentsApi";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -9,15 +8,26 @@ import {
   Form,
   Input,
   Modal,
-  Radio,
   Row,
   Select,
   Table,
   TimePicker,
+  Tag,
+  Avatar,
 } from "antd";
-import { FileTextOutlined } from "@ant-design/icons";
+import { 
+  FileTextOutlined,
+  UserOutlined,
+  PhoneOutlined,
+  ClockCircleOutlined,
+ 
+  IdcardOutlined,
+} from "@ant-design/icons";
 import { createAppointmentTest } from "../../../../apis/appointmentAPI/createAppointmentTestApi";
 import { getAvailableSchedulesDoctorsTesting } from "../../../../apis/doctorApi/getAvailableSchedulesDoctorTestingApi";
+import { getAllAppointmentsFollowingDoctor } from "../../../../apis/appointmentAPI/getAppointmentFollowingDoctorApi";
+import { useSelector } from "react-redux";
+import { updateAppointmentCompleted } from "../../../../apis/appointmentAPI/updateAppointmentCompletedApi";
 
 const CheckedInAppointmentToday = () => {
   const [data, setData] = useState([]);
@@ -25,43 +35,51 @@ const CheckedInAppointmentToday = () => {
   const [loadingFormCreateTest, setLoadingFormCreateTest] = useState(false);
   const [openModalFormAdvice, setOpenModalFormAdvice] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-
+  
+  const accountID = useSelector((store) => store?.user?.accountID);
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableDoctors, setAvailableDoctors] = useState([]);
 
+  
   const [form] = Form.useForm();
 
-  const fetchingAppointmentCheckedIn = async () => {
-    setLoading(true);
-    try {
-      const response = await getAllAppointments();
-      const responseAfterFilterCheckedIn =
-        response.data.data.rowDatas
-          ?.filter((item) => item.status === "CheckedIn")
-          .sort((a, b) => {
-            const timeA = a.appointmentTime;
-            const timeB = b.appointmentTime;
-            return timeA.localeCompare(timeB);
-          }) || [];
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!accountID) return;
+      
+      setLoading(true);
+      try {
+        const response = await getAllAppointmentsFollowingDoctor(accountID);
+        const responseAfterFilterCheckedIn =
+          response.data.data.rowDatas
+            ?.filter((item) => item.status === "CheckedIn")
+            .sort((a, b) => {
+              const timeA = a.appointmentTime;
+              const timeB = b.appointmentTime;
+              return timeA.localeCompare(timeB);
+            }) || [];
 
-      setData(responseAfterFilterCheckedIn);
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message?.error || "Error while fetching"
-      );
-    }
-    setLoading(false);
-  };
-  console.log("Available doctor:", availableDoctors)
+        setData(responseAfterFilterCheckedIn);
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message?.error || "Error while fetching"
+        );
+      }
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [accountID]);
+
   const fetchAvailableDoctors = async (date, time) => {
     try {
       const payload = {
         appointmentDate: date.format("YYYY-MM-DD"),
         appointmentTime: time.format("HH:mm:ss"),
       };
-      const res = await getAvailableSchedulesDoctorsTesting(payload); // API cần truyền params ngày + giờ
+      const res = await getAvailableSchedulesDoctorsTesting(payload);
       setAvailableDoctors(res.data.data || []);
     } catch (error) {
       toast.error(
@@ -70,34 +88,38 @@ const CheckedInAppointmentToday = () => {
     }
   };
 
-  useEffect(() => {
-    fetchingAppointmentCheckedIn();
-  }, []);
-
   const columns = [
     {
-      title: "No.",
+      title: "STT",
       dataIndex: "appointmentId",
       key: "index",
-      render: (text, record, index) => index + 1,
+      width: 70,
+      align: "center",
+      render: (text, record, index) => (
+        <div className="index-number">{index + 1}</div>
+      ),
     },
     {
-      title: "Patient Info",
+      title: "Patient Information",
       key: "patientInfo",
+      width: 250,
       render: (_, record) => {
         const patientCode = record?.patient?.patientCodeAtFacility || "N/A";
         const name = record?.patientName || "N/A";
         const phone = record?.patient?.account?.phoneNumber || "N/A";
         return (
-          <div>
-            <div>
-              <strong>Name:</strong> {name}
+          <div className="patient-info">
+            <div className="patient-row">
+              <UserOutlined className="info-icon" />
+              <span className="patient-name">{name}</span>
             </div>
-            <div>
-              <strong>Code:</strong> {patientCode}
+            <div className="patient-row">
+              <IdcardOutlined className="info-icon" />
+              <span>Mã: {patientCode}</span>
             </div>
-            <div>
-              <strong>Phone:</strong> {phone}
+            <div className="patient-row">
+              <PhoneOutlined className="info-icon" />
+              <span>{phone}</span>
             </div>
           </div>
         );
@@ -106,33 +128,63 @@ const CheckedInAppointmentToday = () => {
     {
       title: "Appointment Info",
       key: "appointmentInfo",
+      width: 200,
       render: (_, record) => {
         return (
-          <div>
-            <div>
-              <strong>Time:</strong> {record.appointmentTime}
+          <div className="appointment-info">
+            <div className="appointment-row">
+              <ClockCircleOutlined className="info-icon" />
+              <span>{record.appointmentTime}</span>
             </div>
-            <div>
-              <strong>Type:</strong> {record.appointmentType}
+            <div className="appointment-row">
+              <Tag color="blue" className="appointment-tag">
+                {record.appointmentType}
+              </Tag>
             </div>
-            <div>
-              <strong>Service:</strong> {record.appointmentService}
+            <div className="appointment-row">
+              <Tag color="green" className="appointment-tag">
+                {record.appointmentService}
+              </Tag>
             </div>
           </div>
         );
       },
     },
     {
-      title: "Doctor",
+      title: "Doctor Information",
       key: "doctor",
+      width: 180,
       render: (_, record) => {
-        return record?.doctor?.account?.fullName || "N/A";
+        const doctorName = record?.doctor?.account?.fullName || "N/A";
+        return (
+          <div className="doctor-info">
+            <Avatar 
+              size={28} 
+           
+              className="doctor-avatar"
+            />
+            <span className="doctor-name">{doctorName}</span>
+          </div>
+        );
       },
+    },
+    {
+      title: "Status",
+      key: "status",
+      width: 120,
+      align: "center",
+      render: () => (
+        <Tag color="success" className="status-tag">
+          CheckedIn
+        </Tag>
+      ),
     },
     {
       title: "Action",
       dataIndex: "appointmentId",
       key: "appointmentId",
+      width: 150,
+      align: "center",
       render: (text, record) => {
         return (
           <Button
@@ -141,15 +193,10 @@ const CheckedInAppointmentToday = () => {
             }}
             type="primary"
             icon={<FileTextOutlined />}
-            style={{
-              backgroundColor: "#d32f2f",
-              borderColor: "#b71c1c",
-              color: "white",
-              fontWeight: "bold",
-              borderRadius: 6,
-            }}
+            className="action-button"
+            size="small"
           >
-            Advice / Notes
+            Medical Advice & Register Test
           </Button>
         );
       },
@@ -175,8 +222,11 @@ const CheckedInAppointmentToday = () => {
       };
       console.log("Formatted:", formatted);
       await createAppointmentTest(formatted);
+      await updateAppointmentCompleted(selectedRecord.appointmentId);
       toast.success("Created successfuly");
       form.resetFields();
+      setAvailableDoctors([]);
+      setSelectedRecord(null);
       setOpenModalFormAdvice(false);
     } catch (error) {
       toast.error(
@@ -204,7 +254,12 @@ const CheckedInAppointmentToday = () => {
         columns={columns}
         dataSource={data}
         rowKey="appointmentId"
-        pagination={false}
+        pagination={{
+          pageSize: 4,
+    
+        }}
+    
+        className="modern-table"
       />
 
       <Modal
@@ -319,7 +374,7 @@ const CheckedInAppointmentToday = () => {
                   >
                     {availableDoctors.map((doc) => (
                       <Select.Option key={doc.doctorId} value={doc.doctorId}>
-                        {doc.account.email}
+                        {doc.account.email} - {doc.account.fullName}
                       </Select.Option>
                     ))}
                   </Select>
