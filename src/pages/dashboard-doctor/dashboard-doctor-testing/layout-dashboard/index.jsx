@@ -20,10 +20,10 @@ import { useNavigate } from "react-router-dom";
 
 import { useState } from "react";
 import CheckedInAppointmentToday from "../checkedIn-Customer-List";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../../redux/feature/userSlice";
 import AppointmentListByDoctorTestingAccountId from "../appointment-list";
-import { BookAIcon, UserCheck } from "lucide-react";
+import { UserCheck } from "lucide-react";
 const DashboardDoctorTestingLayout = () => {
   const [selectedMenu, setSelectedMenu] = useState(
     "recently-checkedInPatients"
@@ -35,6 +35,8 @@ const DashboardDoctorTestingLayout = () => {
     dispatch(removeInformation());
     navigate("/login-page");
   };
+  const emailDoctor = useSelector((store) => store?.user?.email);
+  const fullNameDoctor = useSelector((store) => store?.user?.fullName);
   return (
     <Layout className="doctor-testing-layout" style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -51,10 +53,10 @@ const DashboardDoctorTestingLayout = () => {
               }}
             />
             <Title level={4} className="testing-title" style={{ color: "white", marginTop: "12px", marginBottom: 0 }}>
-              🧪 Doctor Testing
+              🧪 {fullNameDoctor}
             </Title>
             <div style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "14px", marginTop: "4px" }}>
-              HIV Testing Specialist
+              HIV Testing Specialist  -  {emailDoctor}
             </div>
           </div>
         </div>
@@ -99,7 +101,7 @@ const DashboardDoctorTestingLayout = () => {
         {/* Header */}
         <Header className="testing-header">
           <div className="testing-header-title">
-            🏥 HIV Testing Workspace
+             HIV Testing Workspace
           </div>
 
           <div className="testing-user-info" style={{ display: "flex", alignItems: "center" }}>
@@ -114,7 +116,7 @@ const DashboardDoctorTestingLayout = () => {
 
         {/* Content */}
         <Content style={{ padding: 0, background: "linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)" }}>
-          <Card className="testing-content-card" style={{ margin: 0, height: "calc(100vh - 64px)" }}>
+          <Card className="testing-content-card" style={{ margin: 0 }}>
             <div className="testing-content-inner">
               {selectedMenu === "recently-checkedInPatients" && (
                 <div>
@@ -131,7 +133,7 @@ const DashboardDoctorTestingLayout = () => {
               )}
               
               {selectedMenu === "appointment-list-testing" && (
-                <div>
+                <div style={{height: "100%"}}>
                   <div style={{ marginBottom: "20px" }}>
                     <Title level={3} style={{ color: "#1976d2", margin: 0 }}>
                       🧪 Your Testing Appointments

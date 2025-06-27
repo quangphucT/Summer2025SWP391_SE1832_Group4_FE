@@ -15,7 +15,6 @@ export * as confirmAppointmentApi from './appointmentAPI/confirmAppointmentApi'
 
 export * as cancelAppointmentApi from './appointmentAPI/cancelAppointmentApi'
 
-export * as getAllAppointmentsOfCustomerApi from './appointmentAPI/getAllAppointmentsOfCustomerApi'
 export * as getAllAppointmentsTodayApi from './appointmentAPI/getAllAppointmentsTodayApi'
 export * as getAvailableSchedulesDoctors from './doctorApi/getAvailableSchedulesDoctorsApi'
 export * as searchAppointmentByPhone from './appointmentAPI/searchAppointmentByPhoneApi'
@@ -24,6 +23,12 @@ export * as checkInAppointment from './appointmentAPI/checkInAppointmentApi'
 export * as createAppointmentTest from './appointmentAPI/createAppointmentApi'
 
 export * as getAvailableSchedulesDoctorTesting from './doctorApi/getAvailableSchedulesDoctorTestingApi'
+
+
+
+// Auth 
+
+export * as createAccountAutoSetPasswordApi from './authenticationApi/createAccountAutoSetPasswordApi'
 
 
 // filter
@@ -36,3 +41,12 @@ export * as getAllAppointmentsTesting from './appointmentAPI/getAllAppointmentTe
 
 // doctor 
 export * as createAccountDoctorFollowingType from './doctorApi/createAccountDoctorFollowingTypeApi'
+
+// create result test after test
+export * as createResultAfterTest from './doctorTestingAPI/createResultAfterTestApi'
+
+// update appointment status completed
+export * as updateAppointmentStatusCompleted from './appointmentAPI/updateAppointmentCompletedApi'
+
+// get result test HIV
+export * as getResultTestHIV from './Results/getResultTestHIVAPI'

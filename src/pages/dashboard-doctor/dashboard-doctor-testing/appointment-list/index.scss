@@ -10,7 +10,7 @@
     border-bottom: 2px solid #0d47a1 !important;
     padding: 16px 12px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    
+      
     &:hover {
       background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important;
     }
@@ -18,7 +18,7 @@
   
   .ant-table-tbody > tr {
     transition: all 0.3s ease;
-    
+  
     &:hover > td {
       background-color: #f0f8ff !important;
       transform: scale(1.01);
@@ -42,6 +42,7 @@
   }
   
   .ant-table-container {
+    
     border-radius: 12px !important;
     overflow: hidden !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;

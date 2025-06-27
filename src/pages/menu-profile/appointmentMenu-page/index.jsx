@@ -1,319 +1,392 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Table, Tag, Typography, Spin, Modal, Form, Button } from "antd";
+import {
+  Table,
+  Tag,
+  Typography,
+  Spin,
+  Input,
+  Select,
+  Row,
+  Col,
+  Card,
+  Statistic,
+  Button,
+  Modal,
+} from "antd";
+import {
+  SearchOutlined,
+  CalendarOutlined,
+  UserOutlined,
+  MedicineBoxOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
 import "./index.scss";
-import { getAllAppointmentsOfCustomer } from "../../../apis/appointmentAPI/getAllAppointmentsOfCustomerApi";
-import { useDispatch } from 'react-redux';
-import { addFeedback, editFeedback, fetchFeedbacks } from '../../../redux/feature/feedbackSlice';
+import { getAllAppointmentsFollowingDoctor } from "../../../apis/appointmentAPI/getAppointmentFollowingDoctorApi";
+import { useSelector } from "react-redux";
+import ResultModal from "../../../components/atoms/ModalResult";
+import { getResultTestHIV } from "../../../apis/Results/getResultTestHIVAPI";
 
 const { Title } = Typography;
-
-const feedbackTags = [
-  'Overall Service',
-  'Customer Support',
-  'Pickup & Delivery Service',
-  'Service & Efficiency',
-  'Transparency',
-];
-
-const FeedbackModal = ({ open, onClose, appointmentId }) => {
-  const dispatch = useDispatch();
-  const [form] = Form.useForm();
-  const [submitting, setSubmitting] = useState(false);
-  const [feedbackId, setFeedbackId] = useState(null);
-  const [patientId, setPatientId] = useState(null);
-  const [loadingFeedback, setLoadingFeedback] = useState(false);
-  const [, forceUpdate] = useState({});
-
-  // Khi mở modal, fetch feedback cũ nếu có
-  useEffect(() => {
-    let isMounted = true;
-    if (open && appointmentId) {
-      setLoadingFeedback(true);
-      dispatch(fetchFeedbacks({ appointmentId }))
-        .unwrap()
-        .then(res => {
-          if (!isMounted) return;
-          let fb = null;
-          if (Array.isArray(res.data?.data?.feedbacks)) {
-            const feedbacks = res.data.data.feedbacks.filter(f => f.appointmentId === appointmentId);
-            fb = feedbacks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-          } else if (res.data?.data && !Array.isArray(res.data.data)) {
-            fb = res.data.data;
-          }
-          if (fb) {
-            setFeedbackId(fb.feedbackId);
-            setPatientId(fb.patientId);
-            form.setFieldsValue({
-              comment: fb.comment || '',
-              rating: fb.rating,
-            });
-          } else {
-            setFeedbackId(null);
-            setPatientId(null);
-            form.resetFields();
-          }
-        })
-        .finally(() => {
-          if (isMounted) setLoadingFeedback(false);
-        });
-    } else if (!open) {
-      setFeedbackId(null);
-      setPatientId(null);
-      form.resetFields();
-    }
-    return () => { isMounted = false; };
-  }, [open, appointmentId, dispatch, form]);
-
-  const handleTagClick = (tag) => {
-    const currentComment = form.getFieldValue('comment') || '';
-    const tags = currentComment.split(',').map(t => t.trim()).filter(Boolean);
-    let newTags;
-    if (tags.includes(tag)) {
-      newTags = tags.filter(t => t !== tag);
-    } else {
-      newTags = [...tags, tag];
-    }
-    form.setFieldsValue({ comment: newTags.join(', ') });
-    forceUpdate({}); // Trigger re-render để màu tag cập nhật ngay
-  };
-
-  const handleSubmit = async (values) => {
-    if (!values.rating) {
-      toast.warning('Please select your rating!');
-      return;
-    }
-    setSubmitting(true);
-    const comment = values.comment || '';
-    try {
-      if (feedbackId) {
-        await dispatch(
-          editFeedback({ id: feedbackId, data: { appointmentId, patientId, rating: values.rating, comment } })
-        ).unwrap();
-        toast.success('Feedback updated successfully!');
-      } else {
-        await dispatch(
-          addFeedback({ appointmentId, rating: values.rating, comment })
-        ).unwrap();
-        toast.success('Thank you for your feedback!');
-      }
-    } catch {
-      toast.error('Failed to submit feedback!');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      centered
-      width={400}
-      destroyOnClose
-    >
-      <div style={{ textAlign: 'center', marginBottom: 16 }}>
-        <h3 style={{ fontWeight: 700, fontSize: 20 }}>Feedback</h3>
-        {loadingFeedback ? (
-          <Spin style={{ margin: '32px 0' }} />
-        ) : (
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            initialValues={{ rating: null, comment: '' }}
-          >
-            <Form.Item name="rating" style={{ marginBottom: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 12, margin: '16px 0' }}>
-                {[1,2,3,4,5].map((num) => (
-                  <span
-                    key={num}
-                    style={{
-                      fontSize: 32,
-                      cursor: 'pointer',
-                      filter: form.getFieldValue('rating') === num ? 'none' : 'grayscale(1)',
-                      transition: 'filter 0.2s',
-                    }}
-                    onClick={() => form.setFieldsValue({ rating: num })}
-                    role="img"
-                    aria-label={`rating-${num}`}
-                  >
-                    {num === 1 ? '😡' : num === 2 ? '😕' : num === 3 ? '😐' : num === 4 ? '😊' : '😍'}
-                  </span>
-                ))}
-              </div>
-            </Form.Item>
-            <div style={{ fontWeight: 500, marginBottom: 8 }}>Tell us what can be Improved?</div>
-            <Form.Item name="comment" style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 12 }}>
-                {feedbackTags.map((tag) => {
-                  const tags = (form.getFieldValue('comment') || '').split(',').map(t => t.trim()).filter(Boolean);
-                  return (
-                    <span
-                      key={tag}
-                      onClick={() => handleTagClick(tag)}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: 8,
-                        background: tags.includes(tag) ? '#6366f1' : '#e0e7ff',
-                        color: tags.includes(tag) ? '#fff' : '#222',
-                        cursor: 'pointer',
-                        border: tags.includes(tag) ? '1px solid #6366f1' : '1px solid #e0e7ff',
-                        fontWeight: 500,
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  );
-                })}
-              </div>
-              <textarea
-                placeholder="Other suggestions…"
-                style={{ width: '100%', minHeight: 60, borderRadius: 8, border: '1px solid #cbd5e1', padding: 8, resize: 'vertical' }}
-                value={form.getFieldValue('comment') || ''}
-                onChange={e => form.setFieldsValue({ comment: e.target.value })}
-              />
-            </Form.Item>
-            <Button
-              htmlType="submit"
-              loading={submitting}
-              style={{
-                width: '100%',
-                background: '#6366f1',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 8,
-                padding: '10px 0',
-                fontWeight: 700,
-                fontSize: 16,
-                cursor: submitting ? 'not-allowed' : 'pointer',
-                opacity: submitting ? 0.7 : 1,
-              }}
-            >
-              {feedbackId ? 'Update Feedback' : 'Submit'}
-            </Button>
-          </Form>
-        )}
-      </div>
-    </Modal>
-  );
-};
+const { Option } = Select;
 
 const AppointmentMenuPage = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [feedbackModal, setFeedbackModal] = useState({ open: false, appointmentId: null });
-
-  const fetchingDataAppointmentCustomer = async () => {
-    setLoading(true);
-    try {
-      const response = await getAllAppointmentsOfCustomer();
-    const sortedData =  (response.data.data || []).sort((a,b ) => b.appointmentId - a.appointmentId);
-    setData(sortedData)
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Error loading appointments"
-      );
-    }
-    setLoading(false);
-  };
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [open, setOpen] = useState(false);
+  const accountID = useSelector((store) => store?.user?.accountID);
+  const [resultData, setResultData] = useState({});
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
 
   useEffect(() => {
-    fetchingDataAppointmentCustomer();
-  }, []);
+    const fetchingDataAppointmentCustomer = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllAppointmentsFollowingDoctor(accountID);
+        const sortedData = (response.data.data.rowDatas || []).sort(
+          (a, b) => b.appointmentId - a.appointmentId
+        );
+        setData(sortedData);
+        setFilteredData(sortedData);
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message || "Error loading appointments"
+        );
+      }
+      setLoading(false);
+    };
+
+    if (accountID) {
+      fetchingDataAppointmentCustomer();
+    }
+  }, [accountID]);
+
+  // Filter and search functionality
+  useEffect(() => {
+    let filtered = data;
+
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((item) => item.status === statusFilter);
+    }
+
+    // Filter by search text
+    if (searchText) {
+      filtered = filtered.filter(
+        (item) =>
+          item.appointmentService
+            ?.toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          item.doctor?.account?.fullName
+            ?.toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          item.patient?.account?.fullName
+            ?.toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          item.appointmentId?.toString().includes(searchText)
+      );
+    }
+
+    setFilteredData(filtered);
+  }, [data, searchText, statusFilter]);
+
+  // Calculate statistics
+  const getStatistics = () => {
+    const total = data.length;
+    const scheduled = data.filter((item) => item.status === "Scheduled").length;
+    const pending = data.filter(
+      (item) => item.status === "PendingConfirmation"
+    ).length;
+    const cancelled = data.filter((item) => item.status === "Cancelled").length;
+    const completed = data.filter((item) => item.status === "Completed").length;
+
+    return { total, scheduled, pending, cancelled, completed };
+  };
+
+  const stats = getStatistics();
 
   const columns = [
-    { title: "Appointment ID", dataIndex: "appointmentId", key: "appointmentId", width: 100 },
-    { title: "Service", dataIndex: "appointmentService", key: "appointmentService", width: 140, ellipsis: true },
-    { title: "Date", dataIndex: "appointmentDate", key: "appointmentDate", width: 110 },
-    { title: "Time", dataIndex: "appointmentTime", key: "appointmentTime", width: 90 },
-    { title: "Type", dataIndex: "appointmentType", key: "appointmentType", width: 120 },
-    { title: "Status", dataIndex: "status", key: "status", width: 140 },
-    { title: "Doctor Info", key: "doctor", width: 180, ellipsis: true, render: (_, record) => {
-      const doctor = record.doctor?.account;
+    {
+      title: "Appointment ID",
+      dataIndex: "appointmentId",
+      key: "appointmentId",
+      width: 120,
+      render: (text) => <div style={{ color: "#000" }}>#{text}</div>,
+    },
+    {
+      title: "Service",
+      dataIndex: "appointmentService",
+      key: "appointmentService",
+      width: 150,
+      render: (text) => (
+        <div style={{ fontWeight: 600, color: "#000" }}>{text}</div>
+      ),
+    },
+    {
+      title: "Date",
+      dataIndex: "appointmentDate",
+      key: "appointmentDate",
+      width: 110,
+      render: (text) => <div>{dayjs(text).format("DD/MM/YYYY")}</div>,
+    },
+    {
+      title: "Time",
+      dataIndex: "appointmentTime",
+      key: "appointmentTime",
+      width: 80,
+      render: (text) => <div>{text?.slice(0, 5)}</div>,
+    },
+    {
+      title: "Type",
+      dataIndex: "appointmentType",
+      key: "appointmentType",
+      width: 120,
+      render: (text) => (
+        <div style={{ fontWeight: 600, color: "#000" }}>{text}</div>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      width: 130,
+      render: (status) => {
+        let color = "default";
+        let statusText = status;
+
+        if (status === "PendingConfirmation") {
+          color = "orange";
+          statusText = "Pending";
+        } else if (status === "Scheduled") {
+          color = "green";
+          statusText = "Scheduled";
+        } else if (status === "Cancelled") {
+          color = "red";
+          statusText = "Cancelled";
+        } else if (status === "Completed") {
+          color = "green";
+          statusText = "Completed";
+        }
+
+        return <Tag color={color}>{statusText}</Tag>;
+      },
+    },
+    {
+      title: "Doctor Information",
+      key: "doctor",
+      width: 220,
+      render: (_, record) => {
+        const doctor = record.doctor?.account;
+        return (
+          <div>
+            <strong>{doctor?.fullName || "N/A"}</strong>
+            <div>📧 {doctor?.email || "N/A"}</div>
+            <div>📞 {doctor?.phoneNumber || "N/A"}</div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Patient Information",
+      key: "patient",
+      width: 220,
+      render: (_, record) => {
+        const patient = record.patient?.account;
+        return (
+          <div>
+            <strong>{patient?.fullName || "N/A"}</strong>
+            <div>📧 {patient?.email || "N/A"}</div>
+            <div>📞 {patient?.phoneNumber || "N/A"}</div>
+            <div>🏥 {record.patient?.patientCodeAtFacility || "N/A"}</div>
+          </div>
+        );
+      },
+    },
+
+    // view results
+
+   {
+  title: "Action",
+  dataIndex: "appointmentId",
+  key: "appointmentId",
+  width: 120,
+  render: (appointmentId, record) => {
+    if (record.appointmentType === "Consultation") {
       return (
-        <div>
-          <strong>{doctor?.fullName}</strong>
-          <div>Email: {doctor?.email}</div>
-          <div>Phone: {doctor?.phoneNumber}</div>
-        </div>
-      );
-    } },
-    { title: "Patient Info", key: "patient", width: 180, ellipsis: true, render: (_, record) => {
-      const patient = record.patient?.account;
-      return (
-        <div>
-          <strong>{patient?.fullName}</strong>
-          <div>Email: {patient?.email}</div>
-          <div>Phone: {patient?.phoneNumber}</div>
-          <div>Code: {record.patient?.patientCodeAtFacility}</div>
-        </div>
-      );
-    } },
-    { title: "Feedback", key: "feedback", width: 120, render: (_, record) => (
-      <button
+      <Button
+        type="primary"
+        icon={<EyeOutlined />}
+        size="large"
         style={{
-          background: '#f59e42',
-          border: 'none',
-          borderRadius: 6,
-          padding: '4px 12px',
-          color: '#fff',
-          cursor: 'pointer',
-          fontWeight: 600
+          backgroundColor: "orange",
+          fontWeight: "500",
+          borderRadius: "26px",
         }}
-        onClick={() => handleOpenFeedback(record.appointmentId)}
       >
-        Feedback
-      </button>
-    ) },
+        View Note
+      </Button>
+    );
+    }
+
+    return (
+      <Button
+        type="primary"
+        icon={<EyeOutlined />}
+        onClick={() => handleOpenModalResult(appointmentId)}
+        size="large"
+        style={{
+          backgroundColor: "#1976d2",
+          borderColor: "#1976d2",
+          fontWeight: "500",
+          borderRadius: "6px",
+        }}
+      >
+        Check Result
+      </Button>
+    );
+  },
+}
+
   ];
-
-  const handleOpenFeedback = (appointmentId) => {
-    setFeedbackModal({ open: true, appointmentId });
+  const handleOpenModalResult = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
+    setOpen(true);
   };
 
-  const handleCloseFeedback = () => {
-    setFeedbackModal({ open: false, appointmentId: null });
+  const fetchAppointmentResult = async () => {
+    try {
+      // Fetch appointment result logic here
+      const result = await getResultTestHIV(selectedAppointmentId);
+      const firstResult = result.data.data;
+      setResultData(firstResult);
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Error fetching appointment result"
+      );
+    }
   };
+  useEffect(() => {
+    if (open && selectedAppointmentId) {
+      fetchAppointmentResult(selectedAppointmentId);
+    }
+  }, [open, selectedAppointmentId]);
 
   return (
-    <div
-      style={{ backgroundColor: "#e0e7ff", minHeight: "100vh", padding: 24 }}
-    >
+    <div className="appointment-history-page">
       {loading ? (
-        <Spin
-          size="large"
-          style={{ display: "flex", justifyContent: "center", marginTop: 100 }}
-        />
-      ) : (
-        <div style={{ background: "#fff", padding: 16, borderRadius: 28, width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
-          <Title
-            level={3}
+        <div className="appointment-content-wrapper">
+          <Spin
+            size="large"
             style={{
-              color: "#1e3a8a",
-              textAlign: "center",
-              fontSize: "30px",
-              fontWeight: "700",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "200px",
             }}
-          >
-            Appointment List History
-          </Title>
+          />
+        </div>
+      ) : (
+        <div className="appointment-content-wrapper">
+          {/* Statistics Cards */}
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            <Col xs={24} sm={12} md={6}>
+              <Card className="stat-card">
+                <Statistic
+                  title="Total Appointments"
+                  value={stats.total}
+                  prefix={<CalendarOutlined />}
+                  valueStyle={{ color: "#000", fontWeight: "bold" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card className="stat-card">
+                <Statistic
+                  title="Scheduled"
+                  value={stats.scheduled}
+                  prefix={<MedicineBoxOutlined />}
+                  valueStyle={{ color: "#52c41a", fontWeight: "bold" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card className="stat-card">
+                <Statistic
+                  title="Pending"
+                  value={stats.pending}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: "#faad14", fontWeight: "bold" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card className="stat-card">
+                <Statistic
+                  title="Cancelled"
+                  value={stats.cancelled}
+                  prefix={<CalendarOutlined />}
+                  valueStyle={{ color: "#ff4d4f", fontWeight: "bold" }}
+                />
+              </Card>
+            </Col>
+          </Row>
 
+          {/* Search and Filter Controls */}
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            <Col xs={24} md={16}>
+              <Input
+                placeholder="Search by service, doctor, patient, or appointment ID..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="search-input"
+                size="large"
+              />
+            </Col>
+            <Col xs={24} md={8}>
+              <Select
+                placeholder="Filter by status"
+                value={statusFilter}
+                onChange={setStatusFilter}
+                className="status-filter"
+                size="large"
+                style={{ width: "100%" }}
+              >
+                <Option value="all">All Status</Option>
+                <Option value="Scheduled">Scheduled</Option>
+                <Option value="PendingConfirmation">Pending</Option>
+                <Option value="Cancelled">Cancelled</Option>
+                <Option value="Completed">Completed</Option>
+              </Select>
+            </Col>
+          </Row>
+
+          <div className="appointment-table-wrapper">
             <Table
               rowKey="appointmentId"
               columns={columns}
-              dataSource={data}
-              pagination={{ pageSize: 3 }}
+              dataSource={filteredData}
+              pagination={{
+                pageSize: 3,
+              }}
+              size="middle"
             />
-          {/* Feedback Modal */}
-          <FeedbackModal
-            open={feedbackModal.open}
-            onClose={handleCloseFeedback}
-            appointmentId={feedbackModal.appointmentId}
-          />
+          </div>
         </div>
       )}
+
+      <ResultModal
+        isOpen={open}
+        onClose={() => {
+          setOpen(false); setResultData({});
+          setSelectedAppointmentId(null);
+        }}
+        resultData={resultData}
+      />
     </div>
   );
 };

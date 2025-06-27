@@ -27,11 +27,14 @@ const { Header, Sider, Content } = Layout;
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CheckedInAppointmentToday from "../checkedIn-Customer-List";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../../redux/feature/userSlice";
 import AppointmentListByDoctorAccountId from "../appointment-list";
+import HistoryTestResultOfPatient from "../history-testResultOf-patient";
 
 const DashboardDoctorConsultantLayout = () => {
+  const emailDoctor = useSelector((store) => store?.user?.email);
+  const fullNameDoctor = useSelector((store) => store?.user?.fullName);
   const [selectedMenu, setSelectedMenu] = useState(
     "recently-checkedInPatients"
   );
@@ -126,7 +129,7 @@ const DashboardDoctorConsultantLayout = () => {
                 textShadow: "0 2px 4px rgba(0,0,0,0.3)",
               }}
             >
-              Dr. Medical
+             {fullNameDoctor}
             </div>
             <div
               style={{
@@ -139,7 +142,7 @@ const DashboardDoctorConsultantLayout = () => {
                 backdropFilter: "blur(10px)",
               }}
             >
-              Consultant Specialist
+              Consultant Specialist - Email: {emailDoctor}
             </div>
           </div>
         </div>
@@ -173,6 +176,23 @@ const DashboardDoctorConsultantLayout = () => {
             }}
           >
             Checked-in Patients
+          </Menu.Item>
+
+           <Menu.Item
+            key="history-testResults-Patients"
+            icon={<CalendarOutlined style={{ fontSize: "18px" }} />}
+            style={{
+              margin: "8px 0",
+              borderRadius: "12px",
+              height: "50px",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "15px",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+          >
+            History Test Results Of Patients
           </Menu.Item>
 
           <Menu.Item
@@ -366,6 +386,46 @@ const DashboardDoctorConsultantLayout = () => {
                   }}
                 >
                   <AppointmentListByDoctorAccountId/>
+                </p>
+              </div>
+            )}
+
+            // history test results of patients
+
+             {selectedMenu === "history-testResults-Patients" && (
+              <div
+                className="fade-in"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "670px",
+                  flexDirection: "column",
+                  gap: "16px",
+                }}
+              >
+               <div className="flex items-center space-x-5">
+                 <ProjectOutlined
+                  style={{ fontSize: "64px", color: "#667eea" }}
+                />
+                <h2
+                  style={{
+                    color: "#1e3c72",
+                    fontSize: "24px",
+                    fontWeight: "600",
+                  }}
+                >
+                 History Test Results Of Patients
+                </h2>
+               </div>
+                <p
+                  style={{
+                    color: "#666",
+                    fontSize: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <HistoryTestResultOfPatient/>
                 </p>
               </div>
             )}

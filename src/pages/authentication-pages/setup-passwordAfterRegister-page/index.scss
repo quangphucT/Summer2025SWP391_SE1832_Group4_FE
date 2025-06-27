@@ -1,32 +1,605 @@
-// index.scss
+// Medical Color Palette - Consistent with other auth pages
+:root {
+  --primary-medical: #1e40af;
+  --secondary-medical: #3b82f6;
+  --accent-medical: #06b6d4;
+  --success-medical: #10b981;
+  --warning-medical: #f59e0b;
+  --danger-medical: #ef4444;
+  --setup-medical: #059669;
+  
+  --background-primary: #0f172a;
+  --background-secondary: #1e293b;
+  --surface-glass: rgba(255, 255, 255, 0.1);
+  --surface-card: rgba(255, 255, 255, 0.95);
+  
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #94a3b8;
+  --text-white: #ffffff;
+  
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
+  --gradient-secondary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --gradient-accent: linear-gradient(45deg, #06b6d4 0%, #3b82f6 100%);
+  --gradient-setup: linear-gradient(135deg, #059669 0%, #10b981 50%, #06b6d4 100%);
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+}
+
 .setup-password-container {
-  background-image: url('../../../assets/images/HIVAIDS-Banner-1920x1024v2.jpg'); // ← thay bằng đường dẫn ảnh thật
-  background-size: cover;
-  background-position: center;
   position: relative;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--gradient-secondary);
+  background-image: 
+    radial-gradient(at 20% 80%, hsla(160, 100%, 85%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, hsla(200, 100%, 80%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 40% 40%, hsla(140, 100%, 85%, 0.1) 0px, transparent 50%);
+  background-attachment: fixed;
+  overflow-x: hidden;
 
-  // lớp mờ overlay
   &::before {
     content: "";
     position: absolute;
-    inset: 0;
-    background-color: rgba(255, 255, 255, 0.4); // lớp trắng mờ
-    backdrop-filter: blur(6px); // hiệu ứng sương mù
-    z-index: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../../assets/images/HIVAIDS-Banner-1920x1024v2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.1;
+    z-index: 1;
   }
 
-  .form-wrapper {
-    position: relative;
-    z-index: 1;
-    background: white;
-    padding: 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 0 10px rgba(0,0,0,0.15);
-    width: 100%;
-    max-width: 400px;
+  .setup-password-background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-setup);
+    opacity: 0.9;
+    backdrop-filter: blur(10px);
+    z-index: 2;
   }
+
+  .setup-password-content {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    max-width: 1400px;
+    margin: 0 auto;
+    
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+      padding: 2rem;
+    }
+  }
+}
+
+// Left Side - Branding
+.setup-password-branding {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 3rem;
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  
+  @media (max-width: 1024px) {
+    padding: 2rem;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .brand-content {
+    text-align: center;
+    max-width: 500px;
+
+    .brand-icon {
+      font-size: 4rem;
+      color: var(--text-white);
+      margin-bottom: 1.5rem;
+      
+      .anticon {
+        background: var(--gradient-accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      }
+    }
+
+    .brand-title {
+      color: var(--text-white) !important;
+      font-size: 3rem !important;
+      font-weight: 700 !important;
+      margin-bottom: 0.5rem !important;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      
+      @media (max-width: 768px) {
+        font-size: 2.25rem !important;
+      }
+    }
+
+    .brand-subtitle {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-size: 2rem !important;
+      font-weight: 300 !important;
+      margin-bottom: 2rem !important;
+      
+      @media (max-width: 768px) {
+        font-size: 1.5rem !important;
+      }
+    }
+
+    .brand-description {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 3rem;
+      max-width: 450px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .security-features {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      align-items: flex-start;
+      max-width: 400px;
+      margin: 0 auto;
+
+      .security-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        text-align: left;
+
+        .security-icon {
+          font-size: 1.5rem;
+          color: var(--setup-medical);
+          background: rgba(5, 150, 105, 0.2);
+          padding: 0.75rem;
+          border-radius: var(--border-radius-md);
+          backdrop-filter: blur(10px);
+          margin-top: 0.25rem;
+        }
+
+        .security-content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+
+          .security-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+          }
+
+          .security-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Right Side - Setup Form
+.setup-password-form-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 3rem;
+  
+  @media (max-width: 1024px) {
+    padding: 2rem;
+  }
+
+  .setup-password-card {
+    width: 100%;
+    max-width: 500px;
+    background: var(--surface-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-glass);
+    padding: 3rem 2.5rem;
+    
+    @media (max-width: 768px) {
+      padding: 2rem 1.5rem;
+      border-radius: var(--border-radius-lg);
+    }
+
+    .ant-card-body {
+      padding: 0;
+    }
+  }
+}
+
+.setup-password-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+
+  .header-icon {
+    font-size: 3rem;
+    color: var(--setup-medical);
+    margin-bottom: 1rem;
+    
+    .anticon {
+      background: var(--gradient-setup);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  .setup-password-title {
+    color: var(--text-primary) !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+    background: var(--gradient-setup);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .setup-password-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+.setup-password-form {
+  .ant-form-item-label > label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .custom-input {
+    height: 48px;
+    border-radius: var(--border-radius-md);
+    border: 2px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: var(--secondary-medical);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    &:focus,
+    &.ant-input-focused {
+      border-color: var(--setup-medical);
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    .input-icon {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    input {
+      background: transparent;
+      font-size: 1rem;
+      
+      &::placeholder {
+        color: var(--text-light);
+      }
+    }
+  }
+
+  .ant-input-password {
+    .ant-input {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+  }
+
+  .ant-form-item-has-success {
+    .custom-input {
+      border-color: var(--success-medical);
+    }
+  }
+
+  .ant-form-item-has-error {
+    .custom-input {
+      border-color: var(--danger-medical);
+      
+      &:focus,
+      &.ant-input-focused {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      }
+    }
+  }
+
+  .password-requirements {
+    background: rgba(5, 150, 105, 0.05);
+    border: 1px solid rgba(5, 150, 105, 0.2);
+    border-radius: var(--border-radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+
+    .requirements-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .requirements-list {
+      margin: 0;
+      padding-left: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+
+      li {
+        margin-bottom: 0.25rem;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .form-actions {
+    margin-top: 2rem;
+    margin-bottom: 0;
+  }
+
+  .setup-btn {
+    height: 52px;
+    background: var(--gradient-setup);
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-white);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      transition: left 0.5s;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+
+      &::before {
+        left: 100%;
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &.ant-btn-loading {
+      .ant-btn-loading-icon {
+        color: var(--text-white);
+      }
+    }
+  }
+}
+
+// Success State
+.success-content {
+  text-align: center;
+  padding: 2rem 0;
+
+  .success-icon {
+    font-size: 4rem;
+    color: var(--success-medical);
+    margin-bottom: 1.5rem;
+    
+    .anticon {
+      background: var(--gradient-setup);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: bounce 1s ease-in-out;
+    }
+  }
+
+  .success-title {
+    color: var(--text-primary) !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+    background: var(--gradient-setup);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .success-description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .continue-btn {
+    height: 52px;
+    background: var(--gradient-setup);
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-white);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+    padding: 0 2rem;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .setup-password-container {
+    .setup-password-content {
+      padding: 1rem;
+    }
+  }
+
+  .setup-password-branding {
+    padding: 2rem 1rem;
+    
+    .brand-content {
+      .brand-title {
+        font-size: 2rem !important;
+      }
+      
+      .brand-subtitle {
+        font-size: 1.25rem !important;
+      }
+      
+      .brand-description {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+      }
+      
+      .security-features {
+        gap: 1.5rem;
+        
+        .security-item {
+          .security-content {
+            .security-title {
+              font-size: 1rem;
+            }
+            
+            .security-desc {
+              font-size: 0.85rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .setup-password-form-section {
+    padding: 2rem 1rem;
+    
+    .setup-password-card {
+      padding: 2rem 1.5rem;
+      
+      .setup-password-header {
+        margin-bottom: 2rem;
+        
+        .setup-password-title {
+          font-size: 1.75rem !important;
+        }
+        
+        .setup-password-subtitle {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .setup-password-container .setup-password-content {
+    padding: 0.5rem;
+  }
+  
+  .setup-password-form-section .setup-password-card {
+    padding: 1.5rem 1rem;
+  }
+}
+
+// Animations
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.setup-btn.ant-btn-loading {
+  animation: pulse 2s infinite;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.setup-password-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+// Form validation styles
+.ant-form-item-explain-error {
+  color: var(--danger-medical);
+  font-size: 0.85rem;
 }
