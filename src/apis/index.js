@@ -38,6 +38,9 @@ export * as getAllAppointmentsConsultant from './appointmentAPI/getAppointmentCo
 export * as getAllAppointmentsTesting from './appointmentAPI/getAllAppointmentTestingApi'
 
 
+  // get all available schedules doctor therapy
+export * as getAvailableSchedulesDoctorsTherapy from './doctorApi/getAllAvailableSchedulesDoctorTherapyApi'
+
 
 // doctor 
 export * as createAccountDoctorFollowingType from './doctorApi/createAccountDoctorFollowingTypeApi'
@@ -50,3 +53,15 @@ export * as updateAppointmentStatusCompleted from './appointmentAPI/updateAppoin
 
 // get result test HIV
 export * as getResultTestHIV from './Results/getResultTestHIVAPI'
+
+// find medical record by patient id
+export * as findMedicalRecordByPatientId from './medicalRecord/findMedicalRecordByPatienIdApi'
+// get test result by patient id
+export * as getTestResultByPatientId from './Results/getTestResultByPatientIdAPI'
+
+// create medical record from test result
+export * as createMedicalRecord from './medicalRecord/createMedicalRecordApi'
+// get medical record by patient id
+export * as getMedicalRecordByPatientId from './medicalRecord/getMedicalRecordByPatientIdApi'
+// create therapy for patient
+export * as createTherapyForPatient from './doctorApi/createTherapyForPatientApi' 

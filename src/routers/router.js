@@ -48,7 +48,8 @@ const endPoint = {
     // Service route
     TESTINGHIVPAGE: "/testing-hiv-page",
 
-
+    // hiv booking treatment
+    BOOKINGTREATMENTHIV: "/booking-treatment-hiv",
     // dashboard doctor testing
 
     DASHBOARDLAYOUTDOCTORTESTING: "/doctorTesting-dashboard",

@@ -38,7 +38,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
     const handleLogout = () => {
     dispatch(removeInformation());
-    localStorage.clear();
+    sessionStorage.clear();
     navigate("/login-page");
   };
 

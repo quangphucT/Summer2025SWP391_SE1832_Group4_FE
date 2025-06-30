@@ -31,7 +31,7 @@ const DashboardDoctorTestingLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     dispatch(removeInformation());
     navigate("/login-page");
   };

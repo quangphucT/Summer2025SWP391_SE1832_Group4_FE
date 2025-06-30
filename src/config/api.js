@@ -12,7 +12,7 @@ baseURL: import.meta.env.VITE_BACKEND_URL,
 // Trước khi gọi API, thêm token vào headers
 api.interceptors.request.use(function (config) {
   // Do something before request is sent
-  const token = localStorage.getItem("token")
+  const token = sessionStorage.getItem("token")
   if(token){
       config.headers.Authorization = `Bearer ${token}`
   }

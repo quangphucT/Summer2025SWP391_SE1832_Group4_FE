@@ -21,7 +21,7 @@ const Login = () => {
       toast.success("Login successful!");
       const { token, role, doctorSpecialty } = response.data;
       dispatch(saveInformation(response?.data));
-      localStorage.setItem("token", token);
+      sessionStorage.setItem("token", token);
       switch (role) {
         case "Patient":
           navigate("/");
