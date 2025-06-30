@@ -1,22 +1,19 @@
-// src/pages/Dashboard.tsx
+
 
 import "./index.scss";
 import {
   Layout,
   Menu,
-  Card,
+
   Avatar,
-  Button,
-  Input,
-  Image,
-  Tooltip,
+
 } from "antd";
 import {
-  DashboardOutlined,
+
   ProjectOutlined,
-  SettingOutlined,
+
   LogoutOutlined,
-  UserOutlined,
+
   MedicineBoxOutlined,
   CalendarOutlined,
   HeartOutlined,
@@ -30,18 +27,20 @@ import CheckedInAppointmentToday from "../checkedIn-Customer-List";
 import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../../redux/feature/userSlice";
 import AppointmentListByDoctorAccountId from "../appointment-list";
-import HistoryTestResultOfPatient from "../history-testResultOf-patient";
+import PatientMedicalRecord from "../patientMedicalRecord";
+import RegisterTherapyForPatient from "../register-therapy-forPatient";
 
 const DashboardDoctorConsultantLayout = () => {
   const emailDoctor = useSelector((store) => store?.user?.email);
   const fullNameDoctor = useSelector((store) => store?.user?.fullName);
+  const doctorID = useSelector((store) => store?.user?.accountID);
   const [selectedMenu, setSelectedMenu] = useState(
     "recently-checkedInPatients"
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     dispatch(removeInformation());
     navigate("/login-page");
   };
@@ -144,6 +143,19 @@ const DashboardDoctorConsultantLayout = () => {
             >
               Consultant Specialist - Email: {emailDoctor}
             </div>
+              <div
+              style={{
+                color: "rgba(255,255,255,0.8)",
+                fontSize: "14px",
+                fontWeight: "500",
+                background: "rgba(255,255,255,0.1)",
+                padding: "4px 12px",
+                borderRadius: "12px",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              DoctorID: {doctorID}
+            </div>
           </div>
         </div>
 
@@ -179,7 +191,7 @@ const DashboardDoctorConsultantLayout = () => {
           </Menu.Item>
 
            <Menu.Item
-            key="history-testResults-Patients"
+            key="patient-medicalRecord"
             icon={<CalendarOutlined style={{ fontSize: "18px" }} />}
             style={{
               margin: "8px 0",
@@ -192,10 +204,30 @@ const DashboardDoctorConsultantLayout = () => {
               transition: "all 0.3s ease",
             }}
           >
-            History Test Results Of Patients
+            Patient Medical Record
           </Menu.Item>
 
-          <Menu.Item
+          {/* register therapy for patient */}
+           <Menu.Item
+            key="therapy-for-patient"
+            icon={<CalendarOutlined style={{ fontSize: "18px" }} />}
+            style={{
+              margin: "8px 0",
+              borderRadius: "12px",
+              height: "50px",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "15px",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+          >
+            Therapy for patient
+          </Menu.Item>
+
+
+
+         <Menu.Item
             key="appointment-list"
             icon={<ProjectOutlined style={{ fontSize: "18px" }} />}
             style={{
@@ -390,9 +422,9 @@ const DashboardDoctorConsultantLayout = () => {
               </div>
             )}
 
-            // history test results of patients
+    
 
-             {selectedMenu === "history-testResults-Patients" && (
+             {selectedMenu === "patient-medicalRecord" && (
               <div
                 className="fade-in"
                 style={{
@@ -415,7 +447,7 @@ const DashboardDoctorConsultantLayout = () => {
                     fontWeight: "600",
                   }}
                 >
-                 History Test Results Of Patients
+                 Patient Medical Record
                 </h2>
                </div>
                 <p
@@ -425,7 +457,46 @@ const DashboardDoctorConsultantLayout = () => {
                     textAlign: "center",
                   }}
                 >
-                  <HistoryTestResultOfPatient/>
+                  <PatientMedicalRecord/>
+                </p>
+              </div>
+            )}
+
+           {/* therapy for patient */}
+              {selectedMenu === "therapy-for-patient" && (
+              <div
+                className="fade-in"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "770px",
+                  flexDirection: "column",
+                  gap: "16px",
+                }}
+              >
+               <div className="flex items-center space-x-5">
+                 <ProjectOutlined
+                  style={{ fontSize: "64px", color: "#667eea" }}
+                />
+                <h2
+                  style={{
+                    color: "#1e3c72",
+                    fontSize: "24px",
+                    fontWeight: "600",
+                  }}
+                >
+               Register Therapy for patient
+                </h2>
+               </div>
+                <p
+                  style={{
+                    color: "#666",
+                    fontSize: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <RegisterTherapyForPatient/>
                 </p>
               </div>
             )}

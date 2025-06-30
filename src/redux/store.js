@@ -3,14 +3,13 @@ import userSlice from '../redux/feature/userSlice';
 import experienceWorkingSlice from '../redux/feature/experienceWorkingSlice';
 import certificateSlice from '../redux/feature/certificateSlice';
 import doctorSlice from '../redux/feature/doctorSlice';
-import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
-
+import storageSession from 'redux-persist/lib/storage/session';
 // ✅ Cấu hình redux-persist cho từng slice
 const persistConfig = {
   key: 'root',
-  storage, 
+  storage: storageSession, 
   whitelist: ['user'], // ✅ Lưu cả user và balance
 };
 

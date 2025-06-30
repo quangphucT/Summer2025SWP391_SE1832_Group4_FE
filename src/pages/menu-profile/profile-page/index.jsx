@@ -100,7 +100,7 @@ const ProfilePage = () => {
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
       dispatch(removeInformation());
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
       navigate("/login-page");
       return;
     }

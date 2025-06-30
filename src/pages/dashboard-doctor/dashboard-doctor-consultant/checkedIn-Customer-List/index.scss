@@ -221,6 +221,92 @@
   }
 }
 
+// Test Results Modal Styling
+.test-results-content {
+  .test-result-card {
+    border: 1px solid #e8f4fd;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(41, 104, 167, 0.15);
+      border-color: #2968a7;
+    }
+    
+    .ant-card-body {
+      padding: 20px;
+    }
+  }
+  
+  .ant-descriptions {
+    .ant-descriptions-title {
+      color: #2968a7;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .ant-descriptions-item-label {
+      background-color: #f8fbff;
+      color: #2968a7;
+      font-weight: 500;
+      width: 35%;
+    }
+    
+    .ant-descriptions-item-content {
+      background-color: #ffffff;
+      color: #333;
+    }
+  }
+  
+  .ant-tag {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 4px 12px;
+    
+    &.font-semibold {
+      font-weight: 600;
+      font-size: 14px;
+    }
+  }
+  
+  .ant-divider {
+    margin: 16px 0 12px 0;
+    
+    .ant-divider-inner-text {
+      color: #2968a7;
+      font-weight: 500;
+    }
+  }
+}
+
+// Modal styling
+.ant-modal {
+  .ant-modal-header {
+    background: linear-gradient(135deg, #2968a7, #1e3d59);
+    border-radius: 8px 8px 0 0;
+    
+    .ant-modal-title {
+      color: #fff;
+      font-weight: 600;
+    }
+  }
+  
+  .ant-modal-close {
+    color: #fff;
+    
+    &:hover {
+      color: #e6f3ff;
+    }
+  }
+}
+
+// Loading state
+.flex.justify-center.items-center {
+  color: #2968a7;
+  font-size: 16px;
+}
+
 // Responsive
 @media (max-width: 768px) {
   .checked-in-appointment-table {

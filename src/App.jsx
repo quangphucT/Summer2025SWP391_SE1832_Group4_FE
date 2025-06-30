@@ -37,6 +37,7 @@ import DashboardDoctorTestingLayout from "./pages/dashboard-doctor/dashboard-doc
 import DashboardDoctorConsultantLayout from "./pages/dashboard-doctor/dashboard-doctor-consultant/layout-dashboard";
 import DoctorCreationManagement from "./pages/dashboard-management/admin/doctor-createAccount-management";
 import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list-management";
+import BookingTreatmentHIV from "./pages/service-pages/hiv-treatment-page";
 
 
 const App = () => {
@@ -64,6 +65,12 @@ const App = () => {
         {
           path: endPoint.SCHEDULEACONSULTATION,
           element: <ScheduleAConsultation />,
+        },
+
+        // booking treatment hiv
+        {
+          path: endPoint.BOOKINGTREATMENTHIV,
+          element: <BookingTreatmentHIV />,
         },
         {
           path: endPoint.HIVTREATMENT,

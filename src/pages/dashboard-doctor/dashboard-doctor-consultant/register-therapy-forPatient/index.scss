@@ -1,0 +1,241 @@
+// Register Therapy for Patient - Modern Styling
+.register-therapy-patient {
+  padding: 24px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e6f3ff 100%);
+  min-height: 100vh;
+width: 900px;
+  .therapy-form-card {
+    max-width: 1000px;
+    margin: 0 auto;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+
+    .ant-card-body {
+      padding: 32px;
+    }
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 0;
+
+    .form-title {
+      color: #1a365d;
+      margin-bottom: 8px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      
+      .title-icon {
+        color: #e53e3e;
+        font-size: 28px;
+      }
+    }
+
+    .form-subtitle {
+      color: #4a5568;
+      font-size: 16px;
+    }
+  }
+
+  .therapy-form {
+    .ant-form-item {
+      margin-bottom: 20px;
+
+      .ant-form-item-label > label {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 14px;
+      }
+    }
+
+    .ant-input,
+    .ant-input-number,
+    .ant-select-selector,
+    .ant-picker,
+    .ant-input {
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        border-color: #3182ce;
+      }
+      
+      &:focus,
+      &:focus-within {
+        border-color: #3182ce;
+        box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+      }
+    }
+
+    .ant-input-number {
+      width: 100%;
+    }
+
+    .ant-select {
+      .ant-select-selector {
+        border-radius: 8px;
+      }
+    }
+
+    .ant-picker {
+      width: 100%;
+    }
+
+    .ant-input-affix-wrapper {
+      border-radius: 8px;
+      
+      .ant-input-prefix {
+        color: #718096;
+      }
+    }
+  }
+}
+
+// Doctor option styling
+.doctor-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px;
+
+  .doctor-avatar {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+    flex-shrink: 0;
+  }
+
+  .doctor-info {
+    flex: 1;
+    min-width: 0;
+
+    .doctor-name {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .doctor-details {
+      color: #718096;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+  }
+}
+
+// Form actions
+.form-actions {
+  text-align: center;
+  margin-top: 32px !important;
+  margin-bottom: 0 !important;
+
+  .submit-button {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    border-color: #e53e3e;
+    font-weight: 600;
+    padding: 8px 32px;
+    height: auto;
+    border-radius: 8px;
+    
+    &:hover {
+      background: linear-gradient(135deg, #c53030 0%, #9c2626 100%);
+      border-color: #c53030;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+    }
+
+    &:disabled,
+    &.ant-btn-loading {
+      background: #e2e8f0;
+      border-color: #e2e8f0;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+// Loading states
+.ant-select-loading {
+  .ant-select-arrow {
+    .anticon {
+      color: #3182ce;
+    }
+  }
+}
+
+// Disabled states
+.ant-select-disabled {
+  .ant-select-selector {
+    background-color: #f7fafc;
+    color: #a0aec0;
+    border-color: #e2e8f0;
+  }
+}
+
+// Form validation styling
+.ant-form-item-has-error {
+  .ant-input,
+  .ant-input-number,
+  .ant-select-selector,
+  .ant-picker {
+    border-color: #e53e3e;
+    
+    &:focus,
+    &:focus-within {
+      border-color: #e53e3e;
+      box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.2);
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .register-therapy-patient {
+    padding: 16px;
+    
+    .therapy-form-card .ant-card-body {
+      padding: 20px;
+    }
+    
+    .form-header .form-title {
+      font-size: 20px;
+      
+      .title-icon {
+        font-size: 24px;
+      }
+    }
+    
+    .ant-row {
+      .ant-col {
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
+// Divider styling
+.ant-divider {
+  border-color: #e2e8f0;
+  margin: 24px 0;
+}
+
+// Select dropdown styling
+.ant-select-dropdown {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  .ant-select-item {
+    &:hover {
+      background-color: #f7fafc;
+    }
+    
+    &.ant-select-item-option-selected {
+      background-color: #e6f3ff;
+    }
+  }
+}
