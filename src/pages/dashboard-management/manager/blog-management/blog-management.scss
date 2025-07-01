@@ -1,11 +1,9 @@
 .blog-mgmt-root {
-  width: 100vw;
-  min-height: 100vh;
+  width: 100%;
+  min-height: 100%;
   margin: 0;
   background: #fff;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 2.5rem 2vw 2rem 2vw;
+  padding: 0;
   display: flex;
   flex-direction: column;
 }
@@ -13,6 +11,7 @@
 .blog-mgmt-title {
   font-size: 2rem;
   font-weight: 800;
+  margin-top: 4px;
   margin-bottom: 1.2rem;
   letter-spacing: -1px;
   color: #1a237e;
@@ -20,6 +19,18 @@
   padding-left: 0.7rem;
   background: linear-gradient(90deg, #e3f2fd 60%, #fff 100%);
   border-radius: 6px;
+}
+
+.blog-mgmt-main-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin: 16px 24px 2px;
+  letter-spacing: 1px;
+  text-align: left;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 18px;
 }
 
 .blog-mgmt-form {
@@ -34,12 +45,10 @@
 .blog-mgmt-form input,
 .blog-mgmt-form select {
   flex: 1 1 200px;
-  min-width: 140px;
   padding: 8px 10px;
   border: 1px solid #cfd8dc;
   border-radius: 6px;
-  font-size: 1rem;
-  background: #ffffff;
+  background: #fff;
   transition: border-color 0.2s;
 }
 .blog-mgmt-form input:focus,
@@ -52,11 +61,8 @@
   flex: 0 0 auto;
   padding: 8px 24px;
   background: #1976d2;
-  color: #ffffff;
-  border: none;
+  color: #fff;
   border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
   cursor: pointer;
   height: 40px;
   align-self: flex-end;
@@ -69,8 +75,7 @@
 .blog-mgmt-table-wrap {
   flex: 1;
   overflow: auto;
-  padding: 0 0 24px 0;
-  background: #ffffff;
+  padding-bottom: 24px;
 }
 .blog-mgmt-table {
   width: 100%;
@@ -84,16 +89,13 @@
   top: 0;
   background: #e3eafc;
   color: #1976d2;
-  font-weight: 700;
   padding: 12px 8px;
   border-bottom: 2px solid #b6c6e3;
-  z-index: 10;
   text-align: left;
 }
 .blog-mgmt-table td {
   padding: 10px 8px;
   border-bottom: 1px solid #f0f0f0;
-  vertical-align: middle;
 }
 .blog-mgmt-table tr:nth-child(even) {
   background: #f8fafc;
@@ -104,11 +106,9 @@
 
 .blog-mgmt-btn {
   padding: 6px 14px;
-  border-radius: 5px;
   border: none;
-  font-size: 0.95rem;
+  border-radius: 5px;
   font-weight: 500;
-  margin-right: 6px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
@@ -118,7 +118,7 @@
 }
 .blog-mgmt-btn.edit:hover {
   background: #1976d2;
-  color: #ffffff;
+  color: #fff;
 }
 .blog-mgmt-btn.delete {
   background: #ffeaea;
@@ -126,90 +126,104 @@
 }
 .blog-mgmt-btn.delete:hover {
   background: #d32f2f;
-  color: #ffffff;
+  color: #fff;
 }
 .blog-mgmt-btn.save {
   background: #43a047;
-  color: #ffffff;
+  color: #fff;
 }
 .blog-mgmt-btn.save:hover {
   background: #2e7031;
 }
 .blog-mgmt-btn.cancel {
   background: #bdbdbd;
-  color: #ffffff;
+  color: #fff;
 }
 .blog-mgmt-btn.cancel:hover {
   background: #757575;
 }
 
-@media (max-width: 900px) {
-  .blog-mgmt-root {
-    padding: 1rem 0.2rem;
-  }
-  .blog-mgmt-form {
-    gap: 8px;
-    padding: 8px 0;
-  }
-  .blog-mgmt-form input,
-  .blog-mgmt-form select {
-    flex: 1 1 100%;
-    min-width: 0;
-  }
-  .blog-mgmt-form button {
-    width: 100%;
-    margin-top: 4px;
-  }
-  .blog-mgmt-table th,
-  .blog-mgmt-table td {
-    font-size: 0.9rem;
-    padding: 6px 4px;
-  }
-  .blog-mgmt-table {
-    min-width: 600px;
-  }
+.loading-text {
+  margin: 8px 24px;
 }
 
+/* Thumb image */
+.blog-image-thumb {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Modal backdrop */
 .blog-mgmt-modal-bg {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.18);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+/* Base modal */
 .blog-mgmt-modal {
   background: #fff;
   border-radius: 14px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-  padding: 2rem 2rem 1.5rem 2rem;
-  min-width: 320px;
-  max-width: 95vw;
-  min-height: 120px;
+
+  /* giảm padding xung quanh */
+  padding: 1.5rem;
+
+  /* dùng gap nhỏ hơn giữa các phần tử */
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
+
+  /* bỏ min-height nếu không cần quá cao */
+  max-width: 95vw;
 }
+
+/* Large variant */
+.blog-mgmt-modal--large {
+  width: 70%;         /* hơi hẹp hơn để không dư 2 bên */
+  max-width: 800px;   /* giới hạn rộng tối đa */
+  height: auto;       /* cho nội dung linh động */
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Header */
 .blog-mgmt-modal h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #1976d2;
+  margin: 0;           /* loại bỏ margin mặc định */
+  padding-bottom: 0.5rem;
+  font-size: 1.35rem;
+}
+
+/* Form fields: gỡ margin-bottom riêng lẻ, chuyển thành gap chung */
+.blog-mgmt-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 .blog-mgmt-modal input,
-.blog-mgmt-modal textarea {
-  font-size: 1rem;
-  padding: 8px 10px;
+.blog-mgmt-modal textarea,
+.blog-mgmt-modal select {
+  padding: 0.6rem 0.8rem;      /* giảm chiều cao field */
+  font-size: 0.95rem;
+  background: #f8fafc;
   border: 1px solid #cfd8dc;
   border-radius: 6px;
-  margin-bottom: 0.5rem;
-  background: #f8fafc;
-  transition: border-color 0.2s;
 }
-.blog-mgmt-modal input:focus,
-.blog-mgmt-modal textarea:focus {
-  outline: none;
-  border-color: #1976d2;
-  border-width: 1.5px;
+
+/* Action buttons row */
+.blog-mgmt-modal__actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;               /* hẹp hơn */
+}
+
+/* Riêng nút Cancel giảm opacity để đỡ "nặng" */
+.blog-mgmt-modal__actions .cancel {
+  opacity: 0.8;
 }
