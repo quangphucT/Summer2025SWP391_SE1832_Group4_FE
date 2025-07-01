@@ -350,21 +350,97 @@
     .test-results-section {
       .test-result-mini-card {
         margin-bottom: 12px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
+        border: 1px solid #e6f3ff;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+        transition: all 0.3s ease;
         
         &:hover {
-          border-color: #3182ce;
+          box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+          transform: translateY(-2px);
         }
         
         .ant-card-body {
-          padding: 12px;
+          padding: 16px;
+        }
+        
+        // Medical indicator tags styling
+        .ant-tag {
+          margin: 4px 0;
+          padding: 4px 12px;
+          border-radius: 6px;
+          font-weight: 500;
+          font-size: 13px;
+          
+          &[color="purple"] {
+            background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+            border: none;
+            color: white;
+          }
+          
+          &[color="orange"] {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            border: none;
+            color: white;
+          }
+          
+          &[color="blue"] {
+            background: linear-gradient(135deg, #63b3ed 0%, #3182ce 100%);
+            border: none;
+            color: white;
+          }
+          
+          &[color="red"] {
+            background: linear-gradient(135deg, #fc8181 0%, #e53e3e 100%);
+            border: none;
+            color: white;
+          }
+          
+          &[color="green"] {
+            background: linear-gradient(135deg, #68d391 0%, #38a169 100%);
+            border: none;
+            color: white;
+          }
         }
         
         .test-comments {
-          margin-top: 8px;
-          padding-top: 8px;
-          border-top: 1px solid #e2e8f0;
+          margin-top: 12px;
+          padding: 8px 12px;
+          background: #f7fafc;
+          border-radius: 6px;
+          border-left: 4px solid #667eea;
+          
+          .ant-typography {
+            margin: 0;
+          }
+        }
+      }
+    }
+    
+    // Add Test Result Button styling
+    .record-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+
+      .add-test-result-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 24px;
+        height: auto;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        &:active {
+          transform: translateY(0);
         }
       }
     }
@@ -520,6 +596,149 @@
         .ant-col {
           margin-bottom: 16px;
         }
+      }
+
+      // Add Test Result Button styling
+      .record-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #f0f0f0;
+
+        .add-test-result-button {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border: none;
+          border-radius: 8px;
+          padding: 8px 24px;
+          height: auto;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+          }
+          
+          &:active {
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Add Test Result Modal styling
+.add-test-result-form {
+  .test-result-info-header {
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8faff 0%, #e6f3ff 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+  }
+
+  .test-result-form {
+    .ant-form-item {
+      margin-bottom: 24px;
+      
+      .ant-form-item-label {
+        font-weight: 600;
+        color: #1a365d;
+      }
+      
+      .ant-input-number {
+        border-radius: 8px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+        
+        &:focus,
+        &:focus-within {
+          border-color: #667eea;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+      }
+    }
+
+    .form-note {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      text-align: center;
+    }
+  }
+}
+
+// Test Results Section Styling
+.test-results-section {
+  .test-result-mini-card {
+    margin-bottom: 12px;
+    border: 1px solid #e6f3ff;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    .ant-card-body {
+      padding: 16px;
+    }
+    
+    // Medical indicator tags styling
+    .ant-tag {
+      margin: 4px 0;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 13px;
+      
+      &[color="purple"] {
+        background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+        border: none;
+        color: white;
+      }
+      
+      &[color="orange"] {
+        background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+        border: none;
+        color: white;
+      }
+      
+      &[color="blue"] {
+        background: linear-gradient(135deg, #63b3ed 0%, #3182ce 100%);
+        border: none;
+        color: white;
+      }
+      
+      &[color="red"] {
+        background: linear-gradient(135deg, #fc8181 0%, #e53e3e 100%);
+        border: none;
+        color: white;
+      }
+      
+      &[color="green"] {
+        background: linear-gradient(135deg, #68d391 0%, #38a169 100%);
+        border: none;
+        color: white;
+      }
+    }
+    
+    .test-comments {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #f7fafc;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+      
+      .ant-typography {
+        margin: 0;
       }
     }
   }

@@ -42,7 +42,9 @@
   transition: 0.3s ease;
   height: 650px;
 }
-
+.ant-layout-sider-trigger{
+  background-color: transparent !important;
+}
 .avatar-wrapper {
   display: flex;
   flex-direction: column;
