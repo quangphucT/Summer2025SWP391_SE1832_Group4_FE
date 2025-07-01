@@ -280,9 +280,9 @@ const ScheduleAConsultation = () => {
                   htmlType="submit"
                   size="large"
                   block
-                  className="h-14 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-none font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="!h-14 !rounded-xl !bg-gradient-to-r !from-blue-500 !to-purple-600 !hover:from-blue-600 !hover:to-purple-700 !border-none !font-semibold !text-lg !shadow-lg !hover:shadow-xl !transition-all !duration-300 !hover:-translate-y-1"
                 >
-                  <span className="flex items-center justify-center space-x-2">
+                  <span className="!flex !items-center !justify-center !space-x-2">
                     <span>{loading ? "Booking..." : "Book Appointment"}</span>
                     {!loading && <span>🗓️</span>}
                   </span>

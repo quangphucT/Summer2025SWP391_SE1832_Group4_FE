@@ -34,6 +34,7 @@ const DashboardDoctorConsultantLayout = () => {
   const emailDoctor = useSelector((store) => store?.user?.email);
   const fullNameDoctor = useSelector((store) => store?.user?.fullName);
   const doctorID = useSelector((store) => store?.user?.accountID);
+  const fullname = useSelector((store) => store?.user?.fullName);
   const [selectedMenu, setSelectedMenu] = useState(
     "recently-checkedInPatients"
   );
@@ -148,7 +149,7 @@ const DashboardDoctorConsultantLayout = () => {
                 color: "rgba(255,255,255,0.8)",
                 fontSize: "14px",
                 fontWeight: "500",
-                background: "rgba(255,255,255,0.1)",
+          
                 padding: "4px 12px",
                 borderRadius: "12px",
                 backdropFilter: "blur(10px)",
@@ -346,7 +347,7 @@ const DashboardDoctorConsultantLayout = () => {
                 marginBottom: "2px",
               }}
             >
-              Dr. Hthais Than
+            {fullname}
             </div>
 
             <Avatar

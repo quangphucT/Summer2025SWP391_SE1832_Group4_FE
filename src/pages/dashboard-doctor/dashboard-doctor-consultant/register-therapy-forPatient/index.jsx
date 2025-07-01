@@ -26,6 +26,7 @@ import {
   MedicineBoxOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { updateAppointmentCompleted } from "../../../../apis/appointmentAPI/updateAppointmentCompletedApi";
 
 const { Title, Text } = Typography;
 const RegisterTherapyForPatient = () => {
@@ -78,7 +79,7 @@ const RegisterTherapyForPatient = () => {
 
       console.log("Therapy registration data:", formattedData);
       await createTherapyForPatient(formattedData);
-      
+    
       toast.success("✅ Therapy appointment registered successfully!");
       form.resetFields();
       setAvailableDoctors([]);
