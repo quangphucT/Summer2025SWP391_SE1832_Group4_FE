@@ -22,7 +22,7 @@ import ExperienceManagement from "./pages/dashboard-management/doctor/experience
 import CertificateManagement from "./pages/dashboard-management/doctor/certificate-management";
 import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 import DoctorManagement from "./pages/dashboard-management/doctor/doctor-management";
-
+import BlogDetailPage from "./pages/blogs-pages/BlogDetailPage";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -53,6 +53,10 @@ const App = () => {
         {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
+        },
+        {
+          path: "/blog/:blogId",
+          element: <BlogDetailPage />,
         },
 
         // service system

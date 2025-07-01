@@ -63,7 +63,7 @@ const endPoint = {
     // doctor list management
     DOCTORLISTMANAGEMENT: "doctor-list-management",
 
-    
+    BLOG_DETAIL: "/blog/:blogId",
 
 }
 export default endPoint

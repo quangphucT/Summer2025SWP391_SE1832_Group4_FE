@@ -200,3 +200,116 @@ body {
     font-size: 1.1rem;
   }
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.blog-detail-card {
+  background: var(--card-bg);
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(0, 102, 255, 0.10), 0 1.5px 8px rgba(0,0,0,0.04);
+  max-width: 750px;
+  margin: 3.5rem auto 2.5rem auto;
+  padding: 2.8rem 2.2rem 2.2rem 2.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-detail-image {
+  width: 100%;
+  max-width: 650px;
+  height: 340px;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 1.7rem;
+  box-shadow: 0 4px 24px rgba(0,102,255,0.08);
+  transition: transform 0.5s cubic-bezier(.23,1.01,.32,1), box-shadow 0.4s;
+}
+
+.blog-detail-card:hover .blog-detail-image {
+  transform: scale(1.035);
+  box-shadow: 0 8px 40px rgba(0,102,255,0.16);
+}
+
+.blog-detail-tag {
+  background: linear-gradient(90deg, #e3f2fd 60%, #fff 100%);
+  color: var(--primary-color);
+  font-size: 1.08rem;
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 999px;
+  margin-bottom: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0,102,255,0.07);
+  animation: fadeInUp 0.8s 0.2s both;
+  border: 1.5px solid #b3d1ff;
+}
+
+.blog-detail-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 1.3rem;
+  text-align: center;
+  color: var(--text-dark);
+  letter-spacing: -1px;
+  line-height: 1.18;
+  animation: fadeInUp 0.8s 0.3s both;
+}
+
+.blog-detail-content {
+  font-size: 1.18rem;
+  color: var(--text-light);
+  line-height: 1.8;
+  margin-bottom: 2.2rem;
+  width: 100%;
+  white-space: pre-line;
+  animation: fadeInUp 0.8s 0.4s both;
+  background: #f8f9fc;
+  border-radius: 10px;
+  padding: 1.2rem 1.3rem;
+  box-shadow: 0 1.5px 8px rgba(0,0,0,0.03);
+}
+
+.blog-detail-footer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeInUp 0.8s 0.5s both;
+}
+
+.blog-detail-footer .read-more {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--primary-color) 60%, #4d94ff 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.7rem 2.1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 2px 12px rgba(0,102,255,0.10);
+  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+  margin-top: 0.5rem;
+  letter-spacing: 0.5px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.blog-detail-footer .read-more:hover {
+  background: linear-gradient(90deg, #4d94ff 60%, var(--primary-color) 100%);
+  box-shadow: 0 4px 24px rgba(0,102,255,0.18);
+  transform: translateY(-2px) scale(1.04);
+}
