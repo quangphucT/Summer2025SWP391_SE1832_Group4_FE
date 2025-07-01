@@ -65,3 +65,5 @@ export * as createMedicalRecord from './medicalRecord/createMedicalRecordApi'
 export * as getMedicalRecordByPatientId from './medicalRecord/getMedicalRecordByPatientIdApi'
 // create therapy for patient
 export * as createTherapyForPatient from './doctorApi/createTherapyForPatientApi' 
+// add test result to medical record
+export * as addTestResultToMedicalRecord from './medicalRecord/addTestResultToMedicalRecordApi'

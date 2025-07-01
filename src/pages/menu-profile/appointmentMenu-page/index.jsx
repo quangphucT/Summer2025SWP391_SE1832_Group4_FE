@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import {
   Table,
@@ -20,6 +20,8 @@ import {
   UserOutlined,
   MedicineBoxOutlined,
   EyeOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "./index.scss";
@@ -108,6 +110,46 @@ const AppointmentMenuPage = () => {
   };
 
   const stats = getStatistics();
+
+  // HIV Screening Process Steps
+  const getHIVScreeningProcess = () => {
+    const processSteps = [
+      {
+        title: "Pre-test counseling",
+        description: "Pre-test counseling",
+        color: "#3b82f6", // Blue
+      },
+      {
+        title: "Test RapidTest", 
+        description: "Rapid HIV test",
+        color: "#ec4899", // Pink
+      },
+      {
+        title: "Post-test counseling",
+        description: "Post-test counseling",
+        color: "#06b6d4", // Cyan
+      },
+      {
+        title: "Test PCR or ELISA",
+        description: "Confirmatory testing",
+        color: "#f59e0b", // Yellow
+      },
+      {
+        title: "Post-test counseling (PCR/ELISA)",
+        description: "Post-confirmatory counseling",
+        color: "#10b981", // Green
+      },
+      {
+        title: "HIV Treatment",
+        description: "HIV Treatment",
+        color: "#8b5cf6", // Purple
+      },
+    ];
+
+    return processSteps;
+  };
+
+  const hivProcess = getHIVScreeningProcess();
 
   const columns = [
     {
@@ -252,12 +294,13 @@ const AppointmentMenuPage = () => {
 }
 
   ];
+  
   const handleOpenModalResult = (appointmentId) => {
     setSelectedAppointmentId(appointmentId);
     setOpen(true);
   };
 
-  const fetchAppointmentResult = async () => {
+  const fetchAppointmentResult = useCallback(async () => {
     try {
       // Fetch appointment result logic here
       const result = await getResultTestHIV(selectedAppointmentId);
@@ -268,12 +311,13 @@ const AppointmentMenuPage = () => {
         error?.response?.data?.message || "Error fetching appointment result"
       );
     }
-  };
+  }, [selectedAppointmentId]);
+  
   useEffect(() => {
     if (open && selectedAppointmentId) {
-      fetchAppointmentResult(selectedAppointmentId);
+      fetchAppointmentResult();
     }
-  }, [open, selectedAppointmentId]);
+  }, [open, selectedAppointmentId, fetchAppointmentResult]);
 
   return (
     <div className="appointment-history-page">
@@ -334,6 +378,47 @@ const AppointmentMenuPage = () => {
               </Card>
             </Col>
           </Row>
+
+          {/* HIV Screening Process Timeline */}
+          {data.length > 0 && (
+            <div className="hiv-timeline-container" style={{ marginBottom: 32 }}>
+              <div className="timeline-header">
+                <h3 style={{ 
+                  textAlign: 'center', 
+                  color: '#1a365d', 
+                  marginBottom: 24,
+                  fontSize: '18px',
+                  fontWeight: 600
+                }}>
+                  Quy trình sàng lọc & điều trị HIV
+                </h3>
+              </div>
+              
+              <div className="hiv-timeline">
+                {hivProcess.map((step, index) => (
+                  <div key={index} className="timeline-step">
+                    <div className="timeline-circle-container">
+                      <div 
+                        className={`timeline-circle`}
+                        style={{ backgroundColor: step.color }}
+                      >
+                        <ClockCircleOutlined style={{ color: 'white', fontSize: '20px' }} />
+                      </div>
+                      {index < hivProcess.length - 1 && (
+                        <div className={`timeline-line`}></div>
+                      )}
+                    </div>
+                    
+                    <div className="timeline-content">
+                      <div className="step-number">Step {index + 1}</div>
+                      <div className="step-title">{step.title}</div>
+                      <div className="step-description">{step.description}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Search and Filter Controls */}
           <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>

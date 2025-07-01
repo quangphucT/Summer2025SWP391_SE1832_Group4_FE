@@ -69,7 +69,7 @@ const ResultModal = ({ isOpen, onClose, resultData }) => {
     >
       <div className="modal-content">
         {/* Post-test Counseling Warning */}
-        {resultData.testType === "RapidTest" && resultData.testResults === "Positive" && (
+        {resultData.testType === "RapidTest" && resultData.testResults === "Positive" || resultData && (
           <Alert
             message="Important: Post-test Counseling Required"
             description={
@@ -189,7 +189,66 @@ const ResultModal = ({ isOpen, onClose, resultData }) => {
 
         {/* Doctor's Assessment Card */}
         <Card className="assessment-card" size="small">
-          <div className="card-header">
+         
+
+          <Divider className="assessment-divider" />
+
+          {/* <div className="patient-info">
+            <Text className="patient-label">Patient Code:</Text>
+            <Text strong className="patient-code">
+              {patient?.patientCodeAtFacility || "N/A"}
+            </Text>
+          </div> */}
+
+          {/* Doctor Information Card */}
+<Card className="doctor-card" size="small">
+  <div className="card-header">
+    <UserOutlined className="card-icon" />
+    <Title level={5}>Tested by Doctor</Title>
+  </div>
+  <Descriptions column={2} size="small">
+    <Descriptions.Item label="Full Name">
+      {resultData.doctorFullName || "N/A"}
+    </Descriptions.Item>
+    <Descriptions.Item label="Username">
+      {resultData.doctorUsername || "N/A"}
+    </Descriptions.Item>
+    <Descriptions.Item label="Email">
+      {resultData.doctorEmail || "N/A"}
+    </Descriptions.Item>
+    <Descriptions.Item label="Phone">
+      {resultData.doctorPhoneNumber || "N/A"}
+    </Descriptions.Item>
+    <Descriptions.Item label="Specialty">
+      {resultData.doctorSpecialty || "N/A"}
+    </Descriptions.Item>
+    <Descriptions.Item label="Qualifications">
+      {resultData.doctorQualifications || "N/A"}
+    </Descriptions.Item>
+    <Descriptions.Item label="Years of Experience">
+      {resultData.doctorYearsOfExperience
+        ? `${resultData.doctorYearsOfExperience} years`
+        : "N/A"}
+    </Descriptions.Item>
+    <Descriptions.Item label="Account Status">
+      <Badge
+        status={
+          resultData.doctorAccountStatus === "Active" ? "success" : "error"
+        }
+        text={resultData.doctorAccountStatus}
+      />
+    </Descriptions.Item>
+  </Descriptions>
+
+  {resultData.doctorShortDescription && (
+    <>
+      <Divider />
+      <Text strong>Description:</Text>
+      <Text block>{resultData.doctorShortDescription}</Text>
+    </>
+  )}
+</Card>
+ <div className="card-header">
             <UserOutlined className="card-icon" />
             <Title level={5}>Medical Assessment</Title>
           </div>
@@ -202,15 +261,6 @@ const ResultModal = ({ isOpen, onClose, resultData }) => {
               </Text>
             </div>
           </div>
-
-          <Divider className="assessment-divider" />
-
-          {/* <div className="patient-info">
-            <Text className="patient-label">Patient Code:</Text>
-            <Text strong className="patient-code">
-              {patient?.patientCodeAtFacility || "N/A"}
-            </Text>
-          </div> */}
         </Card>
       </div>
     </Modal>

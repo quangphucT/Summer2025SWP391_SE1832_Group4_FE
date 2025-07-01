@@ -64,7 +64,7 @@ const TestingHIVPage = () => {
       setSelectedDate(null);
       setSelectedTime(null);
     } catch (error) {
-      toast.error(error?.response?.data?.message?.error || "Booking failed");
+      toast.error(error?.response?.data?.message || "Booking failed");
     } finally {
       setLoading(false);
     }
