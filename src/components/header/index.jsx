@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dropdown, Image, Menu } from "antd";
 import "./index.scss";
-import logo from "../../assets/images/logo.png";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import endPoint from "../../routers/router";
 import { useSelector } from "react-redux";
@@ -11,7 +11,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const isAuthenticated = !!localStorage.getItem("token");
+  const isAuthenticated = !!sessionStorage.getItem("token");
   const urlImageProfile = useSelector((store) => store?.user?.profileImageUrl);
   const fullname = useSelector((store) => store?.user?.fullName);
 
@@ -51,8 +51,8 @@ const Header = () => {
           ),
         },
         {
-          key: "testing_stds",
-          label: <span onClick={() => navigate("")}>HIV Treatment</span>,
+          key: "hiv_treatment",
+          label: <span onClick={() => navigate("/booking-treatment-hiv")}>HIV Treatment</span>,
         },
       ]}
     />

@@ -43,6 +43,8 @@ const ExperienceManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingExperience, setEditingExperience] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortedExperiences, setSortedExperiences] = useState([]);
 
     useEffect(() => {
         if (!user?.accountID) {
@@ -65,6 +67,15 @@ const ExperienceManagement = () => {
 
         dispatch(fetchDoctorExperience(doctorId));
     }, [dispatch, user, navigate, doctorId]);
+
+    useEffect(() => {
+        const sorted = [...doctorExperiences].sort((a, b) => {
+            const aDate = dayjs(a.fromDate);
+            const bDate = dayjs(b.fromDate);
+            return sortOrder === 'asc' ? aDate - bDate : bDate - aDate;
+        });
+        setSortedExperiences(sorted);
+    }, [doctorExperiences, sortOrder]);
 
     const safeExperiences = Array.isArray(doctorExperiences) ? doctorExperiences : [];
     console.log('Current experiences:', safeExperiences);
@@ -131,9 +142,49 @@ const ExperienceManagement = () => {
         }
     };
 
+    const isOverlap = (newFrom, newTo, existingFrom, existingTo) => {
+        const newFromDate = dayjs(newFrom);
+        const newToDate = newTo ? dayjs(newTo) : dayjs();
+        const existFromDate = dayjs(existingFrom);
+        const existToDate = existingTo ? dayjs(existingTo) : dayjs();
+        return (
+            newFromDate.isBefore(existToDate) &&
+            existFromDate.isBefore(newToDate)
+        );
+    };
+
+    const getDisabledDates = (excludeId = null) => {
+        return safeExperiences
+            .filter(exp => !excludeId || exp.id !== excludeId)
+            .map(exp => ({
+                from: dayjs(exp.fromDate).valueOf(),
+                to: exp.toDate ? dayjs(exp.toDate).valueOf() : dayjs().valueOf()
+            }));
+    };
+
+    const isDateInAnyRange = (date, excludeId = null) => {
+        if (!date) return false;
+        const timestamp = dayjs(date).valueOf();
+        const ranges = getDisabledDates(excludeId);
+        return ranges.some(range =>
+            timestamp >= range.from && timestamp <= range.to
+        );
+    };
+
     const handleSubmit = async (values) => {
         try {
             setLoading(true);
+            const newFrom = values.fromDate;
+            const newTo = values.toDate;
+            const overlap = safeExperiences.some(exp => {
+                if (editingExperience && exp.id === editingExperience.id) return false;
+                return isOverlap(newFrom, newTo, exp.fromDate, exp.toDate);
+            });
+            if (overlap) {
+                message.error('Khoảng thời gian này bị trùng với một kinh nghiệm khác!');
+                setLoading(false);
+                return;
+            }
             console.log('Form values:', values);
             const data = {
                 doctorId: doctorId,
@@ -255,6 +306,9 @@ const ExperienceManagement = () => {
                     </Button>
                     <h1 className="text-[#1890ff] text-3xl font-bold m-0">Experience Management</h1>
                 </div>
+                <Button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+                    Sắp xếp {sortOrder === 'asc' ? '↑' : '↓'}
+                </Button>
             </div>
             <Card
                 className="experience-management-card"
@@ -273,7 +327,7 @@ const ExperienceManagement = () => {
             >
                 <Table
                     columns={columns}
-                    dataSource={safeExperiences}
+                    dataSource={sortedExperiences}
                     loading={{ 
                         spinning: status === 'loading' || isLoading,
                         indicator: <LoadingOutlined style={{ fontSize: 24 }} spin />
@@ -360,7 +414,14 @@ const ExperienceManagement = () => {
                         <DatePicker 
                             format="DD/MM/YYYY" 
                             style={{ width: '100%' }}
-                            disabledDate={current => current && current > dayjs().endOf('day')}
+                            disabledDate={current => {
+                                return (
+                                    current && (
+                                        current > dayjs().endOf('day') ||
+                                        isDateInAnyRange(current, editingExperience?.id)
+                                    )
+                                );
+                            }}
                             disabled={loading}
                         />
                     </Form.Item>
@@ -393,8 +454,11 @@ const ExperienceManagement = () => {
                             disabledDate={current => {
                                 const fromDate = form.getFieldValue('fromDate');
                                 return (
-                                    (current && current > dayjs().endOf('day')) || 
-                                    (fromDate && current && current.isBefore(fromDate))
+                                    current && (
+                                        current > dayjs().endOf('day') ||
+                                        (fromDate && current.isBefore(fromDate)) ||
+                                        isDateInAnyRange(current, editingExperience?.id)
+                                    )
                                 );
                             }}
                             disabled={loading}

@@ -1,22 +1,19 @@
-// src/pages/Dashboard.tsx
+
 
 import "./index.scss";
 import {
   Layout,
   Menu,
-  Card,
+
   Avatar,
-  Button,
-  Input,
-  Image,
-  Tooltip,
+
 } from "antd";
 import {
-  DashboardOutlined,
+
   ProjectOutlined,
-  SettingOutlined,
+
   LogoutOutlined,
-  UserOutlined,
+
   MedicineBoxOutlined,
   CalendarOutlined,
   HeartOutlined,
@@ -27,18 +24,24 @@ const { Header, Sider, Content } = Layout;
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CheckedInAppointmentToday from "../checkedIn-Customer-List";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../../redux/feature/userSlice";
 import AppointmentListByDoctorAccountId from "../appointment-list";
+import PatientMedicalRecord from "../patientMedicalRecord";
+import RegisterTherapyForPatient from "../register-therapy-forPatient";
 
 const DashboardDoctorConsultantLayout = () => {
+  const emailDoctor = useSelector((store) => store?.user?.email);
+  const fullNameDoctor = useSelector((store) => store?.user?.fullName);
+  const doctorID = useSelector((store) => store?.user?.accountID);
+  const fullname = useSelector((store) => store?.user?.fullName);
   const [selectedMenu, setSelectedMenu] = useState(
     "recently-checkedInPatients"
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     dispatch(removeInformation());
     navigate("/login-page");
   };
@@ -126,7 +129,7 @@ const DashboardDoctorConsultantLayout = () => {
                 textShadow: "0 2px 4px rgba(0,0,0,0.3)",
               }}
             >
-              Dr. Medical
+             {fullNameDoctor}
             </div>
             <div
               style={{
@@ -139,7 +142,20 @@ const DashboardDoctorConsultantLayout = () => {
                 backdropFilter: "blur(10px)",
               }}
             >
-              Consultant Specialist
+              Consultant Specialist - Email: {emailDoctor}
+            </div>
+              <div
+              style={{
+                color: "rgba(255,255,255,0.8)",
+                fontSize: "14px",
+                fontWeight: "500",
+          
+                padding: "4px 12px",
+                borderRadius: "12px",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              DoctorID: {doctorID}
             </div>
           </div>
         </div>
@@ -175,7 +191,44 @@ const DashboardDoctorConsultantLayout = () => {
             Checked-in Patients
           </Menu.Item>
 
-          <Menu.Item
+           <Menu.Item
+            key="patient-medicalRecord"
+            icon={<CalendarOutlined style={{ fontSize: "18px" }} />}
+            style={{
+              margin: "8px 0",
+              borderRadius: "12px",
+              height: "50px",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "15px",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+          >
+            Patient Medical Record
+          </Menu.Item>
+
+          {/* register therapy for patient */}
+           <Menu.Item
+            key="therapy-for-patient"
+            icon={<CalendarOutlined style={{ fontSize: "18px" }} />}
+            style={{
+              margin: "8px 0",
+              borderRadius: "12px",
+              height: "50px",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "15px",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+          >
+            Therapy for patient
+          </Menu.Item>
+
+
+
+         <Menu.Item
             key="appointment-list"
             icon={<ProjectOutlined style={{ fontSize: "18px" }} />}
             style={{
@@ -294,7 +347,7 @@ const DashboardDoctorConsultantLayout = () => {
                 marginBottom: "2px",
               }}
             >
-              Dr. Hthais Than
+            {fullname}
             </div>
 
             <Avatar
@@ -366,6 +419,85 @@ const DashboardDoctorConsultantLayout = () => {
                   }}
                 >
                   <AppointmentListByDoctorAccountId/>
+                </p>
+              </div>
+            )}
+
+    
+
+             {selectedMenu === "patient-medicalRecord" && (
+              <div
+                className="fade-in"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "670px",
+                  flexDirection: "column",
+                  gap: "16px",
+                }}
+              >
+               <div className="flex items-center space-x-5">
+                 <ProjectOutlined
+                  style={{ fontSize: "64px", color: "#667eea" }}
+                />
+                <h2
+                  style={{
+                    color: "#1e3c72",
+                    fontSize: "24px",
+                    fontWeight: "600",
+                  }}
+                >
+                 Patient Medical Record
+                </h2>
+               </div>
+                <p
+                  style={{
+                    color: "#666",
+                    fontSize: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <PatientMedicalRecord/>
+                </p>
+              </div>
+            )}
+
+           {/* therapy for patient */}
+              {selectedMenu === "therapy-for-patient" && (
+              <div
+                className="fade-in"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "770px",
+                  flexDirection: "column",
+                  gap: "16px",
+                }}
+              >
+               <div className="flex items-center space-x-5">
+                 <ProjectOutlined
+                  style={{ fontSize: "64px", color: "#667eea" }}
+                />
+                <h2
+                  style={{
+                    color: "#1e3c72",
+                    fontSize: "24px",
+                    fontWeight: "600",
+                  }}
+                >
+               Register Therapy for patient
+                </h2>
+               </div>
+                <p
+                  style={{
+                    color: "#666",
+                    fontSize: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <RegisterTherapyForPatient/>
                 </p>
               </div>
             )}

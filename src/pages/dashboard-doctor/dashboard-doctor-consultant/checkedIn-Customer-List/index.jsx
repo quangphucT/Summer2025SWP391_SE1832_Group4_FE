@@ -1,6 +1,5 @@
 import { toast } from "react-toastify";
 import "./index.scss";
-import { getAllAppointments } from "../../../../apis/appointmentAPI/getAllAppointmentsApi";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -9,23 +8,46 @@ import {
   Form,
   Input,
   Modal,
-  Radio,
   Row,
   Select,
   Table,
   TimePicker,
+  Tag,
+  Avatar,
+  Card,
+  Descriptions,
+  Divider,
+  Typography,
+  Empty,
+  Spin,
 } from "antd";
-import { FileTextOutlined } from "@ant-design/icons";
+import {
+  FileTextOutlined,
+  UserOutlined,
+  PhoneOutlined,
+  ClockCircleOutlined,
+  IdcardOutlined,
+} from "@ant-design/icons";
 import { createAppointmentTest } from "../../../../apis/appointmentAPI/createAppointmentTestApi";
 import { getAvailableSchedulesDoctorsTesting } from "../../../../apis/doctorApi/getAvailableSchedulesDoctorTestingApi";
+import { getAllAppointmentsFollowingDoctor } from "../../../../apis/appointmentAPI/getAppointmentFollowingDoctorApi";
+import { useSelector } from "react-redux";
+import { updateAppointmentCompleted } from "../../../../apis/appointmentAPI/updateAppointmentCompletedApi";
+import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
+
+const { Title, Text } = Typography;
 
 const CheckedInAppointmentToday = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingFormCreateTest, setLoadingFormCreateTest] = useState(false);
   const [openModalFormAdvice, setOpenModalFormAdvice] = useState(false);
+  const [openModalTestResult, setOpenModalTestResult] = useState(false);
+  const [testResults, setTestResults] = useState([]);
+  const [loadingTestResults, setLoadingTestResults] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
+  const accountID = useSelector((store) => store?.user?.accountID);
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -33,35 +55,41 @@ const CheckedInAppointmentToday = () => {
 
   const [form] = Form.useForm();
 
-  const fetchingAppointmentCheckedIn = async () => {
-    setLoading(true);
-    try {
-      const response = await getAllAppointments();
-      const responseAfterFilterCheckedIn =
-        response.data.data.rowDatas
-          ?.filter((item) => item.status === "CheckedIn")
-          .sort((a, b) => {
-            const timeA = a.appointmentTime;
-            const timeB = b.appointmentTime;
-            return timeA.localeCompare(timeB);
-          }) || [];
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!accountID) return;
 
-      setData(responseAfterFilterCheckedIn);
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message?.error || "Error while fetching"
-      );
-    }
-    setLoading(false);
-  };
-  console.log("Available doctor:", availableDoctors)
+      setLoading(true);
+      try {
+        const response = await getAllAppointmentsFollowingDoctor(accountID);
+        const responseAfterFilterCheckedIn =
+          response.data.data.rowDatas
+            ?.filter((item) => item.status === "CheckedIn")
+            .sort((a, b) => {
+              const timeA = a.appointmentTime;
+              const timeB = b.appointmentTime;
+              return timeA.localeCompare(timeB);
+            }) || [];
+
+        setData(responseAfterFilterCheckedIn);
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message?.error || "Error while fetching"
+        );
+      }
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [accountID]);
+
   const fetchAvailableDoctors = async (date, time) => {
     try {
       const payload = {
         appointmentDate: date.format("YYYY-MM-DD"),
         appointmentTime: time.format("HH:mm:ss"),
       };
-      const res = await getAvailableSchedulesDoctorsTesting(payload); // API cần truyền params ngày + giờ
+      const res = await getAvailableSchedulesDoctorsTesting(payload);
       setAvailableDoctors(res.data.data || []);
     } catch (error) {
       toast.error(
@@ -69,35 +97,57 @@ const CheckedInAppointmentToday = () => {
       );
     }
   };
-
-  useEffect(() => {
-    fetchingAppointmentCheckedIn();
-  }, []);
-
+  const handleUpdateAppointmentCompleted = async(record) => {
+    try {
+      await updateAppointmentCompleted(record.appointmentId);
+      toast.success("Appointment marked as completed successfully!");
+      setSelectedRecord(null);
+      await getAllAppointmentsFollowingDoctor(accountID);
+    } catch (error) {
+      toast.error(  
+        error?.response?.data?.message || "Error while handling logic!"
+      );  
+    }
+  }
   const columns = [
     {
-      title: "No.",
+      title: "STT",
       dataIndex: "appointmentId",
       key: "index",
-      render: (text, record, index) => index + 1,
+      width: 70,
+      align: "center",
+      render: (text, record, index) => (
+        <div className="index-number">{index + 1}</div>
+      ),
     },
     {
-      title: "Patient Info",
+      title: "Patient Information",
       key: "patientInfo",
+      width: 250,
       render: (_, record) => {
         const patientCode = record?.patient?.patientCodeAtFacility || "N/A";
         const name = record?.patientName || "N/A";
         const phone = record?.patient?.account?.phoneNumber || "N/A";
+        const patientId = record?.patient?.patientId || "N/A";
         return (
-          <div>
-            <div>
-              <strong>Name:</strong> {name}
+          <div className="patient-info">
+            <div className="patient-row">
+              <UserOutlined className="info-icon" />
+              <span className="patient-name">{name}</span>
             </div>
-            <div>
-              <strong>Code:</strong> {patientCode}
+            <div className="patient-row">
+              <IdcardOutlined className="info-icon" />
+              <span>Mã: {patientCode}</span>
             </div>
-            <div>
-              <strong>Phone:</strong> {phone}
+            <div className="patient-row">
+              <PhoneOutlined className="info-icon" />
+              <span>{phone}</span>
+            </div>
+            <div className="patient-row">
+              <IdcardOutlined className="info-icon" />
+              <span>
+                Patient ID: <strong>{patientId}</strong>
+              </span>
             </div>
           </div>
         );
@@ -106,55 +156,137 @@ const CheckedInAppointmentToday = () => {
     {
       title: "Appointment Info",
       key: "appointmentInfo",
+      width: 200,
       render: (_, record) => {
         return (
-          <div>
-            <div>
-              <strong>Time:</strong> {record.appointmentTime}
+          <div className="appointment-info">
+            <div className="appointment-row">
+              <ClockCircleOutlined className="info-icon" />
+              <span>{record.appointmentTime}</span>
             </div>
-            <div>
-              <strong>Type:</strong> {record.appointmentType}
+            <div className="appointment-row">
+              <Tag color="blue" className="appointment-tag">
+                {record.appointmentType}
+              </Tag>
             </div>
-            <div>
-              <strong>Service:</strong> {record.appointmentService}
+            <div className="appointment-row">
+              <Tag color="green" className="appointment-tag">
+                {record.appointmentService}
+              </Tag>
             </div>
           </div>
         );
       },
     },
     {
-      title: "Doctor",
+      title: "Doctor Information",
       key: "doctor",
+      width: 180,
       render: (_, record) => {
-        return record?.doctor?.account?.fullName || "N/A";
+        const doctorName = record?.doctor?.account?.fullName || "N/A";
+        return (
+          <div className="doctor-info">
+            <Avatar size={28} className="doctor-avatar" />
+            <span className="doctor-name">{doctorName}</span>
+          </div>
+        );
       },
+    },
+    {
+      title: "Status",
+      key: "status",
+      width: 120,
+      align: "center",
+      render: () => (
+        <Tag color="success" className="status-tag">
+          CheckedIn
+        </Tag>
+      ),
     },
     {
       title: "Action",
       dataIndex: "appointmentId",
       key: "appointmentId",
+      width: 150,
+      align: "center",
       render: (text, record) => {
         return (
-          <Button
-            onClick={() => {
-              handleOpenFormAdvise(record);
-            }}
-            type="primary"
-            icon={<FileTextOutlined />}
-            style={{
-              backgroundColor: "#d32f2f",
-              borderColor: "#b71c1c",
-              color: "white",
-              fontWeight: "bold",
-              borderRadius: 6,
-            }}
-          >
-            Advice / Notes
-          </Button>
+          <>
+            {record?.appointmentService === "PreTestCounseling" ? (
+              <>
+                <Button
+                  onClick={() => {
+                    handleOpenFormAdvise(record);
+                  }}
+                  type="primary"
+                  icon={<FileTextOutlined />}
+                  className="action-button"
+                  size="small"
+                >
+                  Medical Advice & Register Test
+                </Button>
+              </>
+            ) : (
+              <div className="flex space-x-2.5">
+                <Button
+                  onClick={() => {
+                    handleOpenFormAdvise(record);
+                  }}
+                  type="primary"
+                  icon={<FileTextOutlined />}
+                  className="action-button"
+                  size="small"
+                >
+                   Register Test
+                </Button>
+               
+                <Button
+                  onClick={() => {
+                    handleOpenTestResult(record);
+                  }}
+                  type="primary"
+                  icon={<FileTextOutlined />}
+                  className="action-button"
+                  size="small"
+                >
+                  View Result Test
+                </Button>
+                 <Button
+                  onClick={() => {
+                     handleUpdateAppointmentCompleted(record);
+                  }}
+                  type="primary"
+                
+                  className="action-button"
+                  size="small"
+                >
+                   Done
+                </Button>
+              </div>
+            )}
+          </>
         );
       },
     },
   ];
+
+  // handle open test result
+  const handleOpenTestResult = async (record) => {
+    setLoadingTestResults(true);
+    setOpenModalTestResult(true);
+    const patientId = record?.patient?.patientId;
+
+    try {
+      const response = await getTestResultByPatientId(patientId);
+      const testResults = response.data.data || [];
+      setTestResults(testResults);
+    } catch {
+      toast.error("Error fetching test results");
+      setTestResults([]);
+    }
+    setLoadingTestResults(false);
+  };
+
   const handleOpenFormAdvise = (record) => {
     setSelectedRecord(record);
     setOpenModalFormAdvice(true);
@@ -175,8 +307,11 @@ const CheckedInAppointmentToday = () => {
       };
       console.log("Formatted:", formatted);
       await createAppointmentTest(formatted);
+      await updateAppointmentCompleted(selectedRecord.appointmentId);
       toast.success("Created successfuly");
       form.resetFields();
+      setAvailableDoctors([]);
+      setSelectedRecord(null);
       setOpenModalFormAdvice(false);
     } catch (error) {
       toast.error(
@@ -185,7 +320,6 @@ const CheckedInAppointmentToday = () => {
     }
     setLoadingFormCreateTest(false);
   };
-
 
   return (
     <div className="checked-in-appointment-table">
@@ -204,7 +338,10 @@ const CheckedInAppointmentToday = () => {
         columns={columns}
         dataSource={data}
         rowKey="appointmentId"
-        pagination={false}
+        pagination={{
+          pageSize: 4,
+        }}
+        className="modern-table"
       />
 
       <Modal
@@ -319,7 +456,7 @@ const CheckedInAppointmentToday = () => {
                   >
                     {availableDoctors.map((doc) => (
                       <Select.Option key={doc.doctorId} value={doc.doctorId}>
-                        {doc.account.email}
+                        {doc.account.email} - {doc.account.fullName}
                       </Select.Option>
                     ))}
                   </Select>
@@ -347,6 +484,156 @@ const CheckedInAppointmentToday = () => {
             </Row>
           </div>
         </Form>
+      </Modal>
+
+      {/* Test Results Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <FileTextOutlined className="text-blue-600" />
+            <span>Patient Test Results</span>
+          </div>
+        }
+        open={openModalTestResult}
+        onCancel={() => {
+          setOpenModalTestResult(false);
+          setTestResults([]);
+        }}
+        footer={[
+          <Button
+            key="close"
+            onClick={() => {
+              setOpenModalTestResult(false);
+              setTestResults([]);
+            }}
+          >
+            Close
+          </Button>,
+        ]}
+        width={1000}
+        centered
+      >
+        <div className="test-results-content">
+          {loadingTestResults ? (
+            <div className="flex justify-center items-center py-8">
+              <Spin size="large" />
+              <span className="ml-3">Loading test results...</span>
+            </div>
+          ) : testResults.length === 0 ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="No test results found for this patient"
+            />
+          ) : (
+            <div className="space-y-4">
+              <Title level={4}>Test Results ({testResults.length})</Title>
+              {testResults.map((result, index) => (
+                <Card
+                  key={result.testResultId || index}
+                  className="test-result-card"
+                  size="small"
+                >
+                  <span>TestResultId: {result.testResultId}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Descriptions
+                      title="Test Information"
+                      column={1}
+                      size="small"
+                      bordered
+                    >
+                      <Descriptions.Item label="Test Type">
+                        <Tag color="blue">{result.testType}</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Test Date">
+                        {new Date(result.testDate).toLocaleDateString("vi-VN", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Lab Name">
+                        {result.labName || "N/A"}
+                      </Descriptions.Item>
+                    </Descriptions>
+
+                    <Descriptions
+                      title="Results"
+                      column={1}
+                      size="small"
+                      bordered
+                    >
+                      <Descriptions.Item label="Test Result">
+                        <Tag
+                          color={
+                            result.testResults === "Positive"
+                              ? "red"
+                              : result.testResults === "Negative"
+                              ? "green"
+                              : "orange"
+                          }
+                          className="font-semibold"
+                        >
+                          {result.testResults}
+                        </Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="CD4 Count">
+                        {result.cD4Count || "N/A"}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="HIV Viral Load">
+                        {result.hivViralLoadValue || "N/A"}
+                      </Descriptions.Item>
+                    </Descriptions>
+
+                    <Descriptions
+                      title="Doctor Test Information"
+                      column={1}
+                      size="small"
+                      bordered
+                    >
+                      <Descriptions.Item label="Full name">
+                        <Tag className="font-semibold">
+                          {result?.doctorFullName}
+                        </Tag>
+                      </Descriptions.Item>
+
+                      <Descriptions.Item label="Email">
+                        {result?.doctorEmail}
+                      </Descriptions.Item>
+
+                      <Descriptions.Item label="Phone Number">
+                        {result?.doctorPhoneNumber}
+                      </Descriptions.Item>
+
+                       <Descriptions.Item label="Doctor Specialty">
+                        {result?.doctorSpecialty}
+                      </Descriptions.Item>
+                    </Descriptions>
+                  </div>
+
+                  {result.doctorComments && (
+                    <div className="mt-4">
+                      <Divider orientation="left" className="text-sm">
+                        Doctor Comments
+                      </Divider>
+                      <Text className="text-gray-600 italic">
+                        "{result.doctorComments}"
+                      </Text>
+                    </div>
+                  )}
+
+                  <div className="mt-3 text-right">
+                    <Text type="secondary" className="text-xs">
+                      Patient Code:{" "}
+                      {result?.patientCodeAtFacility || "N/A"}
+                    </Text>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );

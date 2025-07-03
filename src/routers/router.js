@@ -15,7 +15,9 @@ const endPoint = {
 
 
     BLOGSPAGE: "/blogs-page",
+
     SCHEDULEACONSULTATION: "/schedule-consultation",
+    SCHEDULEACONSULTATIONPOST: "/schedule-consultation-post",
 
     HIVTREATMENT: "/services/hiv_treatment",
     TESTINGSTDS: "/services/testing_stds",
@@ -43,17 +45,13 @@ const endPoint = {
     TODAYAPPOINTMENTMANAGEMENT: "today-appointment-management",
     // dashboard Doctor
     CHECKEDINAPPOINTMENTTODAY: "checked-in-appointment-today",
-    // Doctor Layout Endpoints
-    DOCTOR: "/doctor",
-    DOCTORDASHBOARD: "dashboard",
-    DOCTORPATIENTRECORDS: "patient-records",
-    DOCTORAPPOINTMENTS: "appointments",
-    DOCTORPROFILE: "profile",
+
 
     // Service route
     TESTINGHIVPAGE: "/testing-hiv-page",
 
-
+    // hiv booking treatment
+    BOOKINGTREATMENTHIV: "/booking-treatment-hiv",
     // dashboard doctor testing
 
     DASHBOARDLAYOUTDOCTORTESTING: "/doctorTesting-dashboard",
@@ -67,7 +65,7 @@ const endPoint = {
     // doctor list management
     DOCTORLISTMANAGEMENT: "doctor-list-management",
 
-    
+    BLOG_DETAIL: "/blog/:blogId",
 
 }
 export default endPoint

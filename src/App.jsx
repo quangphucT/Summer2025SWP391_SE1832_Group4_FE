@@ -2,7 +2,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/layout";
 import HomePage from "./pages/home-page";
 import DashboardLayout from "./pages/dashboard-management/dashboard-layout";
-import DoctorLayout from "./pages/dashboard-management/doctor/doctor-layout";
 import CustomerManagement from "./pages/dashboard-management/manager/customer-management";
 import ProtocolManagement from "./pages/dashboard-management/manager/protocal-management";
 import DashboardStatistics from "./pages/dashboard-management/admin/dashboard-statistics";
@@ -23,12 +22,7 @@ import ExperienceManagement from "./pages/dashboard-management/doctor/experience
 import CertificateManagement from "./pages/dashboard-management/doctor/certificate-management";
 import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 import DoctorManagement from "./pages/dashboard-management/doctor/doctor-management";
-
-// Doctor pages
-import DoctorDashboard from "./pages/dashboard-management/doctor/dashboard";
-import PatientRecords from "./pages/dashboard-management/doctor/patient-records";
-import Appointments from "./pages/dashboard-management/doctor/appointments";
-import DoctorProfile from "./pages/dashboard-management/doctor/profile";
+import BlogDetailPage from "./pages/blogs-pages/BlogDetailPage";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -41,8 +35,11 @@ import ArvManagement from "./pages/dashboard-management/admin/arvstandard-manage
 import TestingHIVPage from "./pages/service-pages/testing-hiv-page";
 import DashboardDoctorTestingLayout from "./pages/dashboard-doctor/dashboard-doctor-testing/layout-dashboard";
 import DashboardDoctorConsultantLayout from "./pages/dashboard-doctor/dashboard-doctor-consultant/layout-dashboard";
-import DoctorCreationManagement from "./pages/dashboard-management/manager/doctor-createAccount-management";
-import DoctorListManagement from "./pages/dashboard-management/manager/doctor-list-management";
+import DoctorCreationManagement from "./pages/dashboard-management/admin/doctor-createAccount-management";
+import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list-management";
+import BookingTreatmentHIV from "./pages/service-pages/hiv-treatment-page";
+import SchedulePostTestConsultation from "./pages/schedule-consultationPost-page";
+
 
 const App = () => {
   const router = createBrowserRouter([
@@ -58,6 +55,10 @@ const App = () => {
           path: endPoint.BLOGSPAGE,
           element: <BlogsPages />,
         },
+        {
+          path: "/blog/:blogId",
+          element: <BlogDetailPage />,
+        },
 
         // service system
 
@@ -69,6 +70,17 @@ const App = () => {
         {
           path: endPoint.SCHEDULEACONSULTATION,
           element: <ScheduleAConsultation />,
+        },
+        // schedule a consultation post
+           {
+          path: endPoint.SCHEDULEACONSULTATIONPOST,
+          element: <SchedulePostTestConsultation />,
+        },
+
+        // booking treatment hiv
+        {
+          path: endPoint.BOOKINGTREATMENTHIV,
+          element: <BookingTreatmentHIV />,
         },
         {
           path: endPoint.HIVTREATMENT,
@@ -211,32 +223,7 @@ const App = () => {
         },
       ],
     },
-    {
-      path: endPoint.DOCTOR,
-      element: <DoctorLayout />,
-      children: [
-        {
-          path: endPoint.DOCTORDASHBOARD,
-          element: <DoctorDashboard />,
-        },
-        {
-          path: endPoint.DOCTORPATIENTRECORDS,
-          element: <PatientRecords />,
-        },
-        {
-          path: endPoint.DOCTORAPPOINTMENTS,
-          element: <Appointments />,
-        },
-        {
-          path: endPoint.DOCTORPROFILE,
-          element: <DoctorProfile />,
-        },
-        {
-          path: "",
-          element: <DoctorDashboard />,
-        },
-      ],
-    },
+    
   ]);
   return (
     <div>

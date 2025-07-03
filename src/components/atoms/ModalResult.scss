@@ -1,0 +1,431 @@
+// Professional HIV Test Result Modal Styles
+.result-modal {
+  .ant-modal-header {
+    background: linear-gradient(135deg, #99a1c9 0%, #d7d6d7 100%);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    padding: 24px;
+    
+    .ant-modal-title {
+      color: white;
+    }
+  }
+
+  .modal-header {
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .anticon {
+        font-size: 24px;
+        color: white;
+      }
+    }
+
+    .modal-title {
+      color: white !important;
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+
+  .ant-modal-body {
+    padding: 0;
+    background: #f8fafc;
+  }
+
+  .modal-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  // Card Styles
+  .info-card, .results-card, .assessment-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .ant-card-body {
+      padding: 0;
+    }
+  }
+
+  .info-card {
+    border-left: 4px solid #1890ff;
+    
+    .card-header {
+      background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+    }
+  }
+
+  .results-card {
+    border-left: 4px solid #52c41a;
+    
+    .card-header {
+      background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
+    }
+  }
+
+  .assessment-card {
+    border-left: 4px solid #722ed1;
+    
+    .card-header {
+      background: linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%);
+    }
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+    .card-icon {
+      font-size: 18px;
+      color: #666;
+    }
+
+    .ant-typography {
+      margin: 0;
+      color: #262626;
+      font-weight: 600;
+    }
+  }
+
+  // Test Information Styles
+  .test-descriptions {
+    padding: 20px;
+
+    .ant-descriptions-item-label {
+      font-weight: 600;
+      color: #595959;
+      background: #fafafa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .ant-descriptions-item-content {
+      padding: 8px 12px;
+    }
+
+    .test-id {
+      color: #1890ff;
+      font-family: 'Monaco', 'Menlo', monospace;
+      background: #e6f7ff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .type-badge {
+      .ant-badge-status-text {
+        font-weight: 500;
+      }
+    }
+
+    .date-icon {
+      color: #1890ff;
+    }
+  }
+
+  // Results Styles
+  .results-card {
+    .ant-card-body {
+      padding: 20px;
+    }
+
+    .result-status {
+      margin-bottom: 16px;
+
+      .status-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: #fafafa;
+        border-radius: 12px;
+        border: 2px solid #f0f0f0;
+      }
+
+      .status-label {
+        font-weight: 600;
+        color: #595959;
+        font-size: 16px;
+      }
+
+      .status-text {
+        font-size: 16px;
+        
+        &.positive {
+          color: #ff4d4f !important;
+        }
+        
+        &.negative {
+          color: #52c41a !important;
+        }
+      }
+    }
+
+    .results-divider {
+      margin: 16px 0;
+      border-color: #e8e8e8;
+    }
+
+    .clinical-values {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+
+      .value-item {
+        padding: 16px;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: 12px;
+        border: 1px solid #e1f5fe;
+
+        .value-label {
+          display: block;
+          font-weight: 600;
+          color: #0369a1;
+          margin-bottom: 8px;
+          font-size: 13px;
+        }
+
+        .value-text {
+          color: #1e40af;
+          font-size: 15px;
+        }
+      }
+    }
+  }
+
+  // Assessment Styles
+  .assessment-card {
+    .ant-card-body {
+      padding: 20px;
+    }
+
+    .comments-section {
+      margin-bottom: 16px;
+
+      .comments-label {
+        display: block;
+        font-weight: 600;
+        color: #595959;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+
+      .comments-content {
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 16px;
+        min-height: 80px;
+
+        .comments-text {
+          color: #262626;
+          line-height: 1.6;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .assessment-divider {
+      margin: 16px 0;
+      border-color: #e8e8e8;
+    }
+
+    .patient-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+      border-radius: 8px;
+      border: 1px solid #d8b4fe;
+
+      .patient-label {
+        font-weight: 600;
+        color: #6b21a8;
+        font-size: 14px;
+      }
+
+      .patient-code {
+        color: #7c3aed;
+        font-family: 'Monaco', 'Menlo', monospace;
+        background: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+    }
+  }
+
+  // Close button styling
+  .ant-modal-close {
+    color: rgba(255, 255, 255, 0.8);
+    
+    &:hover {
+      color: white;
+    }
+  }
+
+  // Post-test Counseling Warning Styles
+  .counseling-warning {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    border: 2px solid #faad14;
+    background: linear-gradient(135deg, #fff7e6 0%, #fef3c7 100%);
+    box-shadow: 0 4px 12px rgba(250, 173, 20, 0.15);
+
+    .ant-alert-icon {
+      font-size: 20px;
+      color: #fa8c16;
+    }
+
+    .ant-alert-message {
+      font-weight: 700;
+      color: #d46b08;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .ant-alert-description {
+      color: #ad6800;
+    }
+
+    .counseling-alert {
+      margin-top: 12px;
+
+      .ant-typography {
+        color: #ad6800;
+        line-height: 1.6;
+        margin-bottom: 16px;
+        font-size: 14px;
+      }
+
+      .counseling-button {
+        background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+        border: none;
+        border-radius: 8px;
+        height: 44px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, #ff7875 0%, #ff4d4f 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(255, 77, 79, 0.4);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+
+        .anticon {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .result-modal {
+    .ant-modal {
+      margin: 16px;
+      max-width: calc(100vw - 32px);
+    }
+
+    .modal-content {
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .clinical-values {
+      grid-template-columns: 1fr;
+    }
+
+    .patient-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .test-descriptions {
+      .ant-descriptions {
+        .ant-descriptions-item {
+          padding-bottom: 12px;
+        }
+      }
+    }
+
+    // Responsive counseling warning
+    .counseling-warning {
+      .counseling-alert {
+        .counseling-button {
+          width: 100%;
+          height: 48px;
+          font-size: 15px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .result-modal {
+    .modal-header {
+      .header-icon {
+        width: 40px;
+        height: 40px;
+        
+        .anticon {
+          font-size: 20px;
+        }
+      }
+
+      .modal-title {
+        font-size: 18px;
+      }
+
+      .modal-subtitle {
+        font-size: 13px;
+      }
+    }
+
+    .card-header {
+      padding: 12px 16px;
+      
+      .card-icon {
+        font-size: 16px;
+      }
+    }
+  }
+}

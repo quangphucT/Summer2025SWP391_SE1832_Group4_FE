@@ -5,14 +5,14 @@ baseURL: import.meta.env.VITE_BACKEND_URL,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 5000,
+  timeout: 15000,
   withCredentials: true, // Bật nếu cần gửi cookie/JWT
   //... other axios options
 });
 // Trước khi gọi API, thêm token vào headers
 api.interceptors.request.use(function (config) {
   // Do something before request is sent
-  const token = localStorage.getItem("token")
+  const token = sessionStorage.getItem("token")
   if(token){
       config.headers.Authorization = `Bearer ${token}`
   }
