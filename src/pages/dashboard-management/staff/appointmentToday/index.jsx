@@ -208,7 +208,7 @@ const AppointmentTodayManagement = () => {
     setLoading(false)
   }
   return (
-    <div style={{ padding: "24px", marginTop: "-84px" }}>
+    <div style={{ padding: "24px"}}>
       <Card
         bordered={false}
         style={{
