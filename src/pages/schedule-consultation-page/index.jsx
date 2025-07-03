@@ -169,6 +169,9 @@ const ScheduleAConsultation = () => {
               onFinish={onFinish}
               layout="vertical"
               className="appointment-form space-y-6"
+              initialValues={{
+                appointmentService: "PreTestCounseling"
+              }}
             >
               <Form.Item
                 name="appointmentService"
