@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./blog-management.scss";
+import { toast } from "react-toastify";
 
 import {
   getAllBlogTags,
@@ -28,11 +29,17 @@ export default function BlogManagement() {
     try {
       const cleanFilters = {};
       Object.entries(customFilters).forEach(([key, value]) => {
-        if (value) cleanFilters[key] = value;
+        if (value !== undefined && value !== null) cleanFilters[key] = value;
       });
       const qs = new URLSearchParams(cleanFilters).toString();
       const data = await getAllBlogTags(qs ? `?${qs}` : "");
-      setTags(Array.isArray(data) ? data : data.items);
+      let filtered = data;
+      if (customFilters.name) {
+        filtered = filtered.filter(tag =>
+          tag.name.toLowerCase().includes(customFilters.name.toLowerCase())
+        );
+      }
+      setTags(Array.isArray(filtered) ? filtered : []);
     } catch {}
     setTagLoading(false);
   }
@@ -67,15 +74,29 @@ export default function BlogManagement() {
   async function saveTag(e) {
     e.preventDefault();
     const payload = { name: tagForm.name, description: tagForm.description };
-    if (editingTag) await updateBlogTagById(editingTag.blogTagId, payload);
-    else await createBlogTag(payload);
-    closeTagModal();
-    fetchTags();
+    try {
+      if (editingTag) {
+        await updateBlogTagById(editingTag.blogTagId, payload);
+        toast.success("Tag updated successfully");
+      } else {
+        await createBlogTag(payload);
+        toast.success("Tag created successfully");
+      }
+      closeTagModal();
+      fetchTags();
+    } catch (error) {
+      toast.error(error.message || "Operation failed");
+    }
   }
   async function removeTag(id) {
     if (!window.confirm("Delete this tag?")) return;
-    await deleteBlogTagById(id);
-    fetchTags();
+    try {
+      await deleteBlogTagById(id);
+      toast.success("Tag deleted successfully");
+      fetchTags();
+    } catch (error) {
+      toast.error(error.message || "Failed to delete tag");
+    }
   }
 
   // --- Blog State & Handlers ---
@@ -96,11 +117,22 @@ export default function BlogManagement() {
     try {
       const cleanFilters = {};
       Object.entries(customFilters).forEach(([key, value]) => {
-        if (value) cleanFilters[key] = value;
+        if (value !== undefined && value !== null) cleanFilters[key] = value;
       });
       const qs = new URLSearchParams(cleanFilters).toString();
       const data = await getAllBlogs(qs ? `?${qs}` : "");
-      setBlogs(Array.isArray(data) ? data : data.items);
+      let filtered = data;
+      if (customFilters.title) {
+        filtered = filtered.filter(blog =>
+          blog.title.toLowerCase().includes(customFilters.title.toLowerCase())
+        );
+      }
+      if (customFilters.blogTagId) {
+        filtered = filtered.filter(blog =>
+          String(blog.blogTagId) === String(customFilters.blogTagId)
+        );
+      }
+      setBlogs(Array.isArray(filtered) ? filtered : []);
     } catch {}
     setBlogLoading(false);
   }
@@ -145,15 +177,29 @@ export default function BlogManagement() {
       blogImageUrl: blogForm.blogImageUrl,
       blogTagId: Number(blogForm.blogTagId),
     };
-    if (editingBlog) await updateBlogById(editingBlog.blogId, payload);
-    else await createBlog(payload);
-    closeBlogModal();
-    fetchBlogs();
+    try {
+      if (editingBlog) {
+        await updateBlogById(editingBlog.blogId, payload);
+        toast.success("Blog updated successfully");
+      } else {
+        await createBlog(payload);
+        toast.success("Blog created successfully");
+      }
+      closeBlogModal();
+      fetchBlogs();
+    } catch (error) {
+      toast.error(error.message || "Operation failed");
+    }
   }
   async function removeBlog(id) {
     if (!window.confirm("Delete this blog?")) return;
-    await deleteBlogById(id);
-    fetchBlogs();
+    try {
+      await deleteBlogById(id);
+      toast.success("Blog deleted successfully");
+      fetchBlogs();
+    } catch (error) {
+      toast.error(error.message || "Failed to delete blog");
+    }
   }
 
   return (

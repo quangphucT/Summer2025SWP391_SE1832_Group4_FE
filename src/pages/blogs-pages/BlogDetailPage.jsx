@@ -13,7 +13,7 @@ const BlogDetailPage = () => {
     const fetchBlog = async () => {
       try {
         setLoading(true);
-        // If you have getBlogById, use it. Otherwise, filter from all blogs.
+
         const blogs = await getAllBlogs();
         const found = blogs.find((b) => String(b.blogId) === String(blogId));
         setBlog(found);
