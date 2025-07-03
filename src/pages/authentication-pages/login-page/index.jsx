@@ -35,6 +35,10 @@ const Login = () => {
             case "Testing":
               navigate("/doctorTesting-dashboard");
               break;
+            case "Therapy":
+              navigate("/doctorTherapy-dashboard");
+              break;
+
             // có thể thêm nhiều specialty khác ở đây
             default:
               navigate("/doctor-dashboard"); // fallback nếu specialty không khớp

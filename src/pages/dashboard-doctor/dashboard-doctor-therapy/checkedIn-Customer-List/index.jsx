@@ -331,7 +331,7 @@ const CheckedInAppointmentToday = () => {
           fontSize: "30px",
         }}
       >
-        List of Checked-In Patients (Consultant)
+        List of Checked-In Patients (Therapy)
       </h2>
       <Table
         loading={loading}

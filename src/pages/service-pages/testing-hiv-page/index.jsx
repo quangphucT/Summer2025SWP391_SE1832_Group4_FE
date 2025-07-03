@@ -176,12 +176,12 @@ const TestingHIVPage = () => {
                     placeholder="Select testing type"
                     suffixIcon={<FileTextOutlined />}
                   >
-                    <Option value="RapidTest">
+                    {/* <Option value="RapidTest">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ClockCircleOutlined style={{ color: '#4ecdc4' }} />
                         Rapid HIV Test
                       </div>
-                    </Option>
+                    </Option> */}
                     <Option value="PCR">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <SafetyCertificateOutlined style={{ color: '#ff6b6b' }} />

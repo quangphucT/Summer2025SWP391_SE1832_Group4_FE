@@ -11,7 +11,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const isAuthenticated = !!localStorage.getItem("token");
+  const isAuthenticated = !!sessionStorage.getItem("token");
   const urlImageProfile = useSelector((store) => store?.user?.profileImageUrl);
   const fullname = useSelector((store) => store?.user?.fullName);
 

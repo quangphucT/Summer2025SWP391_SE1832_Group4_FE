@@ -15,7 +15,9 @@ const endPoint = {
 
 
     BLOGSPAGE: "/blogs-page",
+
     SCHEDULEACONSULTATION: "/schedule-consultation",
+    SCHEDULEACONSULTATIONPOST: "/schedule-consultation-post",
 
     HIVTREATMENT: "/services/hiv_treatment",
     TESTINGSTDS: "/services/testing_stds",
@@ -56,6 +58,9 @@ const endPoint = {
 
     // dashboard doctor consultant
     DASHBOARDLAYOUTDOCTORCONSULTANT: "/doctorConsultant-dashboard",
+
+    // dashboard doctor therapy
+    DASHBOARDLAYOUTDOCTORTHERAPY: "/doctorTherapy-dashboard",
 
     // doctor create account (staff)
     DOCTORCREATEACCOUNTBYSTAFF: "doctor-create-account",
