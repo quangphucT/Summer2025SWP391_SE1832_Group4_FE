@@ -39,7 +39,7 @@ import DoctorCreationManagement from "./pages/dashboard-management/admin/doctor-
 import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list-management";
 import BookingTreatmentHIV from "./pages/service-pages/hiv-treatment-page";
 import SchedulePostTestConsultation from "./pages/schedule-consultationPost-page";
-
+import DashboardDoctorTherapyLayout from "./pages/dashboard-doctor/dashboard-doctor-therapy/layout-dashboard";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -72,7 +72,7 @@ const App = () => {
           element: <ScheduleAConsultation />,
         },
         // schedule a consultation post
-           {
+        {
           path: endPoint.SCHEDULEACONSULTATIONPOST,
           element: <SchedulePostTestConsultation />,
         },
@@ -143,6 +143,11 @@ const App = () => {
       path: endPoint.DASHBOARDLAYOUTDOCTORCONSULTANT,
       element: <DashboardDoctorConsultantLayout />,
     },
+    // dashboard for doctor therapy
+    {
+      path: endPoint.DASHBOARDLAYOUTDOCTORTHERAPY,
+      element: <DashboardDoctorTherapyLayout />,
+    },
     {
       path: endPoint.DASHBOARD,
       element: <DashboardLayout />,
@@ -165,19 +170,15 @@ const App = () => {
           element: <DoctorManagement />,
         },
 
-
         {
           path: endPoint.DOCTORCREATEACCOUNTBYSTAFF,
           element: <DoctorCreationManagement />,
         },
 
-         {
+        {
           path: endPoint.DOCTORLISTMANAGEMENT,
-          element: <DoctorListManagement/>,
+          element: <DoctorListManagement />,
         },
-
-
-
 
         {
           path: endPoint.APPOINTMENTMANAGEMENT,
@@ -223,7 +224,6 @@ const App = () => {
         },
       ],
     },
-    
   ]);
   return (
     <div>
