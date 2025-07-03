@@ -38,6 +38,7 @@ import DashboardDoctorConsultantLayout from "./pages/dashboard-doctor/dashboard-
 import DoctorCreationManagement from "./pages/dashboard-management/admin/doctor-createAccount-management";
 import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list-management";
 import BookingTreatmentHIV from "./pages/service-pages/hiv-treatment-page";
+import SchedulePostTestConsultation from "./pages/schedule-consultationPost-page";
 
 
 const App = () => {
@@ -69,6 +70,11 @@ const App = () => {
         {
           path: endPoint.SCHEDULEACONSULTATION,
           element: <ScheduleAConsultation />,
+        },
+        // schedule a consultation post
+           {
+          path: endPoint.SCHEDULEACONSULTATIONPOST,
+          element: <SchedulePostTestConsultation />,
         },
 
         // booking treatment hiv

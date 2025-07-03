@@ -79,7 +79,7 @@ const ResultModal = ({ isOpen, onClose, resultData }) => {
                   Please schedule a counseling session to discuss the results, next steps, and support options.
                 </Text>
                 <Button  
-                onClick={() => {navigation("/schedule-consultation")}}
+                onClick={() => {navigation("/schedule-consultation-post")}}
                   type="primary" 
                   danger 
                   icon={<WarningOutlined />}

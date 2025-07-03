@@ -594,16 +594,20 @@ const CheckedInAppointmentToday = () => {
                     >
                       <Descriptions.Item label="Full name">
                         <Tag className="font-semibold">
-                          {result.doctor?.account?.fullName}
+                          {result?.doctorFullName}
                         </Tag>
                       </Descriptions.Item>
 
                       <Descriptions.Item label="Email">
-                        {result.doctor?.account?.email}
+                        {result?.doctorEmail}
                       </Descriptions.Item>
 
-                      <Descriptions.Item label="Full Name">
-                        {result.doctor?.account?.fullName}
+                      <Descriptions.Item label="Phone Number">
+                        {result?.doctorPhoneNumber}
+                      </Descriptions.Item>
+
+                       <Descriptions.Item label="Doctor Specialty">
+                        {result?.doctorSpecialty}
                       </Descriptions.Item>
                     </Descriptions>
                   </div>
@@ -622,7 +626,7 @@ const CheckedInAppointmentToday = () => {
                   <div className="mt-3 text-right">
                     <Text type="secondary" className="text-xs">
                       Patient Code:{" "}
-                      {result.patient?.patientCodeAtFacility || "N/A"}
+                      {result?.patientCodeAtFacility || "N/A"}
                     </Text>
                   </div>
                 </Card>

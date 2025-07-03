@@ -47,7 +47,11 @@ const ScheduleAConsultation = () => {
       form.resetFields();
       setAvailableSchedulesDoctors([]);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "❌ Failed to book consultation appointment. Please try again.");
+     toast.error("❌ Failed to book consultation appointment. Please try again.");
+     console.error("Error booking appointment:", error);
+     
+
+
     }
     setLoading(false);
   };
@@ -165,6 +169,9 @@ const ScheduleAConsultation = () => {
               onFinish={onFinish}
               layout="vertical"
               className="appointment-form space-y-6"
+              initialValues={{
+                appointmentService: "PreTestCounseling"
+              }}
             >
               <Form.Item
                 name="appointmentService"

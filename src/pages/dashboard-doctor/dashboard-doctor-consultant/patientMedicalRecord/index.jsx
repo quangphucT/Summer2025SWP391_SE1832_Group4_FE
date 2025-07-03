@@ -15,6 +15,7 @@ import {
   Descriptions,
   Tag,
   InputNumber,
+  Radio,
 } from "antd";
 import {
   SearchOutlined,
@@ -46,6 +47,7 @@ const PatientMedicalRecord = () => {
   const [openAddTestResultModal, setOpenAddTestResultModal] = useState(false);
   const [selectedMedicalRecordId, setSelectedMedicalRecordId] = useState(null);
   const [addTestResultLoading, setAddTestResultLoading] = useState(false);
+  const [selectedGender, setSelectedGender] = useState(null);
 
   const [form] = Form.useForm();
   const [addTestResultForm] = Form.useForm();
@@ -133,12 +135,18 @@ const PatientMedicalRecord = () => {
         ),
         testResultId: parseInt(values.testResultId) || 0,
         doctorId: parseInt(values.doctorId) || 0,
-        pregnancyWeek: parseInt(values.pregnancyWeek) || 0,
       };
+
+      // Only include pregnancy fields if gender is FEMALE
+      if (values.gender === "FEMALE") {
+        formattedData.pregnancyStatus = values.pregnancyStatus;
+        formattedData.pregnancyWeek = parseInt(values.pregnancyWeek) || 0;
+      }
 
       console.log("Medical record data to submit:", formattedData);
       await createMedicalRecord(searchPatientId, formattedData);
       form.resetFields();
+      setSelectedGender(null); // Reset gender selection
       setOpenCreateModal(false);
       toast.success("Medical record created successfully!");
       if (searchPatientId) {
@@ -153,6 +161,7 @@ const PatientMedicalRecord = () => {
   const handleModalCancel = () => {
     setOpenCreateModal(false);
     form.resetFields();
+    setSelectedGender(null); // Reset gender selection
   };
 
   const handleKeyPress = (e) => {
@@ -626,41 +635,81 @@ const PatientMedicalRecord = () => {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
-                    name="pregnancyStatus"
-                    label="Pregnancy Status"
+                    name="gender"
+                    label="Gender"
                     rules={[
                       {
                         required: true,
-                        message: "Please select pregnancy status",
+                        message: "Please select gender",
                       },
                     ]}
                   >
-                    <Select
-                      placeholder="Select pregnancy status"
-                      options={[
-                        { value: "NotPregnant", label: "Not Pregnant" },
-                        { value: "Pregnant", label: "Pregnant" },
-                        { value: "Unknown", label: "Unknown" },
-                      ]}
-                    />
-                  </Form.Item>
-                </Col>
-
-                <Col span={12}>
-                  <Form.Item
-                    name="pregnancyWeek"
-                    label="Pregnancy Week"
-                    tooltip="Enter 0 if not pregnant"
-                  >
-                    <Input
-                      type="number"
-                      placeholder="Enter pregnancy week (0 if not pregnant)"
-                      min={0}
-                      max={42}
-                    />
+                    <Radio.Group
+                      onChange={(e) => {
+                        const gender = e.target.value;
+                        setSelectedGender(gender);
+                        // Clear pregnancy fields when selecting male
+                        if (gender === "MALE") {
+                          form.setFieldsValue({
+                            pregnancyStatus: undefined,
+                            pregnancyWeek: undefined,
+                          });
+                        }
+                      }}
+                    >
+                      <Radio value="MALE">Male</Radio>
+                      <Radio value="FEMALE">Female</Radio>
+                    </Radio.Group>
                   </Form.Item>
                 </Col>
               </Row>
+
+              {selectedGender === "FEMALE" && (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="pregnancyStatus"
+                      label="Pregnancy Status"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select pregnancy status",
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select pregnancy status"
+                        options={[
+                          { value: "NotPregnant", label: "Not Pregnant" },
+                          { value: "Pregnant", label: "Pregnant" },
+                          { value: "Unknown", label: "Unknown" },
+                        ]}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item
+                      name="pregnancyWeek"
+                      label="Pregnancy Week"
+                      tooltip="Enter 0 if not pregnant"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter pregnancy week",
+                        },
+                      ]}
+                    >
+                      <Input
+                        type="number"
+                        placeholder="Enter pregnancy week (0 if not pregnant)"
+                        min={0}
+                        max={42}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              )}
 
               <Form.Item
                 name="doctorNotes"

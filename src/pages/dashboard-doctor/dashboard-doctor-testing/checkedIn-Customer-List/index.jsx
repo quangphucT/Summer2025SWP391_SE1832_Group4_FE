@@ -170,7 +170,8 @@ const CheckedInAppointmentToday = () => {
       render: (text, record) => {
         return (
           <Tooltip title="Create HIV test result for this patient">
-            <Button loading={loading}
+            <Button
+              loading={loading}
               type="primary"
               icon={<FileTextOutlined />}
               onClick={() => {
@@ -200,6 +201,20 @@ const CheckedInAppointmentToday = () => {
     });
   };
 
+  // Auto-determine test result based on CD4 and Viral Load values
+  const determineTestResult = (cd4Count, viralLoad) => {
+    // Convert values to numbers for comparison
+    const cd4 = parseInt(cd4Count) || 0;
+    const viral = parseInt(viralLoad) || 0;
+
+    // Standard HIV test result criteria:
+    if (cd4 >= 500 && viral <= 1000) {
+      return "Negative";
+    } else {
+      return "Positive";
+    }
+  };
+
   const onFinish = async (values) => {
     setLoadingCreateResult(true);
     try {
@@ -213,6 +228,12 @@ const CheckedInAppointmentToday = () => {
         };
         await createResultAfterTest(payloadForRapidTest);
       } else {
+        // Auto-determine result for PCR/ELISA tests
+        const autoTestResult = determineTestResult(
+          values.cD4Count,
+          values.hivViralLoadValue
+        );
+
         const payloadFor2Remaining = {
           appointmentId: values.appointmentId,
           testType: values.appointmentService,
@@ -220,7 +241,7 @@ const CheckedInAppointmentToday = () => {
           hivViralLoadValue: values.hivViralLoadValue,
           labName: values.labName,
           doctorComments: values.doctorComments,
-          testResults: values.testResults,
+          testResults: autoTestResult, // Use auto-determined result
         };
         await createResultAfterTest(payloadFor2Remaining);
       }
@@ -371,7 +392,24 @@ const CheckedInAppointmentToday = () => {
           {/* Test Values */}
           <Row gutter={16}>
             {form.getFieldValue("appointmentService") === "RapidTest" ? (
-              <></>
+              // For RapidTest, show manual Test Result selection
+              <Col span={12}>
+                <Form.Item
+                  label="Test Result"
+                  name="testResults"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select test result!",
+                    },
+                  ]}
+                >
+                  <Select placeholder="Select test result">
+                    <Select.Option value="Positive">Positive</Select.Option>
+                    <Select.Option value="Negative">Negative</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
             ) : (
               <>
                 <Col span={8}>
@@ -380,6 +418,18 @@ const CheckedInAppointmentToday = () => {
                       type="number"
                       placeholder="CD4 count"
                       addonAfter="cells/mm³"
+                      onChange={(e) => {
+                        const cd4Value = e.target.value;
+                        const viralValue =
+                          form.getFieldValue("hivViralLoadValue");
+                        if (cd4Value || viralValue) {
+                          const autoResult = determineTestResult(
+                            cd4Value,
+                            viralValue
+                          );
+                          form.setFieldsValue({ testResults: autoResult });
+                        }
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -389,20 +439,54 @@ const CheckedInAppointmentToday = () => {
                     <Input
                       placeholder="Viral load value"
                       addonAfter="copies/mL"
+                      onChange={(e) => {
+                        const viralValue = e.target.value;
+                        const cd4Value = form.getFieldValue("cD4Count");
+                        if (cd4Value || viralValue) {
+                          const autoResult = determineTestResult(
+                            cd4Value,
+                            viralValue
+                          );
+                          form.setFieldsValue({ testResults: autoResult });
+                        }
+                      }}
                     />
                   </Form.Item>
                 </Col>
+
+                <Col span={8}>
+                  <Form.Item label="Auto-Determined Result" name="testResults">
+                    <Input
+                      disabled
+                      placeholder="Result will be auto-determined"
+                      style={{
+                        backgroundColor:
+                          form.getFieldValue("testResults") === "Positive"
+                            ? "#ffebee"
+                            : "#e8f5e8",
+                        color:
+                          form.getFieldValue("testResults") === "Positive"
+                            ? "#d32f2f"
+                            : "#2e7d32",
+                        fontWeight: "bold",
+                      }}
+                    />
+                  </Form.Item>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#666",
+                      marginTop: "-16px",
+                    }}
+                  >
+                    📋 Auto-determined based on:
+                    <br />
+                    • CD4 &lt; 200 or Viral Load &gt; 1000 = Positive
+                    <br />• CD4 ≥ 500 and Viral Load &lt; 50 = Negative
+                  </div>
+                </Col>
               </>
             )}
-
-            <Col span={8}>
-              <Form.Item label="Test Result" name="testResults">
-                <Select placeholder="Select test result">
-                  <Select.Option value="Positive">Positive</Select.Option>
-                  <Select.Option value="Negative">Negative</Select.Option>
-                </Select>
-              </Form.Item>
-            </Col>
           </Row>
 
           {/* Comments */}
