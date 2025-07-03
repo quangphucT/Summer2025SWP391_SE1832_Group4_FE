@@ -59,6 +59,9 @@ const endPoint = {
     // dashboard doctor consultant
     DASHBOARDLAYOUTDOCTORCONSULTANT: "/doctorConsultant-dashboard",
 
+    // dashboard doctor therapy
+    DASHBOARDLAYOUTDOCTORTHERAPY: "/doctorTherapy-dashboard",
+
     // doctor create account (staff)
     DOCTORCREATEACCOUNTBYSTAFF: "doctor-create-account",
 
