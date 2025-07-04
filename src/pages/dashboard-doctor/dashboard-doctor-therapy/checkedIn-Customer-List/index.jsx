@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import "./index.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Button,
   Col,
@@ -34,6 +34,7 @@ import { getAllAppointmentsFollowingDoctor } from "../../../../apis/appointmentA
 import { useSelector } from "react-redux";
 import { updateAppointmentCompleted } from "../../../../apis/appointmentAPI/updateAppointmentCompletedApi";
 import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
+import api from "../../../../config/api";
 
 const { Title, Text } = Typography;
 
@@ -46,6 +47,8 @@ const CheckedInAppointmentToday = () => {
   const [testResults, setTestResults] = useState([]);
   const [loadingTestResults, setLoadingTestResults] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [openTreatmentModal, setOpenTreatmentModal] = useState(false);
+  const [canCreateTherapyMap, setCanCreateTherapyMap] = useState({});
 
   const accountID = useSelector((store) => store?.user?.accountID);
 
@@ -54,6 +57,11 @@ const CheckedInAppointmentToday = () => {
   const [availableDoctors, setAvailableDoctors] = useState([]);
 
   const [form] = Form.useForm();
+  const [treatmentForm] = Form.useForm();
+  const treatmentRecordRef = useRef(null);
+  const [treatmentLoading, setTreatmentLoading] = useState(false);
+  const [regimenOptions, setRegimenOptions] = useState([]);
+  const [selectedRegimen, setSelectedRegimen] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,7 +89,19 @@ const CheckedInAppointmentToday = () => {
     };
 
     fetchData();
-  }, [accountID]);
+
+    // Fetch regimen options 1 lần khi mount
+    const fetchRegimens = async () => {
+      try {
+        const res = await api.get("/api/standard-arv-regimens");
+        const items = res.data?.data?.items || [];
+        setRegimenOptions(Array.isArray(items) ? items : []);
+      } catch {
+        setRegimenOptions([]);
+      }
+    };
+    fetchRegimens();
+  }, []);
 
   const fetchAvailableDoctors = async (date, time) => {
     try {
@@ -251,12 +271,35 @@ const CheckedInAppointmentToday = () => {
                 >
                   View Result Test
                 </Button>
-                 <Button
+                {canCreateTherapyMap[record.appointmentId] && (
+                  <Button
+                    onClick={() => {
+                      treatmentRecordRef.current = record;
+                      treatmentForm.setFieldsValue({
+                        patientId: record?.patient?.patientId,
+                        appointmentId: record?.appointmentId,
+                        startDate: null,
+                        expectedEndDate: null,
+                        regimenId: undefined,
+                        actualDosage: "",
+                        status: "",
+                        reasonForChangeOrStop: "",
+                        regimenAdjustments: ""
+                      });
+                      setOpenTreatmentModal(true);
+                    }}
+                    type="primary"
+                    className="action-button"
+                    size="small"
+                  >
+                    Create Treatment
+                  </Button>
+                )}
+                <Button
                   onClick={() => {
                      handleUpdateAppointmentCompleted(record);
                   }}
                   type="primary"
-                
                   className="action-button"
                   size="small"
                 >
@@ -280,6 +323,12 @@ const CheckedInAppointmentToday = () => {
       const response = await getTestResultByPatientId(patientId);
       const testResults = response.data.data || [];
       setTestResults(testResults);
+
+      // Cập nhật trạng thái có thể tạo điều trị cho appointmentId này
+      setCanCreateTherapyMap(prev => ({
+        ...prev,
+        [record.appointmentId]: testResults.length > 0
+      }));
     } catch {
       toast.error("Error fetching test results");
       setTestResults([]);
@@ -307,7 +356,6 @@ const CheckedInAppointmentToday = () => {
       };
       console.log("Formatted:", formatted);
       await createAppointmentTest(formatted);
-      await updateAppointmentCompleted(selectedRecord.appointmentId);
       toast.success("Created successfuly");
       form.resetFields();
       setAvailableDoctors([]);
@@ -319,6 +367,11 @@ const CheckedInAppointmentToday = () => {
       );
     }
     setLoadingFormCreateTest(false);
+  };
+
+  // Hàm gọi API tạo patient treatment
+  const createPatientTreatment = async (data) => {
+    return api.post("/api/patient-treatment", data);
   };
 
   return (
@@ -634,6 +687,144 @@ const CheckedInAppointmentToday = () => {
             </div>
           )}
         </div>
+      </Modal>
+
+      {/* Modal tạo điều trị */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ color: '#e53e3e', fontSize: 24 }}>❤️</span>
+            <span style={{ fontWeight: 600, fontSize: 20 }}>Create Therapy for Patient</span>
+          </div>
+        }
+        open={openTreatmentModal}
+        onCancel={() => setOpenTreatmentModal(false)}
+        footer={null}
+        width={600}
+        centered
+      >
+        <Form
+          form={treatmentForm}
+          layout="vertical"
+          onFinish={async (values) => {
+            setTreatmentLoading(true);
+            try {
+              const payload = {
+                appointmentId: values.appointmentId,
+                regimenId: values.regimenId,
+                startDate: values.startDate ? values.startDate.toISOString() : null,
+                expectedEndDate: values.expectedEndDate ? values.expectedEndDate.toISOString() : null,
+                actualDosage: values.actualDosage,
+                status: values.status,
+                reasonForChangeOrStop: values.reasonForChangeOrStop,
+                regimenAdjustments: values.regimenAdjustments
+              };
+              await createPatientTreatment(payload);
+              await handleUpdateAppointmentCompleted(treatmentRecordRef.current);
+              toast.success("Create treatment and complete appointment successfully!");
+              setOpenTreatmentModal(false);
+            } catch {
+              toast.error("Treatment creation failed or status update failed!");
+            }
+            setTreatmentLoading(false);
+          }}
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="Patient ID" name="patientId">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Appointment ID" name="appointmentId">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="Regimen (Select ARV Standard)" name="regimenId" rules={[{ required: true, message: 'Please select regimen' }]}> 
+                <Select
+                  placeholder="Select therapy service"
+                  loading={regimenOptions.length === 0}
+                  onChange={value => {
+                    const regimen = regimenOptions.find(r => r.regimenId === value);
+                    setSelectedRegimen(regimen);
+                    treatmentForm.setFieldValue('regimenId', value);
+                  }}
+                >
+                  {regimenOptions.map(item => (
+                    <Select.Option key={item.regimenId} value={item.regimenId}>
+                      {item.regimenName}
+                    </Select.Option>
+                  ))}
+                </Select>
+                {selectedRegimen && (
+                  <div style={{ marginTop: 12, background: "#f8fafc", borderRadius: 8, padding: 12, border: "1px solid #e0e7ef" }}>
+                    <div><b>Description:</b> {selectedRegimen.detailedDescription}</div>
+                    <div><b>Target:</b> {selectedRegimen.targetPopulation}</div>
+                    <div><b>Dosage:</b> {selectedRegimen.standardDosage}</div>
+                    <div><b>Contraindications:</b> {selectedRegimen.contraindications}</div>
+                    <div><b>Side Effects:</b> {selectedRegimen.commonSideEffects}</div>
+                  </div>
+                )}
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Actual Dosage" name="actualDosage" rules={[{ required: true, message: 'Please enter dosage' }]}> 
+                <Input placeholder="Enter dosage" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="Start Date" name="startDate" rules={[{ required: true, message: 'Please select start date' }]}> 
+                <DatePicker 
+                  style={{ width: '100%' }} 
+                  showTime={{
+                    format: 'HH:mm',
+                    minuteStep: 30,
+                    disabledHours: () => {
+                      // Chỉ cho phép 7-11 và 13-17
+                      const allowed = [7,8,9,10,11,13,14,15,16,17];
+                      return Array.from({length:24},(_,i)=>i).filter(h=>!allowed.includes(h));
+                    },
+                    disabledMinutes: (selectedHour) => {
+                      // 7-10, 14-16: 0,30; 11,17: 0; 13: 30
+                      if([7,8,9,10,14,15,16].includes(selectedHour)) return [1,2,3,4,5,6,7,8,9,11,12,13,14,16,17,18,19,21,22,23,24,26,27,28,29,31,32,33,34,36,37,38,39,41,42,43,44,46,47,48,49,51,52,53,54,56,57,58,59];
+                      if([11,17].includes(selectedHour)) return Array.from({length:60},(_,i)=>i).filter(m=>m!==0);
+                      if(selectedHour===13) return Array.from({length:60},(_,i)=>i).filter(m=>m!==30);
+                      return Array.from({length:60},(_,i)=>i); // các giờ khác không cho chọn
+                    }
+                  }}
+                  format="DD/MM/YYYY HH:mm"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Expected End Date" name="expectedEndDate" rules={[{ required: true, message: 'Please select end date' }]}> 
+                <DatePicker style={{ width: '100%' }} showTime />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item label="Status" name="status" rules={[{ required: true, message: 'Please enter status' }]}> 
+            <Input placeholder="Enter status" />
+          </Form.Item>
+          <Form.Item label="Reason For Change Or Stop" name="reasonForChangeOrStop"> 
+            <Input placeholder="Enter reason (optional)" />
+          </Form.Item>
+          <Form.Item label="Regimen Adjustments" name="regimenAdjustments"> 
+            <Input placeholder="Enter adjustments (optional)" />
+          </Form.Item>
+          <Row justify="end" gutter={16}>
+            <Col>
+              <Button onClick={() => treatmentForm.resetFields()}>Reset</Button>
+            </Col>
+            <Col>
+              <Button type="primary" htmlType="submit" loading={treatmentLoading} style={{ background: '#e53e3e', border: 'none' }}>Create Therapy</Button>
+            </Col>
+          </Row>
+        </Form>
       </Modal>
     </div>
   );

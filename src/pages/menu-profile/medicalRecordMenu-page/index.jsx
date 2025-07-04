@@ -141,104 +141,90 @@ const MedicalRecordMenuPage = () => {
             </Col>
           </Row>
 
-          {/* Test Results Section */}
-          {selectedRecord?.testResults && selectedRecord.testResults.length > 0 && (
+          {/* Related Treatments Section */}
+          {selectedRecord?.patientTreatments && selectedRecord.patientTreatments.length > 0 && (
             <>
               <Divider />
               <Row align="middle" style={{ marginBottom: 12 }}>
                 <Col>
-                  <ExperimentOutlined style={{ fontSize: 28, color: "#1e3a8a", marginRight: 8 }} />
+                  <MedicineBoxOutlined style={{ fontSize: 28, color: "#1e3a8a", marginRight: 8 }} />
                 </Col>
                 <Col>
-                  <Title level={4} style={{ color: "#1e3a8a", margin: 0 }}>Test Results</Title>
+                  <Title level={4} style={{ color: "#1e3a8a", margin: 0 }}>Related Treatments</Title>
                 </Col>
               </Row>
-              <Table
-                columns={[
-                  {
-                    title: <span style={{fontWeight:700, color:'#1e3a8a'}}>Test Date</span>,
-                    dataIndex: "testDate",
-                    key: "testDate",
-                    render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm"),
-                  },
-                  {
-                    title: <span style={{fontWeight:700, color:'#1e3a8a'}}>Test Type</span>,
-                    dataIndex: "testType",
-                    key: "testType",
-                  },
-                  {
-                    title: <span style={{fontWeight:700, color:'#1e3a8a'}}>Result</span>,
-                    dataIndex: "testResults",
-                    key: "testResults",
-                    render: (text) => (
-                      <span style={{
-                        fontWeight: 700,
-                        color: text === 'Positive' ? '#d7263d' : text === 'Negative' ? '#1e8e3e' : '#1e3a8a',
-                        background: text === 'Positive' ? '#ffe5ea' : text === 'Negative' ? '#e6f9ed' : '#f1f5ff',
-                        borderRadius: 8,
-                        padding: '2px 12px',
-                        display: 'inline-block',
-                        letterSpacing: 1
-                      }}>{text}</span>
-                    )
-                  },
-                  {
-                    title: <span style={{fontWeight:700, color:'#1e3a8a'}}>CD4 Count</span>,
-                    dataIndex: "cD4Count",
-                    key: "cD4Count",
-                  },
-                  {
-                    title: <span style={{fontWeight:700, color:'#1e3a8a'}}>HIV Viral Load</span>,
-                    dataIndex: "hivViralLoadValue",
-                    key: "hivViralLoadValue",
-                  },
-                  {
-                    title: <span style={{fontWeight:700, color:'#1e3a8a'}}>Lab Name</span>,
-                    dataIndex: "labName",
-                    key: "labName",
-                  },
-                  {
-                    title: <span style={{fontWeight:700, color:'#1e3a8a'}}>Doctor Name</span>,
-                    dataIndex: "doctorFullName",
-                    key: "doctorFullName",
-                  },
-                ]}
-                dataSource={selectedRecord.testResults}
-                rowKey="testResultId"
-                pagination={false}
-                bordered
-                style={{ borderRadius: 16, marginTop: 16, background: "#f8fafc" }}
-                scroll={{ x: 'max-content' }}
-                size="middle"
-                className="custom-testresult-table"
-              />
-              <style>{`
-                .custom-testresult-table .ant-table-thead > tr > th {
-                  background: linear-gradient(90deg, #e0e7ff 60%, #c7d2fe 100%);
-                  color: #1e3a8a;
-                  font-weight: 700;
-                  font-size: 15px;
-                  text-align: center;
-                  border-top-left-radius: 12px;
-                  border-top-right-radius: 12px;
-                }
-                .custom-testresult-table .ant-table-tbody > tr > td {
-                  text-align: center;
-                  font-size: 14px;
-                  background: #f8fafc;
-                }
-                .custom-testresult-table .ant-table-tbody > tr:hover > td {
-                  background: #e0e7ff;
-                }
-                @media (max-width: 900px) {
-                  .custom-testresult-table .ant-table {
-                    font-size: 12px;
-                  }
-                  .custom-testresult-table .ant-table-thead > tr > th {
-                    font-size: 12px;
-                  }
-                }
-              `}</style>
+              <div className="treatments-section">
+                {selectedRecord.patientTreatments.map((treatment, idx) => (
+                  <Card
+                    key={treatment.treatmentId || idx}
+                    size="small"
+                    className="treatment-mini-card"
+                    style={{ marginBottom: 12, borderRadius: 12 }}
+                  >
+                    <Table
+                      columns={[
+                        { title: 'Regimen', dataIndex: 'regimen', key: 'regimen', render: () => treatment.regimen?.regimenName || 'N/A' },
+                        { title: 'Start Date', dataIndex: 'startDate', key: 'startDate', render: () => treatment.startDate ? dayjs(treatment.startDate).format("DD/MM/YYYY") : 'N/A' },
+                        { title: 'Expected End Date', dataIndex: 'expectedEndDate', key: 'expectedEndDate', render: () => treatment.expectedEndDate ? dayjs(treatment.expectedEndDate).format("DD/MM/YYYY") : 'N/A' },
+                        { title: 'Actual Dosage', dataIndex: 'actualDosage', key: 'actualDosage', render: () => treatment.actualDosage || 'N/A' },
+                        { title: 'Status', dataIndex: 'status', key: 'status', render: () => treatment.status || 'N/A' },
+                        { title: 'Reason For Change Or Stop', dataIndex: 'reasonForChangeOrStop', key: 'reasonForChangeOrStop', render: () => treatment.reasonForChangeOrStop || 'N/A' },
+                        { title: 'Regimen Adjustments', dataIndex: 'regimenAdjustments', key: 'regimenAdjustments', render: () => treatment.regimenAdjustments || 'N/A' },
+                      ]}
+                      dataSource={[treatment]}
+                      pagination={false}
+                      bordered
+                      size="small"
+                      style={{ marginBottom: 0, background: '#f8fafc', borderRadius: 8, boxShadow: '0 2px 12px rgba(30,58,138,0.07)' }}
+                      className="styled-table"
+                    />
+                    {treatment.patientTestResults && treatment.patientTestResults.length > 0 && (() => {
+                      // Lấy test mới nhất cho từng loại cần thiết
+                      const types = ['RapidTest', 'PCR or ELISA'];
+                      const latestByType = types.map(type => {
+                        const filtered = treatment.patientTestResults.filter(tr => tr.testType === type);
+                        if (filtered.length === 0) return null;
+                        return filtered.sort((a, b) => new Date(b.testDate) - new Date(a.testDate))[0];
+                      }).filter(Boolean);
+                      if (latestByType.length === 0) return null;
+                      return (
+                        <div style={{ marginTop: 16 }}>
+                          <div style={{ fontWeight: 600, color: '#1e3a8a', marginBottom: 4 }}>
+                            Latest Test Results for this Treatment
+                          </div>
+                          <Table
+                            columns={[
+                              { title: 'Test Date', dataIndex: 'testDate', key: 'testDate', render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm") },
+                              { title: 'Test Type', dataIndex: 'testType', key: 'testType' },
+                              { title: 'Result', dataIndex: 'testResults', key: 'testResults', render: (text) => (
+                                <span style={{
+                                  fontWeight: 700,
+                                  color: text === 'Positive' ? '#d7263d' : text === 'Negative' ? '#1e8e3e' : '#1e3a8a',
+                                  background: text === 'Positive' ? '#ffe5ea' : text === 'Negative' ? '#e6f9ed' : '#f1f5ff',
+                                  borderRadius: 8,
+                                  padding: '2px 12px',
+                                  display: 'inline-block',
+                                  letterSpacing: 1
+                                }}>{text}</span>
+                              ) },
+                              { title: 'CD4 Count', dataIndex: 'cD4Count', key: 'cD4Count' },
+                              { title: 'HIV Viral Load', dataIndex: 'hivViralLoadValue', key: 'hivViralLoadValue' },
+                              { title: 'Lab Name', dataIndex: 'labName', key: 'labName' },
+                              { title: 'Doctor Name', dataIndex: 'doctorFullName', key: 'doctorFullName' },
+                            ]}
+                            dataSource={latestByType}
+                            pagination={false}
+                            bordered
+                            size="small"
+                            style={{ marginBottom: 0, background: '#f8fafc', borderRadius: 8, boxShadow: '0 2px 12px rgba(30,58,138,0.07)' }}
+                            className="styled-table"
+                          />
+                        </div>
+                      );
+                    })()}
+                  </Card>
+                ))}
+              </div>
             </>
           )}
         </Card>

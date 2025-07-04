@@ -51,7 +51,13 @@ const PatientMedicalRecord = () => {
 
   const [form] = Form.useForm();
   const [addTestResultForm] = Form.useForm();
-  
+
+  // Helper function to display value or N/A
+  const displayValue = (value) => {
+    if (value === null || value === undefined || value === "") return "N/A";
+    return value;
+  };
+
   // Handle opening add test result modal
   const handleAddTestResult = (medicalRecordId) => {
     setSelectedMedicalRecordId(medicalRecordId);
@@ -67,16 +73,16 @@ const PatientMedicalRecord = () => {
         selectedMedicalRecordId,
         { testResultId: values.testResultId }
       );
-      
+
       toast.success("Test result added to medical record successfully!");
       setOpenAddTestResultModal(false);
-      
+
       // Refresh the medical records to show updated data
       await searchMedicalRecordByPatientId();
     } catch (error) {
       console.error("Error adding test result to medical record:", error);
       toast.error(
-        error.response?.data?.message || 
+        error.response?.data?.message ||
         "Failed to add test result to medical record"
       );
     } finally {
@@ -98,12 +104,14 @@ const PatientMedicalRecord = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      // Try to get medical record first
-      const medicalRecordResponse = await getMedicalRecordByPatientId(
-        searchPatientId.trim()
-      );
-      if (medicalRecordResponse.data.data) {
-        setDataMedicalRecord([medicalRecordResponse.data.data]); // Put in array for consistent handling
+      // Gọi API giống như bên medicalRecordMenu-page, nhưng dùng searchPatientId
+      const response = await getMedicalRecordByPatientId(searchPatientId.trim());
+      let records = response?.data?.data;
+      // Đảm bảo records luôn là mảng
+      if (Array.isArray(records)) {
+        setDataMedicalRecord(records);
+      } else if (records) {
+        setDataMedicalRecord([records]);
       } else {
         setDataMedicalRecord([]);
       }
@@ -127,6 +135,12 @@ const PatientMedicalRecord = () => {
   const handleFormSubmit = async (values) => {
     setCreateLoading(true);
     try {
+      // Kiểm tra nếu searchPatientId rỗng thì không cho phép tạo
+      if (!searchPatientId || !searchPatientId.trim()) {
+        toast.error("Patient ID is required!");
+        setCreateLoading(false);
+        return;
+      }
       // Format the data for API submission
       const formattedData = {
         ...values,
@@ -242,255 +256,298 @@ const PatientMedicalRecord = () => {
               <div className="medical-records-list">
                 <Title level={4}>Medical Record Found</Title>
                 <div className="medical-records-scroll-container">
-                  {dataMedicalRecord.map((record, index) => (
-                    <Card
-                      key={record.medicalRecordId || index}
-                      className="medical-record-card"
-                      size="small"
-                    >
-                      <div className="record-header">
-                        <div className="record-title">
-                          <MedicineBoxFilled className="record-icon" />
-                          <span>Medical Record #{record.medicalRecordId}</span>
-                        </div>
-                          {/* Add Test Result Button */}
-                      <div className="record-actions">
-                        <Button
-                          type="primary"
-                          icon={<ExperimentOutlined />}
-                          onClick={() => handleAddTestResult(record.medicalRecordId)}
-                          className="add-test-result-button"
-                        >
-                          Add Test Result
-                        </Button>
-                      </div>
-                        <div className="consultation-date">
-                          <CalendarOutlined className="date-icon" />
-                          <span>
-                            {new Date(
-                              record.consultationDate
-                            ).toLocaleDateString("vi-VN", {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
-                      </div>
-
-                      <Divider />
-
-                      <Row gutter={16}>
-                        <Col span={12}>
-                          <Descriptions
-                            title="Patient Information"
-                            column={1}
-                            size="small"
-                            bordered
-                          >
-                            <Descriptions.Item label="Patient ID">
-                              {record.patient?.patientId}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Patient Code">
-                              {record.patient?.patientCodeAtFacility || "N/A"}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Symptoms">
-                              <Text className="symptoms-text">
-                                {record.symptoms}
-                              </Text>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Diagnosis">
-                              <Text className="diagnosis-text">
-                                {record.diagnosis}
-                              </Text>
-                            </Descriptions.Item>
-                          
-                              <Descriptions.Item label="Pregnancy Status">
-                              <Tag
-                                color={
-                                  record.pregnancyStatus === "Pregnant"
-                                    ? "pink"
-                                    : record.pregnancyStatus === "NotPregnant"
-                                    ? "green"
-                                    : "orange"
-                                }
-                              >
-                                {record.pregnancyStatus === "NotPregnant"
-                                  ? "Not Pregnant"
-                                  : record.pregnancyStatus}
-                              </Tag>
-                            </Descriptions.Item>
-
-                            <Descriptions.Item label="Pregnancy Week">
-                              {record.pregnancyWeek} weeks
-                            </Descriptions.Item>
-                              <Descriptions.Item label="Gender">
-                              {record.gender} 
-                            </Descriptions.Item>
-                              <Descriptions.Item label="Date of birth">
-                              {record.dateOfBirth}
-                            </Descriptions.Item>
-                            
-                          </Descriptions>
-                        </Col>
-
-                        <Col span={12}>
-                          <Descriptions
-                            title="Medical record creator"
-                            column={1}
-                            size="small"
-                            bordered
-                          >
-                            <Descriptions.Item label="Doctor">
-                              Dr. {record.doctor?.specialty} -{" "}
-                              {record.doctor?.qualifications}
-                            </Descriptions.Item>
-
-                            <Descriptions.Item label="Experience">
-                              {record.doctor?.yearsOfExperience} years
-                            </Descriptions.Item>
-
-                          
-                          </Descriptions>
-                        </Col>
-                      </Row>
-                      {(record.underlyingDisease ||
-                        record.drugAllergyHistory) && (
-                        <>
-                          <Divider orientation="left">
-                            Additional Information
-                          </Divider>
-                          <Row gutter={16}>
-                            {record.underlyingDisease && (
-                              <Col span={12}>
-                                <div className="additional-info">
-                                  <Text strong>Underlying Disease:</Text>
-                                  <br />
-                                  <Text>{record.underlyingDisease}</Text>
-                                </div>
-                              </Col>
-                            )}
-                            {record.drugAllergyHistory && (
-                              <Col span={12}>
-                                <div className="additional-info">
-                                  <Text strong>Drug Allergy History:</Text>
-                                  <br />
-                                  <Text>{record.drugAllergyHistory}</Text>
-                                </div>
-                              </Col>
-                            )}
-                          </Row>
-                        </>
-                      )}
-
-                      <Divider orientation="left">Doctor Notes</Divider>
-                      <div className="doctor-notes">
-                        <Text className="notes-content">
-                          {record.doctorNotes}
-                        </Text>
-                      </div>
-
-                      <Divider orientation="left">Next Steps</Divider>
-                      <div className="next-steps">
-                        <Text className="steps-content">
-                          {record.nextSteps}
-                        </Text>
-                      </div>
-
-                      
-
-                      {record.testResults && record.testResults.length > 0 && (
-                        <>
-                          <Divider orientation="left">
-                            Related Test Results
-                          </Divider>
-                          <div className="test-results-section">
-                            {record.testResults.map((test, testIndex) => (
-                              <Card
-                                key={test.testResultId || testIndex}
-                                size="small"
-                                className="test-result-mini-card"
-                              >
-                                <Row gutter={8}>
-                                  <Col span={6}>
-                                    <Text strong>Test Type:</Text>
-                                    <br />
-                                    <Tag color="blue">{test.testType}</Tag>
-                                  </Col>
-                                  <Col span={6}>
-                                    <Text strong>Result:</Text>
-                                    <br />
-                                    <Tag
-                                      color={
-                                        test.testResults === "Positive"
-                                          ? "red"
-                                          : "green"
-                                      }
-                                    >
-                                      {test.testResults}
-                                    </Tag>
-                                  </Col>
-                                  <Col span={6}>
-                                    <Text strong>Lab:</Text>
-                                    <br />
-                                    <Text>{test.labName}</Text>
-                                  </Col>
-                                  <Col span={6}>
-                                    <Text strong>Test Date:</Text>
-                                    <br />
-                                    <Text>
-                                      {test.testDate ? 
-                                        new Date(test.testDate).toLocaleDateString("vi-VN") : 
-                                        "N/A"
-                                      }
-                                    </Text>
-                                  </Col>
-                                </Row>
-                                
-                                {/* Additional medical indicators */}
-                                {(test.cD4Count !== null || test.hivViralLoadValue !== null) && (
-                                  <Row gutter={8} style={{ marginTop: 12 }}>
-                                    {test.cD4Count !== null && (
-                                      <Col span={12}>
-                                        <Text strong>CD4 Count:</Text>
-                                        <br />
-                                        <Tag color="purple">
-                                          {test.cD4Count} cells/μL
-                                        </Tag>
-                                      </Col>
-                                    )}
-                                    {test.hivViralLoadValue !== null && (
-                                      <Col span={12}>
-                                        <Text strong>HIV Viral Load:</Text>
-                                        <br />
-                                        <Tag color="orange">
-                                          {test.hivViralLoadValue} copies/mL
-                                        </Tag>
-                                      </Col>
-                                    )}
-                                  </Row>
-                                )}
-                                {test.doctorComments && (
-                                  <div className="test-comments">
-                                    <Text type="secondary" italic>
-                                     Doctor Comment: "{test.doctorComments}"
-                                    </Text>
-                                  </div>
-                                )}
-                                
-                              </Card>
-                            ))}
+                  {dataMedicalRecord.map((record, index) => {
+                    console.log("Medical Record:", record);
+                    return (
+                      <Card
+                        key={record.medicalRecordId || index}
+                        className="medical-record-card"
+                        size="small"
+                      >
+                        <div className="record-header">
+                          <div className="record-title">
+                            <MedicineBoxFilled className="record-icon" />
+                            <span>Medical Record #{record.medicalRecordId}</span>
                           </div>
-                        </>
-                      )}
+                          {/* Add Test Result Button */}
+                          <div className="record-actions">
+                            <Button
+                              type="primary"
+                              icon={<ExperimentOutlined />}
+                              onClick={() => handleAddTestResult(record.medicalRecordId)}
+                              className="add-test-result-button"
+                            >
+                              Add Test Result
+                            </Button>
+                          </div>
+                          <div className="consultation-date">
+                            <CalendarOutlined className="date-icon" />
+                            <span>
+                              {new Date(
+                                record.consultationDate
+                              ).toLocaleDateString("vi-VN", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                        </div>
 
-                      <Divider />
-                      
-                    
-                    </Card>
-                  ))}
+                        <Divider />
+
+                        <Row gutter={16}>
+                          <Col span={12}>
+                            <Descriptions
+                              title="Patient Information"
+                              column={1}
+                              size="small"
+                              bordered
+                            >
+                              <Descriptions.Item label="Patient ID">
+                                {displayValue(record.patient?.patientId)}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Patient Code">
+                                {displayValue(record.patient?.patientCodeAtFacility)}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Symptoms">
+                                <Text className="symptoms-text">
+                                  {displayValue(record.symptoms)}
+                                </Text>
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Diagnosis">
+                                <Text className="diagnosis-text">
+                                  {displayValue(record.diagnosis)}
+                                </Text>
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Pregnancy Status">
+                                <Tag
+                                  color={
+                                    record.pregnancyStatus === "Pregnant"
+                                      ? "pink"
+                                      : record.pregnancyStatus === "NotPregnant"
+                                        ? "green"
+                                        : "orange"
+                                  }
+                                >
+                                  {record.pregnancyStatus === "NotPregnant"
+                                    ? "Not Pregnant"
+                                    : displayValue(record.pregnancyStatus)}
+                                </Tag>
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Pregnancy Week">
+                                {record.pregnancyWeek !== null && record.pregnancyWeek !== undefined
+                                  ? `${record.pregnancyWeek} weeks`
+                                  : "N/A"}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Gender">
+                                {displayValue(record.patient?.gender) !== "N/A"
+                                  ? displayValue(record.patient?.gender)
+                                  : displayValue(record.gender)}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Date of birth">
+                                {record.patient?.dateOfBirth && record.patient?.dateOfBirth !== "N/A"
+                                  ? dayjs(record.patient.dateOfBirth).format("DD/MM/YYYY")
+                                  : displayValue(record.dateOfBirth)}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Doctor Notes">
+                                <Text className="notes-content">
+                                  {displayValue(record.doctorNotes)}
+                                </Text>
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Next Steps">
+                                <Text className="steps-content">
+                                  {displayValue(record.nextSteps)}
+                                </Text>
+                              </Descriptions.Item>
+                            </Descriptions>
+                          </Col>
+
+                          <Col span={12}>
+                            <Descriptions
+                              title="Medical record creator"
+                              column={1}
+                              size="small"
+                              bordered
+                            >
+                              <Descriptions.Item label="Doctor">
+                                Dr. {record.doctor?.specialty} -{" "}
+                                {record.doctor?.qualifications}
+                              </Descriptions.Item>
+
+                              <Descriptions.Item label="Experience">
+                                {record.doctor?.yearsOfExperience} years
+                              </Descriptions.Item>
+
+
+                            </Descriptions>
+                          </Col>
+                        </Row>
+                        {(record.underlyingDisease ||
+                          record.drugAllergyHistory) && (
+                            <>
+                              <Divider orientation="left">
+                                Additional Information
+                              </Divider>
+                              <Row gutter={16}>
+                                {record.underlyingDisease && (
+                                  <Col span={12}>
+                                    <div className="additional-info">
+                                      <Text strong>Underlying Disease:</Text>
+                                      <br />
+                                      <Text>{displayValue(record.underlyingDisease)}</Text>
+                                    </div>
+                                  </Col>
+                                )}
+                                {record.drugAllergyHistory && (
+                                  <Col span={12}>
+                                    <div className="additional-info">
+                                      <Text strong>Drug Allergy History:</Text>
+                                      <br />
+                                      <Text>{displayValue(record.drugAllergyHistory)}</Text>
+                                    </div>
+                                  </Col>
+                                )}
+                              </Row>
+                            </>
+                          )}
+
+                        <Divider orientation="left">Doctor Notes</Divider>
+                        <div className="doctor-notes">
+                          <Text className="notes-content">
+                            {record.doctorNotes}
+                          </Text>
+                        </div>
+
+                        <Divider orientation="left">Next Steps</Divider>
+                        <div className="next-steps">
+                          <Text className="steps-content">
+                            {record.nextSteps}
+                          </Text>
+                        </div>
+
+
+
+                        {record.testResults && record.testResults.length > 0 && (
+                          <>
+                            <Divider orientation="left">
+                              Related Test Results
+                            </Divider>
+                            <div className="test-results-section">
+                              {record.testResults.map((test, testIndex) => (
+                                <Card
+                                  key={test.testResultId || testIndex}
+                                  size="small"
+                                  className="test-result-mini-card"
+                                >
+                                  <Row gutter={8}>
+                                    <Col span={6}>
+                                      <Text strong>Test Type:</Text>
+                                      <br />
+                                      <Tag color="blue">{test.testType}</Tag>
+                                    </Col>
+                                    <Col span={6}>
+                                      <Text strong>Result:</Text>
+                                      <br />
+                                      <Tag
+                                        color={
+                                          test.testResults === "Positive"
+                                            ? "red"
+                                            : "green"
+                                        }
+                                      >
+                                        {test.testResults}
+                                      </Tag>
+                                    </Col>
+                                    <Col span={6}>
+                                      <Text strong>Lab:</Text>
+                                      <br />
+                                      <Text>{test.labName}</Text>
+                                    </Col>
+                                    <Col span={6}>
+                                      <Text strong>Test Date:</Text>
+                                      <br />
+                                      <Text>
+                                        {test.testDate ?
+                                          new Date(test.testDate).toLocaleDateString("vi-VN") :
+                                          "N/A"
+                                        }
+                                      </Text>
+                                    </Col>
+                                  </Row>
+
+                                  {/* Additional medical indicators */}
+                                  {(test.cD4Count !== null || test.hivViralLoadValue !== null) && (
+                                    <Row gutter={8} style={{ marginTop: 12 }}>
+                                      {test.cD4Count !== null && (
+                                        <Col span={12}>
+                                          <Text strong>CD4 Count:</Text>
+                                          <br />
+                                          <Tag color="purple">
+                                            {test.cD4Count} cells/μL
+                                          </Tag>
+                                        </Col>
+                                      )}
+                                      {test.hivViralLoadValue !== null && (
+                                        <Col span={12}>
+                                          <Text strong>HIV Viral Load:</Text>
+                                          <br />
+                                          <Tag color="orange">
+                                            {test.hivViralLoadValue} copies/mL
+                                          </Tag>
+                                        </Col>
+                                      )}
+                                    </Row>
+                                  )}
+                                  {test.doctorComments && (
+                                    <div className="test-comments">
+                                      <Text type="secondary" italic>
+                                        Doctor Comment: "{test.doctorComments}"
+                                      </Text>
+                                    </div>
+                                  )}
+
+                                </Card>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Hiển thị thông tin treatment */}
+                        {record.patientTreatments && record.patientTreatments.length > 0 && (
+                          <>
+                            <Divider orientation="left">Related Treatments</Divider>
+                            <div className="treatments-section">
+                              {record.patientTreatments.map((treatment, idx) => (
+                                <Card
+                                  key={treatment.treatmentId || idx}
+                                  size="small"
+                                  className="treatment-mini-card"
+                                  style={{ marginBottom: 12 }}
+                                >
+                                  <Descriptions column={1} size="small" bordered>
+                                    <Descriptions.Item label="Regimen ">{treatment.regimen?.regimenName}</Descriptions.Item>
+                                    <Descriptions.Item label="Start Date">{treatment.startDate ? dayjs(treatment.startDate).format("DD/MM/YYYY") : "N/A"}</Descriptions.Item>
+                                    <Descriptions.Item label="Expected End Date">{treatment.expectedEndDate ? dayjs(treatment.expectedEndDate).format("DD/MM/YYYY") : "N/A"}</Descriptions.Item>
+                                    <Descriptions.Item label="Actual Dosage">{treatment.actualDosage}</Descriptions.Item>
+                                    <Descriptions.Item label="Status">{treatment.status}</Descriptions.Item>
+                                    <Descriptions.Item label="Reason For Change Or Stop">{treatment.reasonForChangeOrStop}</Descriptions.Item>
+                                    <Descriptions.Item label="Regimen Adjustments">{treatment.regimenAdjustments}</Descriptions.Item>
+                                  </Descriptions>
+                                </Card>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        <Divider />
+
+
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             )}
