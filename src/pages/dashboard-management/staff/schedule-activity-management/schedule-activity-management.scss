@@ -1,0 +1,265 @@
+/* --- Đảm bảo cha (AppLayout) đã có height:100vh & display:flex --- */
+/* Box-sizing toàn phần */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.schedule-activity-mgmt-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
+}
+
+.schedule-activity-mgmt-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 16px 24px 8px;
+  color: #1976d2;
+  letter-spacing: 1px;
+}
+
+.schedule-activity-mgmt-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 24px;
+  background: #f5f8fa;
+  border-bottom: 1px solid #d0d0d0;
+}
+.schedule-activity-mgmt-form input,
+.schedule-activity-mgmt-form select,
+.schedule-activity-mgmt-form textarea {
+  flex: 1 1 200px;
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+.schedule-activity-mgmt-form input:focus,
+.schedule-activity-mgmt-form select:focus,
+.schedule-activity-mgmt-form textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+  border-width: 1.5px;
+}
+.schedule-activity-mgmt-form button {
+  flex: 0 0 auto;
+  padding: 8px 24px;
+  background: #1976d2;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 40px;
+  align-self: flex-end;
+  transition: background-color 0.2s;
+}
+.schedule-activity-mgmt-form button:hover {
+  background: #1251a3;
+}
+
+.schedule-activity-mgmt-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1rem;
+  min-width: 1000px;
+}
+.schedule-activity-mgmt-table th {
+  position: sticky;
+  top: 0;
+  background: #e3eafc;
+  color: #1976d2;
+  font-weight: 700;
+  padding: 12px 8px;
+  border-bottom: 2px solid #b6c6e3;
+  z-index: 10;
+  text-align: left;
+}
+.schedule-activity-mgmt-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+.schedule-activity-mgmt-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+.schedule-activity-mgmt-table tr:hover {
+  background: #e3eafc33;
+}
+
+.schedule-activity-mgmt-btn {
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-right: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.schedule-activity-mgmt-btn.edit {
+  background: #e3eafc;
+  color: #1976d2;
+}
+.schedule-activity-mgmt-btn.edit:hover {
+  background: #1976d2;
+  color: #ffffff;
+}
+.schedule-activity-mgmt-btn.delete {
+  background: #ffeaea;
+  color: #d32f2f;
+}
+.schedule-activity-mgmt-btn.delete:hover {
+  background: #d32f2f;
+  color: #ffffff;
+}
+.schedule-activity-mgmt-btn.save {
+  background: #43a047;
+  color: #ffffff;
+}
+.schedule-activity-mgmt-btn.save:hover {
+  background: #2e7031;
+}
+.schedule-activity-mgmt-btn.cancel {
+  background: #bdbdbd;
+  color: #ffffff;
+}
+.schedule-activity-mgmt-btn.cancel:hover {
+  background: #757575;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-bottom: 20px;
+
+  button {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover:not(:disabled) {
+      background-color: #f5f5f5;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  span {
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+@media (max-width: 900px) {
+  .schedule-activity-mgmt-form {
+    gap: 8px;
+    padding: 8px 16px;
+  }
+  .schedule-activity-mgmt-form input,
+  .schedule-activity-mgmt-form select,
+  .schedule-activity-mgmt-form textarea {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .schedule-activity-mgmt-form button {
+    width: 100%;
+    margin-top: 4px;
+  }
+  .schedule-activity-mgmt-table th,
+  .schedule-activity-mgmt-table td {
+    font-size: 0.9rem;
+    padding: 6px 4px;
+  }
+  .schedule-activity-mgmt-table {
+    min-width: 600px;
+  }
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .schedule-activity-mgmt-form-modal {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      label {
+        display: block;
+        margin-bottom: -8px;
+        color: #555;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      input, textarea {
+        padding: 8px 10px;
+        border: 1px solid #cfd8dc;
+        border-radius: 6px;
+        font-size: 1rem;
+        background: #ffffff;
+        transition: border-color 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: #1976d2;
+          border-width: 1.5px;
+        }
+      }
+
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+    }
+  }
+}

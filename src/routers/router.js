@@ -30,7 +30,7 @@ const endPoint = {
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
     BLOGMANAGEMENT: "blog-management",
-
+    SCHEDULEACTIVITYMANAGEMENT: "schedule-activity-management",
 
     ARVMANAGEMENT: "arvstandard-management",
     
