@@ -6,7 +6,7 @@ import {
   Button,
   Form,
 } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import "dayjs/locale/vi";
@@ -18,6 +18,7 @@ import {
   InfoCircleOutlined
 } from "@ant-design/icons";
 import "./index.scss";
+import { useLocation } from "react-router-dom";
 
 import { createAppointment } from "../../apis/appointmentAPI/createAppointmentApi";
 import { getAvailableSchedulesDoctors } from "../../apis/doctorApi/getAvailableSchedulesDoctorsApi";
@@ -28,6 +29,29 @@ const ScheduleAConsultation = () => {
   const [form] = Form.useForm();
   const [availableSchedulesDoctors, setAvailableSchedulesDoctors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const doctorIdFromQuery = queryParams.get("doctorId");
+
+  useEffect(() => {
+    if (doctorIdFromQuery) {
+      form.setFieldsValue({ doctorId: Number(doctorIdFromQuery) });
+    }
+  }, [doctorIdFromQuery, form]);
+
+  useEffect(() => {
+    if (doctorIdFromQuery && availableSchedulesDoctors.length > 0) {
+      const found = availableSchedulesDoctors.find(
+        doc => doc.doctorId === Number(doctorIdFromQuery)
+      );
+      if (found) {
+        setSelectedDoctor(found);
+        form.setFieldsValue({ doctorId: found.doctorId });
+      }
+    }
+  }, [doctorIdFromQuery, availableSchedulesDoctors, form]);
 
   const onFinish = async (values) => {
 
@@ -229,43 +253,59 @@ const ScheduleAConsultation = () => {
                 </Form.Item>
               </div>
 
-              <Form.Item
-                name="doctorId"
-                label={<span className="text-gray-700 font-semibold text-sm">* Doctor List Available</span>}
-                rules={[{ required: true, message: "Please choose a doctor!" }]}
-              >
-                <Select
-                  placeholder="Select a doctor"
-                  size="large"
-                  showSearch
-                  optionFilterProp="label"
-                  disabled={availableSchedulesDoctors.length === 0}
-                  className="rounded-xl"
-                  notFoundContent={
-                    <div className="text-center py-4">
-                      <div className="text-gray-400 mb-2">
-                        {availableSchedulesDoctors.length === 0 
-                          ? "📅 Please select date and time first" 
-                          : "👨‍⚕️ No doctors available"}
-                      </div>
+              {doctorIdFromQuery && selectedDoctor ? (
+                <>
+                  <Form.Item name="doctorId" initialValue={selectedDoctor.doctorId} hidden>
+                    <Input type="hidden" />
+                  </Form.Item>
+                  <div className="mb-4 p-4 bg-blue-50 rounded-lg flex items-center gap-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 text-lg">👨‍⚕️</span>
                     </div>
-                  }
-                  options={availableSchedulesDoctors.map((doctor) => ({
-                    label: (
-                      <div className="flex items-center space-x-3 py-2">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 text-sm">👨‍⚕️</span>
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-800">{doctor.account.fullName}</div>
-                          <div className="text-sm text-gray-500">{doctor.account.email}</div>
+                    <div>
+                      <div className="font-semibold text-lg text-blue-700">{selectedDoctor.account.fullName}</div>
+                      <div className="text-gray-600">{selectedDoctor.account.email}</div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <Form.Item
+                  name="doctorId"
+                  label={<span className="text-gray-700 font-semibold text-sm">* Doctor List Available</span>}
+                  rules={[{ required: true, message: "Please choose a doctor!" }]}
+                >
+                  <Select
+                    placeholder="Select a doctor"
+                    size="large"
+                    showSearch
+                    optionFilterProp="label"
+                    className="rounded-xl"
+                    notFoundContent={
+                      <div className="text-center py-4">
+                        <div className="text-gray-400 mb-2">
+                          {availableSchedulesDoctors.length === 0 
+                            ? "📅 Please select date and time first" 
+                            : "👨‍⚕️ No doctors available"}
                         </div>
                       </div>
-                    ),
-                    value: doctor.doctorId,
-                  }))}
-                />
-              </Form.Item>
+                    }
+                    options={availableSchedulesDoctors.map((doctor) => ({
+                      label: (
+                        <div className="flex items-center space-x-3 py-2">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 text-sm">👨‍⚕️</span>
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-800">{doctor.account.fullName}</div>
+                            <div className="text-sm text-gray-500">{doctor.account.email}</div>
+                          </div>
+                        </div>
+                      ),
+                      value: doctor.doctorId,
+                    }))}
+                  />
+                </Form.Item>
+              )}
 
               <Form.Item 
                 name="appointmentNotes" 
