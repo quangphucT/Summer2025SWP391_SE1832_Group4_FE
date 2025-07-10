@@ -23,6 +23,7 @@ import CertificateManagement from "./pages/dashboard-management/doctor/certifica
 import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 import DoctorManagement from "./pages/dashboard-management/doctor/doctor-management";
 import BlogDetailPage from "./pages/blogs-pages/BlogDetailPage";
+import DoctorDetail from "./pages/home-page/DoctorDetail";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -40,6 +41,7 @@ import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list
 import BookingTreatmentHIV from "./pages/service-pages/hiv-treatment-page";
 import SchedulePostTestConsultation from "./pages/schedule-consultationPost-page";
 import DashboardDoctorTherapyLayout from "./pages/dashboard-doctor/dashboard-doctor-therapy/layout-dashboard";
+import MedicalRecordSchedule from "./pages/menu-profile/medicalRecordMenu-page/schedule";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -109,6 +111,10 @@ const App = () => {
         {
           path: endPoint.MEDICALRECORD,
           element: <MedicalRecordMenuPage />,
+        },
+        {
+          path: endPoint.MEDICALRECORDSCHEDULE,
+          element: <MedicalRecordSchedule />,
         },
       ],
     },
@@ -223,6 +229,10 @@ const App = () => {
           element: <ArvManagement />,
         },
       ],
+    },
+    {
+      path: "/doctors/:id",
+      element: <DoctorDetail />,
     },
   ]);
   return (

@@ -4,12 +4,18 @@ import virusimage from "../../assets/images/virus.png";
 import imagedrug from "../../assets/images/drug.jpg";
 import { User2, Users2, BookOpenCheck, Hospital, Star, Shield, Clock, Award, CheckCircle, Phone, MapPin, Mail, ChevronDown, ChevronUp, AlertTriangle, Calendar, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Select, Spin } from "antd";
+import { getDoctorsBySpecialty } from "../../apis/doctorApi/doctorApi";
+import DoctorCard from '../../components/DoctorCard';
+import { getAllBlogs } from '../../apis/blogsApi';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const bookingAppointmentPath = "/schedule-consultation";
   const [openFaq, setOpenFaq] = useState(null);
+  const [consultantDoctors, setConsultantDoctors] = useState([]);
+  const [blogs, setBlogs] = useState([]);
 
   const faqData = [
     {
@@ -34,47 +40,19 @@ const HomePage = () => {
     }
   ];
 
-  const doctors = [
-    {
-      name: "Dr. Nguyen Van An",
-      specialty: "HIV Specialist",
-      experience: "15+ years",
-      image: "https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=Dr.+An"
-    },
-    {
-      name: "Dr. Tran Thi Binh",
-      specialty: "Infectious Disease",
-      experience: "12+ years", 
-      image: "https://via.placeholder.com/150x150/059669/FFFFFF?text=Dr.+Binh"
-    },
-    {
-      name: "Dr. Le Van Cuong",
-      specialty: "Immunology",
-      experience: "18+ years",
-      image: "https://via.placeholder.com/150x150/DC2626/FFFFFF?text=Dr.+Cuong"
-    }
-  ];
+  // Fetch consultant doctors on mount
+  useEffect(() => {
+    getDoctorsBySpecialty("Consultant")
+      .then(res => setConsultantDoctors(res.data.data || []))
+      .catch(() => setConsultantDoctors([]));
+  }, []);
 
-  const news = [
-    {
-      title: "New HIV Treatment Guidelines Released",
-      date: "Dec 15, 2024",
-      excerpt: "Latest WHO guidelines for HIV treatment and prevention have been updated with new recommendations...",
-      image: "https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=News+1"
-    },
-    {
-      title: "Breakthrough in Early Detection Methods",
-      date: "Dec 10, 2024", 
-      excerpt: "New testing methods show 99.9% accuracy in early HIV detection, improving treatment outcomes...",
-      image: "https://via.placeholder.com/300x200/10B981/FFFFFF?text=News+2"
-    },
-    {
-      title: "Community Health Awareness Campaign",
-      date: "Dec 5, 2024",
-      excerpt: "Our clinic launches comprehensive health education program reaching over 10,000 people...",
-      image: "https://via.placeholder.com/300x200/F59E0B/FFFFFF?text=News+3"
-    }
-  ];
+  // Fetch blogs for news section
+  useEffect(() => {
+    getAllBlogs()
+      .then(data => setBlogs(data.slice(0, 3))) // lấy 3 bài mới nhất
+      .catch(() => setBlogs([]));
+  }, []);
 
   return (
     <div className="h-auto">
@@ -503,71 +481,54 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Doctor Profiles Section */}
-      <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Meet Our Expert Doctors
-            </h2>
-            <p className="text-lg text-gray-600">
-              Experienced specialists dedicated to your health and well-being
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {doctors.map((doctor, index) => (
-              <div key={index} className="bg-white rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-                <img 
-                  src={doctor.image} 
-                  alt={doctor.name}
-                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-                />
-                <h3 className="text-xl font-semibold mb-2">{doctor.name}</h3>
-                <p className="text-blue-600 font-medium mb-2">{doctor.specialty}</p>
-                <p className="text-gray-600 text-sm mb-4">{doctor.experience} experience</p>
-                <button 
-                  onClick={() => navigate(bookingAppointmentPath)}
-                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors"
-                >
-                  Book Consultation
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Latest News Section */}
       <div className="bg-white py-16">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
               Latest Health News & Updates
             </h2>
             <p className="text-lg text-gray-600">
               Stay informed with the latest developments in HIV treatment and prevention
             </p>
           </div>
-          
+          <div className="flex justify-center md:justify-end mb-6">
+            <button
+              className="group flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold rounded-lg shadow transition-all duration-200 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              onClick={() => navigate('/blogs-page')}
+            >
+              Read More
+              <svg className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {news.map((article, index) => (
-              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border">
-                <img 
-                  src={article.image} 
-                  alt={article.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
+            {blogs.slice(0, 3).map((blog) => (
+              <div
+                key={blog.blogId}
+                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border flex flex-col cursor-pointer hover:ring-2 hover:ring-cyan-400 h-full"
+                onClick={() => navigate(`/blog/${blog.blogId}`)}
+              >
+                <div className="relative">
+                  <img
+                    src={blog.blogImageUrl}
+                    alt={blog.title}
+                    className="w-full h-52 object-cover"
+                  />
+                  {blog.blogTagName && (
+                    <span className="absolute top-3 left-3 bg-cyan-600 text-white text-xs px-3 py-1 rounded-full shadow">
+                      {blog.blogTagName}
+                    </span>
+                  )}
+                </div>
+                <div className="p-6 flex-1 flex flex-col">
                   <div className="flex items-center text-sm text-gray-500 mb-2">
                     <Calendar className="w-4 h-4 mr-2" />
-                    {article.date}
+                    {new Date(blog.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                   </div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-900">{article.title}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{article.excerpt}</p>
-                  <button className="text-cyan-600 font-medium text-sm flex items-center gap-1 hover:underline">
-                    Read More <FileText className="w-4 h-4" />
-                  </button>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 line-clamp-2">{blog.title}</h3>
+                  <p className="text-gray-600 text-sm mb-2 line-clamp-3">{blog.content?.substring(0, 120)}...</p>
                 </div>
               </div>
             ))}
@@ -658,6 +619,29 @@ const HomePage = () => {
           </div>
           <div className="max-w-5xl mx-auto text-center text-lg">
             HIV Treatment Clinic is a renowned destination for the LGBT community, including gay, bisexual, and transgender individuals. HIV Treatment is always ready to welcome clients with friendliness, responsibility, dedication, and the utmost empathy.
+          </div>
+        </div>
+      </div>
+
+      {/* Section: Book Consultant Doctor */}
+      <div className="bg-white py-16">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Book a Consultant Doctor
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Choose a consultant doctor for your needs and book a consultation easily.
+            </p>
+          </div>
+          <div className="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 justify-center">
+            {consultantDoctors.map(doc => (
+              <DoctorCard
+                key={doc.doctorId}
+                doctor={doc}
+                onBook={() => navigate(`/schedule-consultation?doctorId=${doc.doctorId}`)}
+              />
+            ))}
           </div>
         </div>
       </div>

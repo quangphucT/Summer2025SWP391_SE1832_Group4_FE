@@ -35,6 +35,8 @@ import { createMedicalRecord } from "../../../../apis/medicalRecord/createMedica
 import { toast } from "react-toastify";
 import { getMedicalRecordByPatientId } from "../../../../apis/medicalRecord/getMedicalRecordByPatientIdApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
+import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
+import api from "../../../../config/api";
 const { Title, Text } = Typography;
 
 const PatientMedicalRecord = () => {
@@ -48,6 +50,10 @@ const PatientMedicalRecord = () => {
   const [selectedMedicalRecordId, setSelectedMedicalRecordId] = useState(null);
   const [addTestResultLoading, setAddTestResultLoading] = useState(false);
   const [selectedGender, setSelectedGender] = useState(null);
+  const [latestTestResults, setLatestTestResults] = useState({
+    rapidTest: null,
+    otherTest: null  // PCR or ELISA
+  });
 
   const [form] = Form.useForm();
   const [addTestResultForm] = Form.useForm();
@@ -96,6 +102,37 @@ const PatientMedicalRecord = () => {
     setSelectedMedicalRecordId(null);
     addTestResultForm.resetFields();
   };
+
+  // Function to fetch and process latest test results
+  const fetchLatestTestResults = async (patientId) => {
+    try {
+      const response = await getTestResultByPatientId(patientId);
+      const allTests = response?.data?.data || [];
+
+      // Group tests by type
+      const rapidTests = allTests.filter(test => test.testType === "RapidTest");
+      const otherTests = allTests.filter(test => test.testType === "PCR" || test.testType === "ELISA");
+
+      // Log dữ liệu để debug
+      console.log("All tests:", allTests);
+      console.log("Rapid tests:", rapidTests);
+      console.log("Other tests:", otherTests);
+
+      // Sort by date descending and get latest
+      const latestRapid = rapidTests.sort((a, b) => new Date(b.testDate) - new Date(a.testDate))[0];
+      const latestOther = otherTests.sort((a, b) => new Date(b.testDate) - new Date(a.testDate))[0];
+
+      setLatestTestResults({
+        rapidTest: latestRapid || null,
+        otherTest: latestOther || null
+      });
+    } catch (error) {
+      console.error("Error fetching test results:", error);
+      toast.error("Failed to fetch test results");
+    }
+  };
+
+  // Modify searchMedicalRecordByPatientId to also fetch test results
   const searchMedicalRecordByPatientId = async () => {
     if (!searchPatientId.trim()) {
       return;
@@ -104,17 +141,60 @@ const PatientMedicalRecord = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      // Gọi API giống như bên medicalRecordMenu-page, nhưng dùng searchPatientId
       const response = await getMedicalRecordByPatientId(searchPatientId.trim());
       let records = response?.data?.data;
       // Đảm bảo records luôn là mảng
       if (Array.isArray(records)) {
-        setDataMedicalRecord(records);
+        // Sau khi lấy records, nếu có patientTreatments, gọi API lấy regimen chi tiết
+        for (let rec of records) {
+          if (rec.patientTreatments && rec.patientTreatments.length > 0) {
+            const details = await Promise.all(
+              rec.patientTreatments.map(async (t) => {
+                console.log("regimenId for treatment:", t.regimenId);
+                let regimen = null;
+                if (t.regimenId) {
+                  try {
+                    console.log("Calling API for regimenId:", t.regimenId);
+                    const res = await api.get(`/api/standard-arv-regimens/${t.regimenId}`);
+                    regimen = res.data?.data || null;
+                  } catch {
+                    regimen = null;
+                  }
+                }
+                return { ...t, regimen };
+              })
+            );
+            rec.patientTreatments = details;
+          }
+        }
+        setDataMedicalRecord([...records]);
       } else if (records) {
+        if (records.patientTreatments && records.patientTreatments.length > 0) {
+          const details = await Promise.all(
+            records.patientTreatments.map(async (t) => {
+              console.log("regimenId for treatment:", t.regimenId);
+              let regimen = null;
+              if (t.regimenId) {
+                try {
+                  console.log("Calling API for regimenId:", t.regimenId);
+                  const res = await api.get(`/api/standard-arv-regimens/${t.regimenId}`);
+                  regimen = res.data?.data || null;
+                } catch {
+                  regimen = null;
+                }
+              }
+              return { ...t, regimen };
+            })
+          );
+          records.patientTreatments = details;
+        }
         setDataMedicalRecord([records]);
       } else {
         setDataMedicalRecord([]);
       }
+      
+      // Fetch latest test results
+      await fetchLatestTestResults(searchPatientId.trim());
     } catch (error) {
       console.error("Error fetching medical records:", error);
       setDataMedicalRecord([]);
@@ -183,6 +263,106 @@ const PatientMedicalRecord = () => {
       searchMedicalRecordByPatientId();
     }
   };
+
+  // Add this section in your JSX where you want to display the latest test results
+  // 1. Loại bỏ <p> bọc <h5> (và các heading khác)
+  // (Không thể sửa trực tiếp nếu không thấy, nhưng hãy tìm và thay thế trong JSX như hướng dẫn dưới đây)
+  // Ví dụ:
+  // <p><h5>Tiêu đề</h5></p> => <div><h5>Tiêu đề</h5></div>
+  // hoặc chỉ <h5>Tiêu đề</h5>
+
+  // 2. Xử lý linter renderLatestTestResults
+  // const renderLatestTestResults = () => {
+  //   if (!latestTestResults.rapidTest && !latestTestResults.otherTest) {
+  //     return null;
+  //   }
+
+  //   const formatDateTime = (dateString) => {
+  //     return new Date(dateString).toLocaleString("vi-VN", {
+  //       year: "numeric",
+  //       month: "2-digit",
+  //       day: "2-digit",
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //     });
+  //   };
+
+  //   const renderTestCard = (test, title) => (
+  //     <Card 
+  //       size="small" 
+  //       title={
+  //         <Space>
+  //           <ExperimentOutlined />
+  //           {title}
+  //         </Space>
+  //       } 
+  //       className="test-result-card"
+  //       style={{ marginBottom: 16 }}
+  //     >
+  //       <Descriptions 
+  //         column={1} 
+  //         size="small" 
+  //         bordered
+  //         style={{ 
+  //           wordBreak: 'break-word',
+  //         }}
+  //       >
+  //         <Descriptions.Item label={<div style={{ width: 120 }}>Test Date</div>}>
+  //           {formatDateTime(test.testDate)}
+  //         </Descriptions.Item>
+  //         <Descriptions.Item label={<div style={{ width: 120 }}>Test Type</div>}>
+  //           <Tag color="blue">{test.testType}</Tag>
+  //         </Descriptions.Item>
+  //         <Descriptions.Item label={<div style={{ width: 120 }}>Result</div>}>
+  //           <Tag color={test.testResults === "Positive" ? "red" : "green"}>
+  //             {test.testResults}
+  //           </Tag>
+  //         </Descriptions.Item>
+  //         <Descriptions.Item label={<div style={{ width: 120 }}>Lab</div>}>
+  //           {test.labName}
+  //         </Descriptions.Item>
+  //         {test.cD4Count && (
+  //           <Descriptions.Item label={<div style={{ width: 120 }}>CD4 Count</div>}>
+  //             <Tag color="purple">{test.cD4Count} cells/μL</Tag>
+  //           </Descriptions.Item>
+  //         )}
+  //         {test.hivViralLoadValue && (
+  //           <Descriptions.Item label={<div style={{ width: 120 }}>HIV Viral Load</div>}>
+  //             <Tag color="orange">{test.hivViralLoadValue} copies/mL</Tag>
+  //           </Descriptions.Item>
+  //         )}
+  //         {test.doctorComments && (
+  //           <Descriptions.Item 
+  //             label={<div style={{ width: 120 }}>Doctor Comments</div>}
+  //             style={{ whiteSpace: 'pre-wrap' }}
+  //           >
+  //             <Text type="secondary" italic style={{ wordBreak: 'break-word' }}>
+  //               {test.doctorComments}
+  //             </Text>
+  //           </Descriptions.Item>
+  //         )}
+  //       </Descriptions>
+  //     </Card>
+  //   );
+
+  //   return (
+  //     <div className="latest-test-results" style={{ padding: '0 16px' }}>
+  //       <Title level={4} style={{ marginBottom: 16 }}>Latest Test Results</Title>
+  //       <Row gutter={[16, 16]}>
+  //         {latestTestResults.rapidTest && (
+  //           <Col xs={24} sm={24} md={12}>
+  //             {renderTestCard(latestTestResults.rapidTest, "Latest Rapid Test")}
+  //           </Col>
+  //         )}
+  //         {latestTestResults.otherTest && (
+  //           <Col xs={24} sm={24} md={12}>
+  //             {renderTestCard(latestTestResults.otherTest, `Latest ${latestTestResults.otherTest.testType} Test`)}
+  //           </Col>
+  //         )}
+  //       </Row>
+  //     </div>
+  //   );
+  // };
 
   return (
     <div className="patient-medical-record">
@@ -256,6 +436,7 @@ const PatientMedicalRecord = () => {
               <div className="medical-records-list">
                 <Title level={4}>Medical Record Found</Title>
                 <div className="medical-records-scroll-container">
+                  
                   {dataMedicalRecord.map((record, index) => {
                     console.log("Medical Record:", record);
                     return (
@@ -432,85 +613,144 @@ const PatientMedicalRecord = () => {
 
                         {record.testResults && record.testResults.length > 0 && (
                           <>
-                            <Divider orientation="left">
-                              Related Test Results
-                            </Divider>
+                            <Divider orientation="left">Related Test Results</Divider>
                             <div className="test-results-section">
-                              {record.testResults.map((test, testIndex) => (
-                                <Card
-                                  key={test.testResultId || testIndex}
-                                  size="small"
-                                  className="test-result-mini-card"
-                                >
-                                  <Row gutter={8}>
-                                    <Col span={6}>
-                                      <Text strong>Test Type:</Text>
-                                      <br />
-                                      <Tag color="blue">{test.testType}</Tag>
+                              {/* Add Latest Test Results here */}
+                              {latestTestResults.rapidTest || latestTestResults.otherTest ? (
+                                <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+                                  <Col span={24}>
+                                    <Title level={5}>Latest Test Results</Title>
+                                  </Col>
+                                  {latestTestResults.rapidTest && (
+                                    <Col xs={24} md={12}>
+                                      <Card size="small" className="test-result-mini-card">
+                                        <Row gutter={8}>
+                                          <Col span={6}>
+                                            <Text strong>Test Type:</Text>
+                                            <br />
+                                            <Tag color="blue">{latestTestResults.rapidTest.testType}</Tag>
+                                          </Col>
+                                          <Col span={6}>
+                                            <Text strong>Result:</Text>
+                                            <br />
+                                            <Tag color={latestTestResults.rapidTest.testResults === "Positive" ? "red" : "green"}>
+                                              {latestTestResults.rapidTest.testResults}
+                                            </Tag>
+                                          </Col>
+                                          <Col span={6}>
+                                            <Text strong>Lab:</Text>
+                                            <br />
+                                            <Text>{latestTestResults.rapidTest.labName}</Text>
+                                          </Col>
+                                          <Col span={6}>
+                                            <Text strong>Test Date:</Text>
+                                            <br />
+                                            <Text>
+                                              {latestTestResults.rapidTest.testDate ?
+                                                new Date(latestTestResults.rapidTest.testDate).toLocaleDateString("vi-VN") :
+                                                "N/A"
+                                              }
+                                            </Text>
+                                          </Col>
+                                        </Row>
+                                        {(latestTestResults.rapidTest.cD4Count !== null || latestTestResults.rapidTest.hivViralLoadValue !== null) && (
+                                          <Row gutter={8} style={{ marginTop: 12 }}>
+                                            {latestTestResults.rapidTest.cD4Count !== null && (
+                                              <Col span={12}>
+                                                <Text strong>CD4 Count:</Text>
+                                                <br />
+                                                <Tag color="purple">
+                                                  {latestTestResults.rapidTest.cD4Count} cells/μL
+                                                </Tag>
+                                              </Col>
+                                            )}
+                                            {latestTestResults.rapidTest.hivViralLoadValue !== null && (
+                                              <Col span={12}>
+                                                <Text strong>HIV Viral Load:</Text>
+                                                <br />
+                                                <Tag color="orange">
+                                                  {latestTestResults.rapidTest.hivViralLoadValue} copies/mL
+                                                </Tag>
+                                              </Col>
+                                            )}
+                                          </Row>
+                                        )}
+                                        {latestTestResults.rapidTest.doctorComments && (
+                                          <div className="test-comments" style={{ marginTop: 12 }}>
+                                            <Text type="secondary" italic>
+                                              Doctor Comment: "{latestTestResults.rapidTest.doctorComments}"
+                                            </Text>
+                                          </div>
+                                        )}
+                                      </Card>
                                     </Col>
-                                    <Col span={6}>
-                                      <Text strong>Result:</Text>
-                                      <br />
-                                      <Tag
-                                        color={
-                                          test.testResults === "Positive"
-                                            ? "red"
-                                            : "green"
-                                        }
-                                      >
-                                        {test.testResults}
-                                      </Tag>
-                                    </Col>
-                                    <Col span={6}>
-                                      <Text strong>Lab:</Text>
-                                      <br />
-                                      <Text>{test.labName}</Text>
-                                    </Col>
-                                    <Col span={6}>
-                                      <Text strong>Test Date:</Text>
-                                      <br />
-                                      <Text>
-                                        {test.testDate ?
-                                          new Date(test.testDate).toLocaleDateString("vi-VN") :
-                                          "N/A"
-                                        }
-                                      </Text>
-                                    </Col>
-                                  </Row>
-
-                                  {/* Additional medical indicators */}
-                                  {(test.cD4Count !== null || test.hivViralLoadValue !== null) && (
-                                    <Row gutter={8} style={{ marginTop: 12 }}>
-                                      {test.cD4Count !== null && (
-                                        <Col span={12}>
-                                          <Text strong>CD4 Count:</Text>
-                                          <br />
-                                          <Tag color="purple">
-                                            {test.cD4Count} cells/μL
-                                          </Tag>
-                                        </Col>
-                                      )}
-                                      {test.hivViralLoadValue !== null && (
-                                        <Col span={12}>
-                                          <Text strong>HIV Viral Load:</Text>
-                                          <br />
-                                          <Tag color="orange">
-                                            {test.hivViralLoadValue} copies/mL
-                                          </Tag>
-                                        </Col>
-                                      )}
-                                    </Row>
                                   )}
-                                  {test.doctorComments && (
-                                    <div className="test-comments">
-                                      <Text type="secondary" italic>
-                                        Doctor Comment: "{test.doctorComments}"
-                                      </Text>
-                                    </div>
+                                  {latestTestResults.otherTest && (
+                                    <Col xs={24} md={12}>
+                                      <Card size="small" className="test-result-mini-card">
+                                        <Row gutter={8}>
+                                          <Col span={6}>
+                                            <Text strong>Test Type:</Text>
+                                            <br />
+                                            <Tag color="blue">{latestTestResults.otherTest.testType}</Tag>
+                                          </Col>
+                                          <Col span={6}>
+                                            <Text strong>Result:</Text>
+                                            <br />
+                                            <Tag color={latestTestResults.otherTest.testResults === "Positive" ? "red" : "green"}>
+                                              {latestTestResults.otherTest.testResults}
+                                            </Tag>
+                                          </Col>
+                                          <Col span={6}>
+                                            <Text strong>Lab:</Text>
+                                            <br />
+                                            <Text>{latestTestResults.otherTest.labName}</Text>
+                                          </Col>
+                                          <Col span={6}>
+                                            <Text strong>Test Date:</Text>
+                                            <br />
+                                            <Text>
+                                              {latestTestResults.otherTest.testDate ?
+                                                new Date(latestTestResults.otherTest.testDate).toLocaleDateString("vi-VN") :
+                                                "N/A"
+                                              }
+                                            </Text>
+                                          </Col>
+                                        </Row>
+                                        {(latestTestResults.otherTest.cD4Count !== null || latestTestResults.otherTest.hivViralLoadValue !== null) && (
+                                          <Row gutter={8} style={{ marginTop: 12 }}>
+                                            {latestTestResults.otherTest.cD4Count !== null && (
+                                              <Col span={12}>
+                                                <Text strong>CD4 Count:</Text>
+                                                <br />
+                                                <Tag color="purple">
+                                                  {latestTestResults.otherTest.cD4Count} cells/μL
+                                                </Tag>
+                                              </Col>
+                                            )}
+                                            {latestTestResults.otherTest.hivViralLoadValue !== null && (
+                                              <Col span={12}>
+                                                <Text strong>HIV Viral Load:</Text>
+                                                <br />
+                                                <Tag color="orange">
+                                                  {latestTestResults.otherTest.hivViralLoadValue} copies/mL
+                                                </Tag>
+                                              </Col>
+                                            )}
+                                          </Row>
+                                        )}
+                                        {latestTestResults.otherTest.doctorComments && (
+                                          <div className="test-comments" style={{ marginTop: 12 }}>
+                                            <Text type="secondary" italic>
+                                              Doctor Comment: "{latestTestResults.otherTest.doctorComments}"
+                                            </Text>
+                                          </div>
+                                        )}
+                                      </Card>
+                                    </Col>
                                   )}
-
-                                </Card>
-                              ))}
+                                </Row>
+                              ) : null}
                             </div>
                           </>
                         )}
@@ -520,24 +760,32 @@ const PatientMedicalRecord = () => {
                           <>
                             <Divider orientation="left">Related Treatments</Divider>
                             <div className="treatments-section">
-                              {record.patientTreatments.map((treatment, idx) => (
-                                <Card
-                                  key={treatment.treatmentId || idx}
-                                  size="small"
-                                  className="treatment-mini-card"
-                                  style={{ marginBottom: 12 }}
-                                >
-                                  <Descriptions column={1} size="small" bordered>
-                                    <Descriptions.Item label="Regimen ">{treatment.regimen?.regimenName}</Descriptions.Item>
-                                    <Descriptions.Item label="Start Date">{treatment.startDate ? dayjs(treatment.startDate).format("DD/MM/YYYY") : "N/A"}</Descriptions.Item>
-                                    <Descriptions.Item label="Expected End Date">{treatment.expectedEndDate ? dayjs(treatment.expectedEndDate).format("DD/MM/YYYY") : "N/A"}</Descriptions.Item>
-                                    <Descriptions.Item label="Actual Dosage">{treatment.actualDosage}</Descriptions.Item>
-                                    <Descriptions.Item label="Status">{treatment.status}</Descriptions.Item>
-                                    <Descriptions.Item label="Reason For Change Or Stop">{treatment.reasonForChangeOrStop}</Descriptions.Item>
-                                    <Descriptions.Item label="Regimen Adjustments">{treatment.regimenAdjustments}</Descriptions.Item>
-                                  </Descriptions>
-                                </Card>
-                              ))}
+                              {record.patientTreatments.map((treatment, idx) => {
+                                // Thêm log để debug
+                                console.log("Treatment detail:", treatment);
+                                return (
+                                  <Card
+                                    key={treatment.patientTreatmentId || treatment.treatmentId || idx}
+                                    size="small"
+                                    className="treatment-mini-card"
+                                    style={{ marginBottom: 12 }}
+                                  >
+                                    <Descriptions column={1} size="small" bordered>
+                                      <Descriptions.Item label="Regimen Name">
+                                        {treatment.regimen && treatment.regimen.regimenName
+                                          ? treatment.regimen.regimenName
+                                          : <span style={{color: 'red'}}>No regimen info</span>}
+                                      </Descriptions.Item>
+                                      <Descriptions.Item label="Start Date">{treatment.startDate ? dayjs(treatment.startDate).format("DD/MM/YYYY") : "N/A"}</Descriptions.Item>
+                                      <Descriptions.Item label="Expected End Date">{treatment.expectedEndDate ? dayjs(treatment.expectedEndDate).format("DD/MM/YYYY") : "N/A"}</Descriptions.Item>
+                                      <Descriptions.Item label="Actual Dosage">{treatment.actualDosage}</Descriptions.Item>
+                                      <Descriptions.Item label="Status">{treatment.status}</Descriptions.Item>
+                                      <Descriptions.Item label="Reason For Change Or Stop">{treatment.reasonForChangeOrStop}</Descriptions.Item>
+                                      <Descriptions.Item label="Regimen Adjustments">{treatment.regimenAdjustments}</Descriptions.Item>
+                                    </Descriptions>
+                                  </Card>
+                                );
+                              })}
                             </div>
                           </>
                         )}

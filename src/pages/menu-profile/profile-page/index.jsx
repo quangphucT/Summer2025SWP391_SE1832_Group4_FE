@@ -77,6 +77,7 @@ import ModalDynamic from "../../../components/atoms/Modal";
 import HIVTreatmentInfoCard from "../../../components/atoms/TopInformationHIV";
 import dayjs from "dayjs";
 import { updateProfileApi } from "../../../apis/authenticationApi/updateProfileApi";
+import MedicalRecordSchedule from "../medicalRecordMenu-page/schedule";
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -398,7 +399,9 @@ const ProfilePage = () => {
       case "transaction":
         return <TransactionMenuPage />;
       case "medical":
-        return <MedicalRecordMenuPage />;
+        return <MedicalRecordMenuPage setSelectedKey={setSelectedKey} />;
+      case "medical-record-schedule":
+        return <MedicalRecordSchedule setSelectedKey={setSelectedKey} />;
       default:
         return null;
     }
