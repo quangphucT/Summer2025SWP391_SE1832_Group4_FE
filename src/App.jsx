@@ -41,6 +41,8 @@ import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list
 import BookingTreatmentHIV from "./pages/service-pages/hiv-treatment-page";
 import SchedulePostTestConsultation from "./pages/schedule-consultationPost-page";
 import DashboardDoctorTherapyLayout from "./pages/dashboard-doctor/dashboard-doctor-therapy/layout-dashboard";
+import ScheduleActivityManagement from "./pages/dashboard-management/staff/schedule-activity-management/schedule-activity-management";
+import MedicalRecordSchedule from "./pages/menu-profile/medicalRecordMenu-page/schedule";
 
 const App = () => {
   const router = createBrowserRouter([
