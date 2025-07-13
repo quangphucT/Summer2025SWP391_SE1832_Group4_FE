@@ -4,6 +4,7 @@ import {
   updateAccountById,
   deleteAccountById,
 } from "../../../../apis/accountsApi";
+import { toast } from "react-toastify";
 
 const getStatusLabel = (status) => {
   if (status === 0 || status === "Active" || status === "Acitve") return "Active";
@@ -43,6 +44,8 @@ const AccountManagement = () => {
     roleId: 0,
     profileImageUrl: "",
   });
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -100,15 +103,28 @@ const AccountManagement = () => {
     fetchAccounts(filters);
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm("Bạn có chắc muốn xóa account này?")) return;
+  async function handleDeleteConfirmed(id) {
     try {
       await deleteAccountById(id);
+      toast.success("Account deleted successfully");
       fetchAccounts();
     } catch (err) {
       console.error("Lỗi khi xóa account:", err);
-      alert("Xóa không thành công: " + err.message);
+      toast.error(err.message || "Failed to delete account");
+    } finally {
+      setConfirmDeleteId(null);
+      setConfirmDeleteOpen(false);
     }
+  }
+
+  function handleDelete(id) {
+    setConfirmDeleteId(id);
+    setConfirmDeleteOpen(true);
+  }
+
+  function handleCancelDelete() {
+    setConfirmDeleteId(null);
+    setConfirmDeleteOpen(false);
   }
 
   function startEdit(acc) {
@@ -141,12 +157,12 @@ const AccountManagement = () => {
         ...editForm,
         // accountStatus và roleId đã là number sau handleEditFormChange
       });
-      alert("Cập nhật thành công!");
+      toast.success("Account updated successfully");
       setEditingId(null);
       fetchAccounts();
     } catch (err) {
       console.error("Lỗi khi cập nhật account:", err);
-      alert("Cập nhật không thành công: " + err.message);
+      toast.error(err.message || "Failed to update account");
     }
   }
 
@@ -616,6 +632,48 @@ const AccountManagement = () => {
             </tbody>
           </table>
        
+      )}
+
+      {/* Custom Confirm Delete Modal */}
+      {confirmDeleteOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.18)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: 12,
+            padding: '32px 32px 24px 32px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+            minWidth: 320,
+            textAlign: 'center',
+            maxWidth: '90vw',
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 24 }}>Bạn có chắc muốn xóa account này?</div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+              <button
+                style={{
+                  background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 32px', fontWeight: 600, fontSize: 16, cursor: 'pointer', boxShadow: '0 2px 8px rgba(25,118,210,0.08)'
+                }}
+                onClick={() => handleDeleteConfirmed(confirmDeleteId)}
+              >OK</button>
+              <button
+                style={{
+                  background: '#f5f8fa', color: '#1976d2', border: '1.5px solid #1976d2', borderRadius: 6, padding: '8px 32px', fontWeight: 600, fontSize: 16, cursor: 'pointer', boxShadow: '0 2px 8px rgba(25,118,210,0.04)'
+                }}
+                onClick={handleCancelDelete}
+              >Cancel</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

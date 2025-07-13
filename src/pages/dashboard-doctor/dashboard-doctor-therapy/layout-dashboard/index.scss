@@ -1,0 +1,214 @@
+// Therapy Dashboard Layout Styles - Lavender Theme
+.therapy-dashboard-layout {
+  .therapy-sidebar {
+    .therapy-decoration-top {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .therapy-decoration-bottom {
+      animation: float 8s ease-in-out infinite reverse;
+    }
+  }
+
+  .therapy-profile-section {
+    .therapy-avatar-container {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(186, 164, 204, 0.3);
+      }
+    }
+
+    .therapy-avatar-circle {
+      transition: color 0.3s ease;
+    }
+
+    .therapy-doctor-info {
+      .therapy-doctor-name {
+        color: white !important;
+      }
+
+      .therapy-doctor-role {
+        transition: background 0.3s ease;
+        
+        &:hover {
+          background: rgba(186, 164, 204, 0.2);
+        }
+      }
+    }
+  }
+
+  .therapy-doctor-menu {
+    .ant-menu-item {
+      background: rgba(186, 164, 204, 0.08) !important;
+      border: 1px solid rgba(186, 164, 204, 0.15) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+      &:hover {
+        background: rgba(186, 164, 204, 0.15) !important;
+        border: 1px solid rgba(186, 164, 204, 0.25) !important;
+        transform: translateX(6px) !important;
+        box-shadow: 0 3px 10px rgba(186, 164, 204, 0.2) !important;
+      }
+
+      &.ant-menu-item-selected {
+        background: linear-gradient(135deg, rgba(186, 164, 204, 0.2), rgba(162, 139, 183, 0.2)) !important;
+        border: 1px solid rgba(186, 164, 204, 0.3) !important;
+        transform: translateX(8px) !important;
+        box-shadow: 0 4px 15px rgba(186, 164, 204, 0.25) !important;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 50%;
+          background: linear-gradient(180deg, #baa4cc, #a28bb7);
+          border-radius: 0 2px 2px 0;
+        }
+      }
+
+      .anticon {
+        color: #baa4cc !important;
+        transition: all 0.3s ease !important;
+      }
+
+      span {
+        color: white !important;
+        font-weight: 500 !important;
+      }
+    }
+  }
+
+  .therapy-header {
+    .therapy-header-icon {
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05) rotate(2deg);
+      }
+    }
+
+    .therapy-title {
+      color: #8367a0 !important;
+    }
+
+    .therapy-subtitle {
+      color: #a28bb7 !important;
+    }
+
+    .therapy-header-right {
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(186, 164, 204, 0.08);
+        border-color: rgba(186, 164, 204, 0.2);
+      }
+    }
+
+    .therapy-avatar {
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .therapy-content {
+    .therapy-content-inner {
+      background: linear-gradient(135deg, 
+        rgba(186, 164, 204, 0.03) 0%, 
+        rgba(162, 139, 183, 0.03) 100%);
+    }
+  }
+}
+
+// Animations
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .therapy-dashboard-layout {
+    .therapy-sidebar {
+      width: 240px !important;
+    }
+
+    .therapy-profile-section {
+      padding: 0 10px !important;
+
+      .therapy-avatar-container {
+        .therapy-avatar-circle {
+          width: 80px !important;
+          height: 80px !important;
+          font-size: 32px !important;
+        }
+      }
+
+      .therapy-doctor-info {
+        .therapy-doctor-name {
+          font-size: 18px !important;
+        }
+
+        .therapy-doctor-role,
+        .therapy-doctor-id {
+          font-size: 12px !important;
+          padding: 2px 8px !important;
+        }
+      }
+    }
+
+    .therapy-header {
+      padding: 0 16px !important;
+
+      .therapy-header-text {
+        flex-direction: column !important;
+        gap: 4px !important;
+
+        .therapy-title {
+          font-size: 18px !important;
+        }
+
+        .therapy-subtitle {
+          font-size: 12px !important;
+        }
+      }
+    }
+
+    .therapy-content {
+      margin: 12px !important;
+
+      .therapy-content-inner {
+        padding: 16px !important;
+      }
+    }
+  }
+}

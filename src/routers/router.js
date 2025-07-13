@@ -12,6 +12,7 @@ const endPoint = {
     APPOINTMENT: "/appointment",
     TRANSACTION: "/transaction",
     MEDICALRECORD: "/medical-reccord",
+    MEDICALRECORDSCHEDULE: "/medical-record-schedule",
 
 
     BLOGSPAGE: "/blogs-page",
@@ -30,7 +31,7 @@ const endPoint = {
     PROTOCOLMANAGEMENT: "protocal-management",
     ACCOUNTMANAGEMENT: "account-management",
     BLOGMANAGEMENT: "blog-management",
-
+    SCHEDULEACTIVITYMANAGEMENT: "schedule-activity-management",
 
     ARVMANAGEMENT: "arvstandard-management",
     
@@ -58,6 +59,9 @@ const endPoint = {
 
     // dashboard doctor consultant
     DASHBOARDLAYOUTDOCTORCONSULTANT: "/doctorConsultant-dashboard",
+
+    // dashboard doctor therapy
+    DASHBOARDLAYOUTDOCTORTHERAPY: "/doctorTherapy-dashboard",
 
     // doctor create account (staff)
     DOCTORCREATEACCOUNTBYSTAFF: "doctor-create-account",

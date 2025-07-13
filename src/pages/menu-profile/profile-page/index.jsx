@@ -42,6 +42,8 @@ import {
   Row,
   Col,
   Image,
+  DatePicker,
+  Select,
 } from "antd";
 import "./index.scss";
 import {
@@ -53,6 +55,7 @@ import {
   FileTextOutlined,
   DollarCircleOutlined,
   PlusOutlined,
+  CheckCircleFilled,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import logoUser from "../../../assets/images/userProfile.png";
@@ -68,10 +71,13 @@ import {
 import uploadFile from "../../../utils/upload";
 import { toast } from "react-toastify";
 import { changePasswordApi } from "../../../apis/authenticationApi/changePasswordApi";
-import { updateProfileApi } from "../../../apis/authenticationApi/updateProfileApi";
+import { updateProfilePatient, getPatientByAccountId } from "../../../apis/patientApi/updateProfileApi";
 import { showSuccessToast } from "../../../components/atoms/ConfigToast";
 import ModalDynamic from "../../../components/atoms/Modal";
 import HIVTreatmentInfoCard from "../../../components/atoms/TopInformationHIV";
+import dayjs from "dayjs";
+import { updateProfileApi } from "../../../apis/authenticationApi/updateProfileApi";
+import MedicalRecordSchedule from "../medicalRecordMenu-page/schedule";
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -82,6 +88,13 @@ const menuItems = [
   { key: "transaction", icon: <DollarCircleOutlined />, label: "Transaction" },
   { key: "medical", icon: <FileTextOutlined />, label: "Medical Record" },
   { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+];
+
+const accountFields = [
+  "fullName", "username", "email", "phoneNumber", "profileImageUrl", "accountStatus", "roleId", "passwordHash"
+];
+const patientFields = [
+  "dateOfBirth", "gender", "address", "hivDiagnosisDate", "consentInformation", "additionalNotes"
 ];
 
 const ProfilePage = () => {
@@ -107,8 +120,26 @@ const ProfilePage = () => {
     setSelectedKey(key); // cập nhật nội dung hiển thị
   };
 
+  // Hàm lấy patientId từ accountId (không set vào redux)
+  const getPatientIdByAccountId = async (accountId) => {
+    if (!accountId) return undefined;
+    try {
+      const res = await getPatientByAccountId(accountId);
+      return res?.data?.data?.patientId;
+    } catch (error) {
+      console.error("Lỗi khi lấy patientId:", error);
+      return undefined;
+    }
+  };
+
   const handleFinish = async (values) => {
     setLoading(true);
+    const patientId = await getPatientIdByAccountId(accountId);
+    if (!patientId) {
+      toast.error("Không tìm thấy patientId. Vui lòng thử lại sau!");
+      setLoading(false);
+      return;
+    }
     try {
       // Nếu người dùng chọn ảnh mới
       if (values.profileImageUrl && values.profileImageUrl[0]?.originFileObj) {
@@ -122,11 +153,39 @@ const ProfilePage = () => {
       } else {
         values.profileImageUrl = ""; // hoặc null nếu bạn muốn gửi rỗng
       }
-
-      dispatch(updateProfile(values));
-        await updateProfileApi(accountId,values)
-      console.log("Values:", values)
-      toast.info("Updated profile successfully!");
+      if (values.dateOfBirth) {
+        values.dateOfBirth = values.dateOfBirth.toISOString();
+      }
+      // Tách dữ liệu
+      const accountData = {
+        ...fullInformUserOnRedux,
+        ...Object.fromEntries(Object.entries(values).filter(([key]) => accountFields.includes(key)))
+      };
+      const patientData = {};
+      Object.keys(values).forEach(key => {
+        if (patientFields.includes(key)) patientData[key] = values[key];
+      });
+      // Gọi update cho account
+      if (Object.keys(accountData).length > 0) {
+        await updateProfileApi(accountId, accountData);
+      }
+      // Gọi update cho patient
+      if (Object.keys(patientData).length > 0) {
+        await updateProfilePatient(patientId, patientData);
+      }
+      // Nếu cả hai đều thành công thì cập nhật redux và hiện success
+      const resAccount = await getPatientByAccountId(accountId);
+      const newUserData = resAccount?.data?.data?.account || {};
+      const oldUser = fullInformUserOnRedux || {};
+      const mergedUser = { ...oldUser, ...newUserData };
+      dispatch(updateProfile(mergedUser));
+      toast.success(
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <CheckCircleFilled style={{ color: '#52c41a', fontSize: 20 }} />
+          <span>Updated profile successfully!</span>
+        </span>,
+        { icon: false }
+      );
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Error while handling logic!!"
@@ -140,6 +199,9 @@ const ProfilePage = () => {
       fullName: fullInformUserOnRedux?.fullName,
       username: fullInformUserOnRedux?.username,
       phoneNumber: fullInformUserOnRedux?.phone,
+      dateOfBirth: fullInformUserOnRedux?.dateOfBirth ? dayjs(fullInformUserOnRedux?.dateOfBirth) : null,
+      gender: fullInformUserOnRedux?.gender,
+      address: fullInformUserOnRedux?.address,
       profileImageUrl: [
         {
           uid: "-1",
@@ -249,7 +311,49 @@ const ProfilePage = () => {
                           />
                         </Form.Item>
                       </Col>
-
+                      <Col span={12}>
+                        <Form.Item
+                          name="dateOfBirth"
+                          label="Date of Birth"
+                          rules={[{ required: true, message: "Please select date of birth!" }]}
+                        >
+                          <DatePicker
+                            style={{ width: "100%" }}
+                            format="DD/MM/YYYY"
+                            className="rounded-lg"
+                            getPopupContainer={() => document.body}
+                            placement="bottomLeft"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          name="gender"
+                          label="Gender"
+                          rules={[{ required: true, message: "Please select gender!" }]}
+                        >
+                          <Select
+                            placeholder="Select gender"
+                            className="rounded-lg"
+                          >
+                            <Select.Option value="Male">Male</Select.Option>
+                            <Select.Option value="Female">Female</Select.Option>
+                            <Select.Option value="Other">Other</Select.Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          name="address"
+                          label="Address"
+                          rules={[{ required: true, message: "Please input address!" }]}
+                        >
+                          <Input
+                            placeholder="Address"
+                            className="rounded-lg"
+                          />
+                        </Form.Item>
+                      </Col>
                       <Col span={12}>
                         <Form.Item
                           label="Upload profile image"
@@ -275,6 +379,7 @@ const ProfilePage = () => {
                             htmlType="submit"
                             loading={loading}
                             className="w-full h-[45px] font-semibold rounded-full bg-[#1e88e5] hover:!bg-[#2968a7]"
+                            disabled={loading}
                           >
                             Save Changes
                           </Button>
@@ -294,7 +399,9 @@ const ProfilePage = () => {
       case "transaction":
         return <TransactionMenuPage />;
       case "medical":
-        return <MedicalRecordMenuPage />;
+        return <MedicalRecordMenuPage setSelectedKey={setSelectedKey} />;
+      case "medical-record-schedule":
+        return <MedicalRecordSchedule setSelectedKey={setSelectedKey} />;
       default:
         return null;
     }

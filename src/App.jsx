@@ -23,6 +23,7 @@ import CertificateManagement from "./pages/dashboard-management/doctor/certifica
 import BlogManagement from "./pages/dashboard-management/manager/blog-management/blog-management";
 import DoctorManagement from "./pages/dashboard-management/doctor/doctor-management";
 import BlogDetailPage from "./pages/blogs-pages/BlogDetailPage";
+import DoctorDetail from "./pages/home-page/DoctorDetail";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,7 +40,9 @@ import DoctorCreationManagement from "./pages/dashboard-management/admin/doctor-
 import DoctorListManagement from "./pages/dashboard-management/admin/doctor-list-management";
 import BookingTreatmentHIV from "./pages/service-pages/hiv-treatment-page";
 import SchedulePostTestConsultation from "./pages/schedule-consultationPost-page";
-
+import DashboardDoctorTherapyLayout from "./pages/dashboard-doctor/dashboard-doctor-therapy/layout-dashboard";
+import ScheduleActivityManagement from "./pages/dashboard-management/staff/schedule-activity-management/schedule-activity-management";
+import MedicalRecordSchedule from "./pages/menu-profile/medicalRecordMenu-page/schedule";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -72,7 +75,7 @@ const App = () => {
           element: <ScheduleAConsultation />,
         },
         // schedule a consultation post
-           {
+        {
           path: endPoint.SCHEDULEACONSULTATIONPOST,
           element: <SchedulePostTestConsultation />,
         },
@@ -110,6 +113,10 @@ const App = () => {
           path: endPoint.MEDICALRECORD,
           element: <MedicalRecordMenuPage />,
         },
+        {
+          path: endPoint.MEDICALRECORDSCHEDULE,
+          element: <MedicalRecordSchedule />,
+        },
       ],
     },
     {
@@ -143,6 +150,11 @@ const App = () => {
       path: endPoint.DASHBOARDLAYOUTDOCTORCONSULTANT,
       element: <DashboardDoctorConsultantLayout />,
     },
+    // dashboard for doctor therapy
+    {
+      path: endPoint.DASHBOARDLAYOUTDOCTORTHERAPY,
+      element: <DashboardDoctorTherapyLayout />,
+    },
     {
       path: endPoint.DASHBOARD,
       element: <DashboardLayout />,
@@ -165,19 +177,15 @@ const App = () => {
           element: <DoctorManagement />,
         },
 
-
         {
           path: endPoint.DOCTORCREATEACCOUNTBYSTAFF,
           element: <DoctorCreationManagement />,
         },
 
-         {
+        {
           path: endPoint.DOCTORLISTMANAGEMENT,
-          element: <DoctorListManagement/>,
+          element: <DoctorListManagement />,
         },
-
-
-
 
         {
           path: endPoint.APPOINTMENTMANAGEMENT,
@@ -221,9 +229,16 @@ const App = () => {
           path: endPoint.ARVMANAGEMENT,
           element: <ArvManagement />,
         },
+        {
+          path: endPoint.SCHEDULEACTIVITYMANAGEMENT,
+          element: <ScheduleActivityManagement />,
+        },
       ],
     },
-    
+    {
+      path: "/doctors/:id",
+      element: <DoctorDetail />,
+    },
   ]);
   return (
     <div>
