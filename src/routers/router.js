@@ -12,6 +12,7 @@ const endPoint = {
     APPOINTMENT: "/appointment",
     TRANSACTION: "/transaction",
     MEDICALRECORD: "/medical-reccord",
+    MEDICALRECORDSCHEDULE: "/medical-record-schedule",
 
 
     BLOGSPAGE: "/blogs-page",
