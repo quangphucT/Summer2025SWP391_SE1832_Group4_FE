@@ -69,32 +69,32 @@ const ResultModal = ({ isOpen, onClose, resultData }) => {
     >
       <div className="modal-content">
         {/* Post-test Counseling Warning */}
-        {resultData.testType === "RapidTest" && resultData.testResults === "Positive" || resultData && (
-          <Alert
-            message="Important: Post-test Counseling Required"
-            description={
-              <div className="counseling-alert">
-                <Text>
-                  Due to the positive rapid test result, immediate post-test counseling is mandatory. 
-                  Please schedule a counseling session to discuss the results, next steps, and support options.
-                </Text>
-                <Button  
-                onClick={() => {navigation("/schedule-consultation-post")}}
-                  type="primary" 
-                  danger 
-                  icon={<WarningOutlined />}
-                  className="counseling-button"
-                  size="large"
-                >
-                  <strong>Schedule Post-test Counseling</strong>
-                </Button>
-              </div>
-            }
-            type="warning"
-            showIcon
-            className="counseling-warning"
-          />
-        )}
+  {resultData && (
+    <Alert
+      message="Important: Post-test Counseling Required"
+      description={
+        <div className="counseling-alert">
+          <Text>
+            Due to the positive rapid test result, immediate post-test counseling is mandatory. 
+            Please schedule a counseling session to discuss the results, next steps, and support options.
+          </Text>
+          <Button  
+            onClick={() => {navigation("/schedule-consultation-post")}}
+            type="primary" 
+            danger 
+            icon={<WarningOutlined />}
+            className="counseling-button"
+            size="large"
+          >
+            <strong>Schedule Post-test Counseling</strong>
+          </Button>
+        </div>
+      }
+      type="warning"
+      showIcon
+      className="counseling-warning"
+    />
+  )}
         <Row gutter={30}>
           <Col span={15}>
             {/* Test Information Card */}
