@@ -1,0 +1,315 @@
+.medical-record-schedule-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(30, 58, 138, 0.08);
+  font-family: 'Segoe UI', Arial, sans-serif;
+
+  .schedule-header {
+    margin-bottom: 32px;
+
+    .back-button {
+      margin-bottom: 16px;
+      font-weight: 600;
+      color: #1e3a8a;
+      font-size: 16px;
+      padding: 0;
+      height: auto;
+
+      &:hover {
+        color: #1e40af;
+      }
+    }
+
+    .schedule-title {
+      color: #1e3a8a;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .schedule-filters {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .ant-typography {
+        margin: 0;
+        white-space: nowrap;
+      }
+
+      .ant-select {
+        .ant-select-selector {
+          border-radius: 8px;
+          border: 1px solid #d1d5db;
+          transition: all 0.2s ease;
+
+          &:hover {
+            border-color: #1e3a8a;
+          }
+        }
+
+        &.ant-select-focused .ant-select-selector {
+          border-color: #1e3a8a;
+          box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.1);
+        }
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+
+    .ant-typography {
+      color: #6b7280;
+      font-size: 16px;
+    }
+  }
+
+  .error-container {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+
+    .ant-typography {
+      color: #dc2626;
+      margin: 0;
+    }
+  }
+
+  .schedule-content {
+    .activities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+
+      .activity-card {
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        overflow: hidden;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+          border-color: #1e3a8a;
+        }
+
+        .ant-card-body {
+          padding: 20px;
+        }
+
+        .activity-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #f3f4f6;
+
+          .activity-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .activity-icon {
+              color: #1e3a8a;
+              font-size: 18px;
+            }
+
+            .ant-typography {
+              margin: 0;
+              font-size: 16px;
+            }
+          }
+
+          .ant-tag {
+            margin: 0;
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            .anticon {
+              font-size: 14px;
+            }
+          }
+        }
+
+        .activity-details {
+          .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+
+            .ant-typography {
+              margin: 0;
+              line-height: 1.5;
+
+              &.ant-typography-secondary {
+                color: #6b7280;
+                font-size: 14px;
+                min-width: 80px;
+              }
+
+              &.ant-typography-strong {
+                color: #1f2937;
+                font-weight: 600;
+              }
+
+              &.ant-typography-code {
+                background: #f3f4f6;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 12px;
+                color: #374151;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Empty state styling
+  .ant-empty {
+    padding: 60px 20px;
+
+    .ant-empty-description {
+      color: #6b7280;
+      font-size: 16px;
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    margin: 20px;
+    padding: 20px;
+
+    .schedule-filters {
+      .ant-space {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+
+        .filter-group {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+
+          .ant-select {
+            width: 100% !important;
+          }
+        }
+      }
+    }
+
+    .schedule-content {
+      .activities-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+
+        .activity-card {
+          .activity-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+
+            .activity-type {
+              width: 100%;
+            }
+          }
+
+          .activity-details {
+            .detail-item {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 4px;
+
+              .ant-typography {
+                &.ant-typography-secondary {
+                  min-width: auto;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    margin: 10px;
+    padding: 16px;
+
+    .schedule-header {
+      .schedule-title {
+        font-size: 20px;
+      }
+    }
+
+    .schedule-filters {
+      padding: 16px;
+    }
+  }
+}
+
+// Dark mode support (optional)
+@media (prefers-color-scheme: dark) {
+  .medical-record-schedule-container {
+    background: #1f2937;
+    color: #f9fafb;
+
+    .schedule-filters {
+      background: #374151;
+      border-color: #4b5563;
+    }
+
+    .activity-card {
+      background: #374151;
+      border-color: #4b5563;
+
+      .activity-header {
+        border-bottom-color: #4b5563;
+      }
+
+      .detail-item {
+        .ant-typography {
+          &.ant-typography-strong {
+            color: #f9fafb;
+          }
+
+          &.ant-typography-code {
+            background: #4b5563;
+            color: #f9fafb;
+          }
+        }
+      }
+    }
+  }
+}

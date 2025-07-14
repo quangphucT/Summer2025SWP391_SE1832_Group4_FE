@@ -55,6 +55,7 @@ const DashboardLayout = () => {
     getItem("Account Management", "account-management", <UserOutlined />),
     getItem("Doctor Management", "doctor-management", <UserOutlined />),
     getItem("ARV Standard Management", "arvstandard-management", <MedicineBoxOutlined />),
+    getItem("Schedule Activity Management", "schedule-activity-management", <UserOutlined />),
   ], true),
 
   getItem("Content Management", "content", <FileTextOutlined />, [
