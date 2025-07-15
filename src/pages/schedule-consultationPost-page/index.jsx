@@ -149,11 +149,11 @@ const SchedulePostTestConsultation = () => {
                     options={[
                       {
                         value: "PostTestCounseling",
-                        label: "Post-Test Counseling (Tư vấn sau xét nghiệm)",
+                        label: "Post-Test Counseling (Post-test counseling)",
                       },
                       {
                         value: "PreTestCounseling",
-                        label: "Pre-Test Counseling (Tư vấn trước xét nghiệm)",
+                        label: "Pre-Test Counseling (Pre-test counseling)",
                       }
                     ]}
                   />
