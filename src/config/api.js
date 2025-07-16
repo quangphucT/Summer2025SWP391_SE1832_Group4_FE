@@ -5,7 +5,7 @@ baseURL: import.meta.env.VITE_BACKEND_URL,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000,
+  timeout: 150000,
   withCredentials: true, // Bật nếu cần gửi cookie/JWT
   //... other axios options
 });

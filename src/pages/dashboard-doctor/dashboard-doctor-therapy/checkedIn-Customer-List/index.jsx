@@ -60,11 +60,14 @@ const CheckedInAppointmentToday = () => {
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [suggestedRegimen, setSuggestedRegimen] = useState(null); // Thêm state mới cho regimen được gợi ý
   // Thêm state mới
-  const [loadingPreviousTreatment, setLoadingPreviousTreatment] = useState(false);
-  const [previousTreatmentModalVisible, setPreviousTreatmentModalVisible] = useState(false);
+  const [loadingPreviousTreatment, setLoadingPreviousTreatment] =
+    useState(false);
+  const [previousTreatmentModalVisible, setPreviousTreatmentModalVisible] =
+    useState(false);
   const [previousTreatments, setPreviousTreatments] = useState([]);
   // Thêm state cho edit modal
-  const [editTreatmentModalVisible, setEditTreatmentModalVisible] = useState(false);
+  const [editTreatmentModalVisible, setEditTreatmentModalVisible] =
+    useState(false);
   const [currentEditTreatment, setCurrentEditTreatment] = useState(null);
   const [editTreatmentForm] = Form.useForm();
 
@@ -140,41 +143,54 @@ const CheckedInAppointmentToday = () => {
       );
     }
   };
-  const handleUpdateAppointmentCompleted = async(record) => {
+  const handleUpdateAppointmentCompleted = async (record) => {
     try {
       await updateAppointmentCompleted(record.appointmentId);
       toast.success("Appointment marked as completed successfully!");
       setSelectedRecord(null);
       await getAllAppointmentsFollowingDoctor(accountID);
     } catch (error) {
-      toast.error(  
+      toast.error(
         error?.response?.data?.message || "Error while handling logic!"
-      );  
+      );
     }
-  }
+  };
   // Sửa lại hàm handleEditTreatment để dùng data từ previousTreatments
   const handleEditTreatment = async () => {
     try {
       // Lấy treatment gần nhất (đang điều trị) từ danh sách previous treatments
-      const currentTreatment = previousTreatments.find(t => t.status === "InTreatment");
-      
+      const currentTreatment = previousTreatments.find(
+        (t) => t.status === "InTreatment"
+      );
+
       if (currentTreatment) {
         // Lấy test result mới nhất
         const res = await getTestResultByPatientId(currentTreatment.patientId);
         const testResults = res.data.data || [];
-        const pcrResults = testResults.filter(test => test.testType === "PCR");
-        const latestPCR = pcrResults.sort((a, b) => new Date(b.testDate) - new Date(a.testDate))[0];
+        const pcrResults = testResults.filter(
+          (test) => test.testType === "PCR"
+        );
+        const latestPCR = pcrResults.sort(
+          (a, b) => new Date(b.testDate) - new Date(a.testDate)
+        )[0];
         setLatestPCRResultEdit(latestPCR);
         // Nếu có test mới nhất thì dùng, không thì lấy từ treatment cũ
         const baselineCD4 = latestPCR?.cD4Count || currentTreatment.baselineCD4;
-        const baselineHivViralLoad = latestPCR?.hivViralLoadValue || currentTreatment.baselineHivViralLoad;
+        const baselineHivViralLoad =
+          latestPCR?.hivViralLoadValue || currentTreatment.baselineHivViralLoad;
         setCurrentEditTreatment(currentTreatment);
-        setSelectedRegimenEdit(regimenOptions.find(r => r.regimenId === currentTreatment.regimenId) || null);
+        setSelectedRegimenEdit(
+          regimenOptions.find(
+            (r) => r.regimenId === currentTreatment.regimenId
+          ) || null
+        );
         setSuggestedRegimenEdit(null);
         editTreatmentForm.setFieldsValue({
           ...currentTreatment,
           startDate: dayjs(currentTreatment.startDate),
-          expectedEndDate: currentTreatment.expectedEndDate ? dayjs(currentTreatment.expectedEndDate) : null,
+          expectedEndDate: currentTreatment.expectedEndDate
+            ? dayjs(currentTreatment.expectedEndDate)
+            : null,
           patientId: currentTreatment.patientId,
           prescribingDoctorId: currentTreatment.prescribingDoctorId,
           regimenId: currentTreatment.regimenId,
@@ -183,14 +199,14 @@ const CheckedInAppointmentToday = () => {
           regimenAdjustments: currentTreatment.regimenAdjustments,
           reasonForChangeOrStop: currentTreatment.reasonForChangeOrStop,
           baselineCD4,
-          baselineHivViralLoad
+          baselineHivViralLoad,
         });
         setEditTreatmentModalVisible(true);
       } else {
         toast.error("No active treatment found for this patient");
       }
     } catch (error) {
-      console.error('Error setting edit form:', error);
+      console.error("Error setting edit form:", error);
       toast.error("Failed to load treatment data for editing");
     }
   };
@@ -298,47 +314,51 @@ const CheckedInAppointmentToday = () => {
       align: "center",
       render: (text, record) => {
         const isFollowUp = record?.appointmentService === "FollowUpTreatment";
-        const hasActiveTreatment = previousTreatments.some(t => t.status === "InTreatment");
+        const hasActiveTreatment = previousTreatments.some(
+          (t) => t.status === "InTreatment"
+        );
 
         return (
           <>
             {record?.appointmentService === "PreTestCounseling" ? (
-                <Button
+              <Button
                 onClick={() => handleOpenFormAdvise(record)}
-                  type="primary"
-                  icon={<FileTextOutlined />}
-                  className="action-button"
-                  size="small"
-                >
-                  Medical Advice & Register Test
-                </Button>
+                type="primary"
+                icon={<FileTextOutlined />}
+                className="action-button"
+                size="small"
+              >
+                Medical Advice & Register Test
+              </Button>
             ) : (
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2 justify-center">
-                <Button
+                  <Button
                     onClick={() => handleOpenFormAdvise(record)}
-                  type="primary"
-                  icon={<FileTextOutlined />}
-                  className="action-button"
-                  size="small"
-                >
-                   Register Test
-                </Button>
-               
-                <Button
+                    type="primary"
+                    icon={<FileTextOutlined />}
+                    className="action-button"
+                    size="small"
+                  >
+                    Register Test
+                  </Button>
+
+                  <Button
                     onClick={() => handleOpenTestResult(record)}
-                  type="primary"
-                  icon={<FileTextOutlined />}
-                  className="action-button"
-                  size="small"
-                >
-                  View Result Test
-                </Button>
+                    type="primary"
+                    icon={<FileTextOutlined />}
+                    className="action-button"
+                    size="small"
+                  >
+                    View Result Test
+                  </Button>
 
                   {isFollowUp && (
-                  <Button
-                      onClick={() => handleViewPreviousTreatment(record.patient?.patientId)}
-                    type="primary"
+                    <Button
+                      onClick={() =>
+                        handleViewPreviousTreatment(record.patient?.patientId)
+                      }
+                      type="primary"
                       icon={<FileTextOutlined />}
                       className="action-button"
                       size="small"
@@ -366,22 +386,22 @@ const CheckedInAppointmentToday = () => {
                     <Button
                       onClick={() => handleOpenTreatmentForm(record)}
                       type="primary"
+                      className="action-button"
+                      size="small"
+                    >
+                      Create Treatment
+                    </Button>
+                  )}
+
+                  <Button
+                    onClick={() => handleUpdateAppointmentCompleted(record)}
+                    type="primary"
+                    danger
                     className="action-button"
                     size="small"
                   >
-                    Create Treatment
+                    Done
                   </Button>
-                )}
-
-                <Button
-                    onClick={() => handleUpdateAppointmentCompleted(record)}
-                  type="primary"
-                    danger
-                  className="action-button"
-                  size="small"
-                >
-                   Done
-                </Button>
                 </div>
               </div>
             )}
@@ -403,14 +423,16 @@ const CheckedInAppointmentToday = () => {
       setTestResults(testResults);
 
       // Get latest PCR result
-      const pcrResults = testResults.filter(test => test.testType === "PCR");
-      const latestPCR = pcrResults.sort((a, b) => new Date(b.testDate) - new Date(a.testDate))[0];
+      const pcrResults = testResults.filter((test) => test.testType === "PCR");
+      const latestPCR = pcrResults.sort(
+        (a, b) => new Date(b.testDate) - new Date(a.testDate)
+      )[0];
       setLatestPCRResult(latestPCR);
 
       // Cập nhật trạng thái có thể tạo điều trị cho appointmentId này
-      setCanCreateTherapyMap(prev => ({
+      setCanCreateTherapyMap((prev) => ({
         ...prev,
-        [record.appointmentId]: testResults.length > 0
+        [record.appointmentId]: testResults.length > 0,
       }));
     } catch {
       toast.error("Error fetching test results");
@@ -458,61 +480,49 @@ const CheckedInAppointmentToday = () => {
     return api.post("/api/patient-treatments", data); // Sửa lại endpoint
   };
 
-  // Add function to fetch suggested regimens
+  useEffect(() => {
+    if (suggestedRegimen) {
+      const matchingRegimen = regimenOptions.find(
+        (r) => r.regimenId === suggestedRegimen.regimenId
+      );
+      setSelectedRegimen(matchingRegimen);
+      treatmentForm.setFieldValue("regimenId", suggestedRegimen.regimenId);
+    }
+  }, [suggestedRegimen]);
+
   const fetchSuggestedRegimens = async (values) => {
     setSuggestLoading(true);
     try {
-      const response = await api.post("/api/standard-arv-regimens/suggest-regimens", {
-        cD4Count: values.cD4Count,
-        hivViralLoadValue: values.hivViralLoadValue
-      });
-      
-      // Check if we have valid data in response
+      const response = await api.post(
+        "/api/standard-arv-regimens/suggest-regimens",
+        {
+          cD4Count: values.cD4Count,
+          hivViralLoadValue: values.hivViralLoadValue,
+        }
+      );
+
       if (response.data?.success && response.data?.data) {
         const suggested = response.data.data;
-        
-        // Update the form with the suggested regimen
-        setSuggestedRegimen(suggested); // Set regimen được gợi ý
-        toast.success(`Suggested regimen: ${suggested.regimenName}`);
+        setSuggestedRegimen(suggested);
+        toast.success(`Suggested regimen applied: ${suggested.regimenName}`);
       } else {
         setSuggestedRegimen(null);
+        setSelectedRegimen(null);
         toast.warning("No suitable regimen found for the given values");
       }
     } catch (error) {
       console.error("Error fetching suggested regimens:", error);
       toast.error("Failed to fetch suggested regimens");
       setSuggestedRegimen(null);
+      setSelectedRegimen(null);
     } finally {
       setSuggestLoading(false);
     }
   };
 
-  const handleViewPreviousTreatment = async (patientId) => {
-    try {
-      setLoadingPreviousTreatment(true);
-      const response = await api.get(`/api/patient-treatments/patient/${patientId}`);
-      // Kiểm tra và log dữ liệu để debug
-      console.log('API Response:', response.data);
-      
-      // Sửa lại cấu trúc dữ liệu theo response thực tế
-      const treatments = response.data?.data || [];
-      console.log('Treatments to display:', treatments);
-      
-      setPreviousTreatments(Array.isArray(treatments) ? treatments : [treatments]);
-      setPreviousTreatmentModalVisible(true);
-    } catch (error) {
-      console.error('Error fetching treatments:', error);
-      toast.error(
-        error?.response?.data?.message || "Error while fetching previous treatments"
-      );
-    } finally {
-      setLoadingPreviousTreatment(false);
-    }
-  };
-
   // Thêm useEffect để debug state previousTreatments
   useEffect(() => {
-    console.log('Previous Treatments State:', previousTreatments);
+    console.log("Previous Treatments State:", previousTreatments);
   }, [previousTreatments]);
 
   const handleOpenTreatmentForm = (record) => {
@@ -528,7 +538,7 @@ const CheckedInAppointmentToday = () => {
       reasonForChangeOrStop: "",
       regimenAdjustments: "",
       baselineCD4: latestPCRResult?.cD4Count || null,
-      baselineHivViralLoad: latestPCRResult?.hivViralLoadValue || null
+      baselineHivViralLoad: latestPCRResult?.hivViralLoadValue || null,
     });
     setOpenTreatmentModal(true);
   };
@@ -537,17 +547,24 @@ const CheckedInAppointmentToday = () => {
   const handleUpdateTreatment = async (values) => {
     try {
       setTreatmentLoading(true);
-      await api.put(`/api/patient-treatments/${currentEditTreatment.patientTreatmentId}`, {
-        ...values,
-        startDate: values.startDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-        expectedEndDate: values.expectedEndDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-      });
+      await api.put(
+        `/api/patient-treatments/${currentEditTreatment.patientTreatmentId}`,
+        {
+          ...values,
+          startDate: values.startDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+          expectedEndDate: values.expectedEndDate.format(
+            "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+          ),
+        }
+      );
       toast.success("Treatment updated successfully!");
       setEditTreatmentModalVisible(false);
       // Refresh treatment list
       handleViewPreviousTreatment(currentEditTreatment.patientId);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to update treatment");
+      toast.error(
+        error?.response?.data?.message || "Failed to update treatment"
+      );
     } finally {
       setTreatmentLoading(false);
     }
@@ -557,10 +574,13 @@ const CheckedInAppointmentToday = () => {
   const fetchSuggestedRegimensEdit = async (values) => {
     setSuggestLoading(true);
     try {
-      const response = await api.post("/api/standard-arv-regimens/suggest-regimens", {
-        cD4Count: values.cD4Count,
-        hivViralLoadValue: values.hivViralLoadValue
-      });
+      const response = await api.post(
+        "/api/standard-arv-regimens/suggest-regimens",
+        {
+          cD4Count: values.cD4Count,
+          hivViralLoadValue: values.hivViralLoadValue,
+        }
+      );
       if (response.data?.success && response.data?.data) {
         const suggested = response.data.data;
         setSuggestedRegimenEdit(suggested);
@@ -863,7 +883,7 @@ const CheckedInAppointmentToday = () => {
                         {result?.doctorPhoneNumber}
                       </Descriptions.Item>
 
-                       <Descriptions.Item label="Doctor Specialty">
+                      <Descriptions.Item label="Doctor Specialty">
                         {result?.doctorSpecialty}
                       </Descriptions.Item>
                     </Descriptions>
@@ -882,8 +902,7 @@ const CheckedInAppointmentToday = () => {
 
                   <div className="mt-3 text-right">
                     <Text type="secondary" className="text-xs">
-                      Patient Code:{" "}
-                      {result?.patientCodeAtFacility || "N/A"}
+                      Patient Code: {result?.patientCodeAtFacility || "N/A"}
                     </Text>
                   </div>
                 </Card>
@@ -896,9 +915,11 @@ const CheckedInAppointmentToday = () => {
       {/* Modal tạo điều trị */}
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#e53e3e', fontSize: 24 }}>❤️</span>
-            <span style={{ fontWeight: 600, fontSize: 20 }}>Create Therapy for Patient</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: "#e53e3e", fontSize: 24 }}>❤️</span>
+            <span style={{ fontWeight: 600, fontSize: 20 }}>
+              Create Therapy for Patient
+            </span>
           </div>
         }
         open={openTreatmentModal}
@@ -917,19 +938,27 @@ const CheckedInAppointmentToday = () => {
                 patientId: parseInt(values.patientId),
                 regimenId: parseInt(values.regimenId),
                 prescribingDoctorId: parseInt(values.prescribingDoctorId),
-                startDate: values.startDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-                expectedEndDate: values.expectedEndDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+                startDate: values.startDate.format(
+                  "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+                ),
+                expectedEndDate: values.expectedEndDate.format(
+                  "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+                ),
                 regimenAdjustments: values.regimenAdjustments || "string",
                 baselineCD4: parseInt(values.baselineCD4),
                 baselineHivViralLoad: values.baselineHivViralLoad || "string",
                 actualDosage: values.actualDosage || "string",
                 status: values.status || "InTreatment",
-                reasonForChangeOrStop: values.reasonForChangeOrStop || "string"
+                reasonForChangeOrStop: values.reasonForChangeOrStop || "string",
               };
 
               await createPatientTreatment(payload);
-              await handleUpdateAppointmentCompleted(treatmentRecordRef.current);
-              toast.success("Create treatment and complete appointment successfully!");
+              await handleUpdateAppointmentCompleted(
+                treatmentRecordRef.current
+              );
+              toast.success(
+                "Create treatment and complete appointment successfully!"
+              );
               setOpenTreatmentModal(false);
             } catch (error) {
               console.error("Treatment creation error:", error);
@@ -938,12 +967,18 @@ const CheckedInAppointmentToday = () => {
             setTreatmentLoading(false);
           }}
           onValuesChange={(changedValues) => {
-            if ('baselineCD4' in changedValues || 'baselineHivViralLoad' in changedValues) {
+            if (
+              "baselineCD4" in changedValues ||
+              "baselineHivViralLoad" in changedValues
+            ) {
               const currentValues = treatmentForm.getFieldsValue();
-              if (currentValues.baselineCD4 && currentValues.baselineHivViralLoad) {
+              if (
+                currentValues.baselineCD4 &&
+                currentValues.baselineHivViralLoad
+              ) {
                 fetchSuggestedRegimens({
                   cD4Count: currentValues.baselineCD4,
-                  hivViralLoadValue: currentValues.baselineHivViralLoad
+                  hivViralLoadValue: currentValues.baselineHivViralLoad,
                 });
               }
             }
@@ -976,18 +1011,37 @@ const CheckedInAppointmentToday = () => {
               <Form.Item
                 name="baselineCD4"
                 label="Baseline CD4"
-                rules={[{ required: true, message: "Please enter baseline CD4" }]}
-                tooltip={latestPCRResult?.testDate ? `From PCR test on ${new Date(latestPCRResult.testDate).toLocaleDateString()}` : null}
+                rules={[
+                  { required: true, message: "Please enter baseline CD4" },
+                ]}
+                tooltip={
+                  latestPCRResult?.testDate
+                    ? `From PCR test on ${new Date(
+                        latestPCRResult.testDate
+                      ).toLocaleDateString()}`
+                    : null
+                }
               >
-                <InputNumber style={{ width: '100%' }} min={0} disabled />
+                <InputNumber style={{ width: "100%" }} min={0} disabled />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="baselineHivViralLoad"
                 label="Baseline HIV Viral Load"
-                rules={[{ required: true, message: "Please enter baseline HIV viral load" }]}
-                tooltip={latestPCRResult?.testDate ? `From PCR test on ${new Date(latestPCRResult.testDate).toLocaleDateString()}` : null}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter baseline HIV viral load",
+                  },
+                ]}
+                tooltip={
+                  latestPCRResult?.testDate
+                    ? `From PCR test on ${new Date(
+                        latestPCRResult.testDate
+                      ).toLocaleDateString()}`
+                    : null
+                }
               >
                 <Input disabled />
               </Form.Item>
@@ -997,7 +1051,9 @@ const CheckedInAppointmentToday = () => {
           <Form.Item
             name="regimenId"
             label={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
                 <span>Regimen</span>
                 <Button
                   type="primary"
@@ -1006,66 +1062,118 @@ const CheckedInAppointmentToday = () => {
                   onClick={() => {
                     const values = treatmentForm.getFieldsValue();
                     if (!values.baselineCD4 || !values.baselineHivViralLoad) {
-                      toast.error("Please ensure CD4 and HIV Viral Load values are available");
+                      toast.error(
+                        "Please ensure CD4 and HIV Viral Load values are available"
+                      );
                       return;
                     }
                     fetchSuggestedRegimens({
                       cD4Count: values.baselineCD4,
-                      hivViralLoadValue: values.baselineHivViralLoad
+                      hivViralLoadValue: values.baselineHivViralLoad,
+                    }).then(() => {
+                      // Auto select suggested regimen when available
+                      if (suggestedRegimen) {
+                        treatmentForm.setFieldValue(
+                          "regimenId",
+                          suggestedRegimen.regimenId
+                        );
+                        setSelectedRegimen(suggestedRegimen);
+                      }
                     });
                   }}
                   icon={<ReloadOutlined />}
                 >
                   Suggest
                 </Button>
-                {suggestLoading ? (
-                  <Spin size="small" />
-                ) : suggestedRegimen && (
-                  <Tag color="blue">
-                    Suggested: {suggestedRegimen.regimenName}
-                  </Tag>
-                )}
+                
               </div>
             }
             rules={[{ required: true, message: "Please select regimen" }]}
           >
-                <Select
+            <Select
               placeholder="Select regimen"
-                  loading={regimenOptions.length === 0}
+              loading={regimenOptions.length === 0}
               onChange={(value) => {
-                const selectedReg = regimenOptions.find(reg => reg.regimenId === value);
+                const selectedReg = regimenOptions.find(
+                  (reg) => reg.regimenId === value
+                );
                 setSelectedRegimen(selectedReg);
-                  }}
-                >
-                  {regimenOptions.map(item => (
-                    <Select.Option key={item.regimenId} value={item.regimenId}>
-                      {item.regimenName}
-                    </Select.Option>
-                  ))}
-                </Select>
+              }}
+              value={treatmentForm.getFieldValue("regimenId")}
+            >
+              {regimenOptions.map((item) => (
+                <Select.Option key={item.regimenId} value={item.regimenId}>
+                  {item.regimenName}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
-                {selectedRegimen && (
-            <div style={{ marginBottom: 16, background: "#f8fafc", borderRadius: 8, padding: 12, border: "1px solid #e0e7ef" }}>
-                    <div><b>Description:</b> {selectedRegimen.detailedDescription}</div>
-                    <div><b>Target:</b> {selectedRegimen.targetPopulation}</div>
-                    <div><b>Dosage:</b> {selectedRegimen.standardDosage}</div>
-                    <div><b>Contraindications:</b> {selectedRegimen.contraindications}</div>
-                    <div><b>Side Effects:</b> {selectedRegimen.commonSideEffects}</div>
-                  </div>
-                )}
+          {selectedRegimen && (
+            <div
+              style={{
+                marginBottom: 16,
+                background: "#f8fafc",
+                borderRadius: 8,
+                padding: 12,
+                border: "1px solid #e0e7ef",
+              }}
+            >
+              <div>
+                <b>Description:</b> {selectedRegimen.detailedDescription}
+              </div>
+              <div>
+                <b>Target:</b> {selectedRegimen.targetPopulation}
+              </div>
+              <div>
+                <b>Dosage:</b> {selectedRegimen.standardDosage}
+              </div>
+              <div>
+                <b>Contraindications:</b> {selectedRegimen.contraindications}
+              </div>
+              <div>
+                <b>Side Effects:</b> {selectedRegimen.commonSideEffects}
+              </div>
+            </div>
+          )}
 
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="startDate"
                 label="Start Date"
-                rules={[{ required: true, message: "Please select start date" }]}
+                rules={[
+                  { required: true, message: "Please select start date" },
+                ]}
               >
                 <DatePicker
                   showTime
                   format="YYYY-MM-DD HH:mm:ss"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
+                  onChange={(date) => {
+                    if (date) {
+                      const currentRegimenId =
+                        treatmentForm.getFieldValue("regimenId");
+                      let endDate;
+
+                      switch (currentRegimenId) {
+                        case 1:
+                          endDate = date.clone().add(6, "months");
+                          break;
+                        case 2:
+                          endDate = date.clone().add(12, "months");
+                          break;
+                        case 3:
+                          endDate = date.clone().add(18, "months");
+                          break;
+                        default:
+                          endDate = date.clone().add(6, "months");
+                      }
+
+                     
+                      treatmentForm.setFieldValue("expectedEndDate", endDate);
+                    }
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -1073,12 +1181,17 @@ const CheckedInAppointmentToday = () => {
               <Form.Item
                 name="expectedEndDate"
                 label="Expected End Date"
-                rules={[{ required: true, message: "Please select expected end date" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select expected end date",
+                  },
+                ]}
               >
                 <DatePicker
                   showTime
                   format="YYYY-MM-DD HH:mm:ss"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                 />
               </Form.Item>
             </Col>
@@ -1100,15 +1213,11 @@ const CheckedInAppointmentToday = () => {
           >
             <Select>
               <Select.Option value="InTreatment">In Treatment</Select.Option>
-              <Select.Option value="Completed">Completed</Select.Option>
               <Select.Option value="Discontinued">Discontinued</Select.Option>
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="regimenAdjustments"
-            label="Regimen Adjustments"
-          >
+          <Form.Item name="regimenAdjustments" label="Regimen Adjustments">
             <Input.TextArea rows={3} />
           </Form.Item>
 
@@ -1124,7 +1233,12 @@ const CheckedInAppointmentToday = () => {
               <Button onClick={() => treatmentForm.resetFields()}>Reset</Button>
             </Col>
             <Col>
-              <Button type="primary" htmlType="submit" loading={treatmentLoading} style={{ background: '#e53e3e', border: 'none' }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={treatmentLoading}
+                style={{ background: "#e53e3e", border: "none" }}
+              >
                 Create Therapy
               </Button>
             </Col>
@@ -1134,9 +1248,11 @@ const CheckedInAppointmentToday = () => {
 
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#e53e3e', fontSize: 24 }}>❤️</span>
-            <span style={{ fontWeight: 600, fontSize: 20 }}>Previous Treatment History</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: "#e53e3e", fontSize: 24 }}>❤️</span>
+            <span style={{ fontWeight: 600, fontSize: 20 }}>
+              Previous Treatment History
+            </span>
           </div>
         }
         open={previousTreatmentModalVisible}
@@ -1161,96 +1277,212 @@ const CheckedInAppointmentToday = () => {
               dataSource={previousTreatments}
               renderItem={(treatment) => (
                 <List.Item key={treatment.patientTreatmentId}>
-                  <Card style={{ width: '100%' }} className="mb-4">
+                  <Card style={{ width: "100%" }} className="mb-4">
                     <div style={{ marginBottom: 16 }}>
-                      <Tag color={
-                        treatment.status === 'InTreatment' ? 'processing' :
-                        treatment.status === 'Completed' ? 'success' :
-                        'error'
-                      } style={{ padding: '4px 8px', marginBottom: 8 }}>
+                      <Tag
+                        color={
+                          treatment.status === "InTreatment"
+                            ? "processing"
+                            : treatment.status === "Completed"
+                            ? "success"
+                            : "error"
+                        }
+                        style={{ padding: "4px 8px", marginBottom: 8 }}
+                      >
                         Status: {treatment.status}
                       </Tag>
                     </div>
 
-          <Row gutter={16}>
-            <Col span={12}>
-                        <Form.Item label="Patient ID" style={{ marginBottom: 12 }}>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Patient ID"
+                          style={{ marginBottom: 12 }}
+                        >
                           <Input value={treatment.patientId} disabled />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item label="Doctor ID" style={{ marginBottom: 12 }}>
-                          <Input value={treatment.prescribingDoctorId} disabled />
+                        <Form.Item
+                          label="Doctor ID"
+                          style={{ marginBottom: 12 }}
+                        >
+                          <Input
+                            value={treatment.prescribingDoctorId}
+                            disabled
+                          />
                         </Form.Item>
                       </Col>
                     </Row>
 
                     {/* Thêm phần hiển thị thông tin ARV */}
-                    <div style={{ marginBottom: 16, background: "#f8fafc", borderRadius: 8, padding: 12, border: "1px solid #e0e7ef" }}>
-                      <Title level={5} style={{ marginBottom: 12 }}>ARV Regimen Information</Title>
+                    <div
+                      style={{
+                        marginBottom: 16,
+                        background: "#f8fafc",
+                        borderRadius: 8,
+                        padding: 12,
+                        border: "1px solid #e0e7ef",
+                      }}
+                    >
+                      <Title level={5} style={{ marginBottom: 12 }}>
+                        ARV Regimen Information
+                      </Title>
                       <Descriptions bordered size="small" column={1}>
-                        <Descriptions.Item label={<strong>Regimen Name</strong>}>
-                          {regimenOptions.find(r => r.regimenId === treatment.regimenId)?.regimenName || 'N/A'}
+                        <Descriptions.Item
+                          label={<strong>Regimen Name</strong>}
+                        >
+                          {regimenOptions.find(
+                            (r) => r.regimenId === treatment.regimenId
+                          )?.regimenName || "N/A"}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<strong>Standard Dosage</strong>}>
-                          {regimenOptions.find(r => r.regimenId === treatment.regimenId)?.standardDosage || 'N/A'}
+                        <Descriptions.Item
+                          label={<strong>Standard Dosage</strong>}
+                        >
+                          {regimenOptions.find(
+                            (r) => r.regimenId === treatment.regimenId
+                          )?.standardDosage || "N/A"}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<strong>Target Population</strong>}>
-                          {regimenOptions.find(r => r.regimenId === treatment.regimenId)?.targetPopulation || 'N/A'}
+                        <Descriptions.Item
+                          label={<strong>Target Population</strong>}
+                        >
+                          {regimenOptions.find(
+                            (r) => r.regimenId === treatment.regimenId
+                          )?.targetPopulation || "N/A"}
                         </Descriptions.Item>
                         <Descriptions.Item label={<strong>Description</strong>}>
-                          {regimenOptions.find(r => r.regimenId === treatment.regimenId)?.detailedDescription || 'N/A'}
+                          {regimenOptions.find(
+                            (r) => r.regimenId === treatment.regimenId
+                          )?.detailedDescription || "N/A"}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<strong>Side Effects</strong>}>
-                          {regimenOptions.find(r => r.regimenId === treatment.regimenId)?.commonSideEffects || 'N/A'}
+                        <Descriptions.Item
+                          label={<strong>Side Effects</strong>}
+                        >
+                          {regimenOptions.find(
+                            (r) => r.regimenId === treatment.regimenId
+                          )?.commonSideEffects || "N/A"}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<strong>Contraindications</strong>}>
-                          {regimenOptions.find(r => r.regimenId === treatment.regimenId)?.contraindications || 'N/A'}
+                        <Descriptions.Item
+                          label={<strong>Contraindications</strong>}
+                        >
+                          {regimenOptions.find(
+                            (r) => r.regimenId === treatment.regimenId
+                          )?.contraindications || "N/A"}
                         </Descriptions.Item>
                       </Descriptions>
                     </div>
 
                     <Row gutter={16}>
                       <Col span={12}>
-                        <Form.Item label="Baseline CD4" style={{ marginBottom: 12 }}>
+                        <Form.Item
+                          label="Baseline CD4"
+                          style={{ marginBottom: 12 }}
+                        >
                           <Input value={treatment.baselineCD4} disabled />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item label="Baseline HIV Viral Load" style={{ marginBottom: 12 }}>
-                          <Input value={treatment.baselineHivViralLoad} disabled />
+                        <Form.Item
+                          label="Baseline HIV Viral Load"
+                          style={{ marginBottom: 12 }}
+                        >
+                          <Input
+                            value={treatment.baselineHivViralLoad}
+                            disabled
+                          />
                         </Form.Item>
                       </Col>
                     </Row>
 
-                    <div style={{ marginBottom: 16, background: "#f8fafc", borderRadius: 8, padding: 12, border: "1px solid #e0e7ef" }}>
-                      <Title level={5} style={{ marginBottom: 12 }}>Treatment Period</Title>
+                    <div
+                      style={{
+                        marginBottom: 16,
+                        background: "#f8fafc",
+                        borderRadius: 8,
+                        padding: 12,
+                        border: "1px solid #e0e7ef",
+                      }}
+                    >
+                      <Title level={5} style={{ marginBottom: 12 }}>
+                        Treatment Period
+                      </Title>
                       <Row gutter={16}>
                         <Col span={12}>
-                          <Form.Item label="Start Date" style={{ marginBottom: 12 }}>
-                            <Input value={dayjs(treatment.startDate).format('DD/MM/YYYY HH:mm')} disabled />
+                          <Form.Item
+                            label="Start Date"
+                            style={{ marginBottom: 12 }}
+                          >
+                            <Input
+                              value={dayjs(treatment.startDate).format(
+                                "DD/MM/YYYY HH:mm"
+                              )}
+                              disabled
+                            />
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item label="Expected End Date" style={{ marginBottom: 12 }}>
-                            <Input value={treatment.expectedEndDate ? dayjs(treatment.expectedEndDate).format('DD/MM/YYYY HH:mm') : 'Ongoing'} disabled />
+                          <Form.Item
+                            label="Expected End Date"
+                            style={{ marginBottom: 12 }}
+                          >
+                            <Input
+                              value={
+                                treatment.expectedEndDate
+                                  ? dayjs(treatment.expectedEndDate).format(
+                                      "DD/MM/YYYY HH:mm"
+                                    )
+                                  : "Ongoing"
+                              }
+                              disabled
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
                     </div>
 
-                    <div style={{ marginBottom: 16, background: "#f8fafc", borderRadius: 8, padding: 12, border: "1px solid #e0e7ef" }}>
-                      <Title level={5} style={{ marginBottom: 12 }}>Treatment Details</Title>
-                      <Form.Item label="Actual Dosage" style={{ marginBottom: 12 }}>
-                        <Input.TextArea value={treatment.actualDosage} disabled rows={2} />
+                    <div
+                      style={{
+                        marginBottom: 16,
+                        background: "#f8fafc",
+                        borderRadius: 8,
+                        padding: 12,
+                        border: "1px solid #e0e7ef",
+                      }}
+                    >
+                      <Title level={5} style={{ marginBottom: 12 }}>
+                        Treatment Details
+                      </Title>
+                      <Form.Item
+                        label="Actual Dosage"
+                        style={{ marginBottom: 12 }}
+                      >
+                        <Input.TextArea
+                          value={treatment.actualDosage}
+                          disabled
+                          rows={2}
+                        />
                       </Form.Item>
 
-                      <Form.Item label="Regimen Adjustments" style={{ marginBottom: 12 }}>
-                        <Input.TextArea value={treatment.regimenAdjustments} disabled rows={3} />
+                      <Form.Item
+                        label="Regimen Adjustments"
+                        style={{ marginBottom: 12 }}
+                      >
+                        <Input.TextArea
+                          value={treatment.regimenAdjustments}
+                          disabled
+                          rows={3}
+                        />
                       </Form.Item>
 
-                      <Form.Item label="Reason for Change/Stop" style={{ marginBottom: 12 }}>
-                        <Input.TextArea value={treatment.reasonForChangeOrStop} disabled rows={3} />
+                      <Form.Item
+                        label="Reason for Change/Stop"
+                        style={{ marginBottom: 12 }}
+                      >
+                        <Input.TextArea
+                          value={treatment.reasonForChangeOrStop}
+                          disabled
+                          rows={3}
+                        />
                       </Form.Item>
                     </div>
                   </Card>
@@ -1264,9 +1496,11 @@ const CheckedInAppointmentToday = () => {
       {/* Thêm Modal Edit Treatment */}
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#e53e3e', fontSize: 24 }}>❤️</span>
-            <span style={{ fontWeight: 600, fontSize: 20 }}>Edit Treatment</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: "#e53e3e", fontSize: 24 }}>❤️</span>
+            <span style={{ fontWeight: 600, fontSize: 20 }}>
+              Edit Treatment
+            </span>
           </div>
         }
         open={editTreatmentModalVisible}
@@ -1281,13 +1515,19 @@ const CheckedInAppointmentToday = () => {
             layout="vertical"
             onFinish={handleUpdateTreatment}
             onValuesChange={(changedValues) => {
-              if ('baselineCD4' in changedValues || 'baselineHivViralLoad' in changedValues) {
+              if (
+                "baselineCD4" in changedValues ||
+                "baselineHivViralLoad" in changedValues
+              ) {
                 const currentValues = editTreatmentForm.getFieldsValue();
-                if (currentValues.baselineCD4 && currentValues.baselineHivViralLoad) {
+                if (
+                  currentValues.baselineCD4 &&
+                  currentValues.baselineHivViralLoad
+                ) {
                   // Gợi ý lại regimen khi đổi CD4/HIV
                   fetchSuggestedRegimensEdit({
                     cD4Count: currentValues.baselineCD4,
-                    hivViralLoadValue: currentValues.baselineHivViralLoad
+                    hivViralLoadValue: currentValues.baselineHivViralLoad,
                   });
                 }
               }
@@ -1310,18 +1550,37 @@ const CheckedInAppointmentToday = () => {
                 <Form.Item
                   name="baselineCD4"
                   label="Baseline CD4"
-                  rules={[{ required: true, message: "Please enter baseline CD4" }]}
-                  tooltip={latestPCRResultEdit?.testDate ? `From PCR test on ${new Date(latestPCRResultEdit.testDate).toLocaleDateString()}` : null}
+                  rules={[
+                    { required: true, message: "Please enter baseline CD4" },
+                  ]}
+                  tooltip={
+                    latestPCRResultEdit?.testDate
+                      ? `From PCR test on ${new Date(
+                          latestPCRResultEdit.testDate
+                        ).toLocaleDateString()}`
+                      : null
+                  }
                 >
-                  <InputNumber style={{ width: '100%' }} min={0} />
+                  <InputNumber style={{ width: "100%" }} min={0} />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
                   name="baselineHivViralLoad"
                   label="Baseline HIV Viral Load"
-                  rules={[{ required: true, message: "Please enter baseline HIV viral load" }]}
-                  tooltip={latestPCRResultEdit?.testDate ? `From PCR test on ${new Date(latestPCRResultEdit.testDate).toLocaleDateString()}` : null}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter baseline HIV viral load",
+                    },
+                  ]}
+                  tooltip={
+                    latestPCRResultEdit?.testDate
+                      ? `From PCR test on ${new Date(
+                          latestPCRResultEdit.testDate
+                        ).toLocaleDateString()}`
+                      : null
+                  }
                 >
                   <Input />
                 </Form.Item>
@@ -1330,7 +1589,9 @@ const CheckedInAppointmentToday = () => {
             <Form.Item
               name="regimenId"
               label={
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
                   <span>Regimen</span>
                   <Button
                     type="primary"
@@ -1339,12 +1600,14 @@ const CheckedInAppointmentToday = () => {
                     onClick={() => {
                       const values = editTreatmentForm.getFieldsValue();
                       if (!values.baselineCD4 || !values.baselineHivViralLoad) {
-                        toast.error("Please ensure CD4 and HIV Viral Load values are available");
+                        toast.error(
+                          "Please ensure CD4 and HIV Viral Load values are available"
+                        );
                         return;
                       }
                       fetchSuggestedRegimensEdit({
                         cD4Count: values.baselineCD4,
-                        hivViralLoadValue: values.baselineHivViralLoad
+                        hivViralLoadValue: values.baselineHivViralLoad,
                       });
                     }}
                     icon={<ReloadOutlined />}
@@ -1353,10 +1616,12 @@ const CheckedInAppointmentToday = () => {
                   </Button>
                   {suggestLoading ? (
                     <Spin size="small" />
-                  ) : suggestedRegimenEdit && (
-                    <Tag color="blue">
-                      Suggested: {suggestedRegimenEdit.regimenName}
-                    </Tag>
+                  ) : (
+                    suggestedRegimenEdit && (
+                      <Tag color="blue">
+                        Suggested: {suggestedRegimenEdit.regimenName}
+                      </Tag>
+                    )
                   )}
                 </div>
               }
@@ -1366,11 +1631,13 @@ const CheckedInAppointmentToday = () => {
                 placeholder="Select regimen"
                 loading={regimenOptions.length === 0}
                 onChange={(value) => {
-                  const selectedReg = regimenOptions.find(reg => reg.regimenId === value);
+                  const selectedReg = regimenOptions.find(
+                    (reg) => reg.regimenId === value
+                  );
                   setSelectedRegimenEdit(selectedReg);
                 }}
               >
-                {regimenOptions.map(item => (
+                {regimenOptions.map((item) => (
                   <Select.Option key={item.regimenId} value={item.regimenId}>
                     {item.regimenName}
                   </Select.Option>
@@ -1378,12 +1645,31 @@ const CheckedInAppointmentToday = () => {
               </Select>
             </Form.Item>
             {selectedRegimenEdit && (
-              <div style={{ marginBottom: 16, background: "#f8fafc", borderRadius: 8, padding: 12, border: "1px solid #e0e7ef" }}>
-                <div><b>Description:</b> {selectedRegimenEdit.detailedDescription}</div>
-                <div><b>Target:</b> {selectedRegimenEdit.targetPopulation}</div>
-                <div><b>Dosage:</b> {selectedRegimenEdit.standardDosage}</div>
-                <div><b>Contraindications:</b> {selectedRegimenEdit.contraindications}</div>
-                <div><b>Side Effects:</b> {selectedRegimenEdit.commonSideEffects}</div>
+              <div
+                style={{
+                  marginBottom: 16,
+                  background: "#f8fafc",
+                  borderRadius: 8,
+                  padding: 12,
+                  border: "1px solid #e0e7ef",
+                }}
+              >
+                <div>
+                  <b>Description:</b> {selectedRegimenEdit.detailedDescription}
+                </div>
+                <div>
+                  <b>Target:</b> {selectedRegimenEdit.targetPopulation}
+                </div>
+                <div>
+                  <b>Dosage:</b> {selectedRegimenEdit.standardDosage}
+                </div>
+                <div>
+                  <b>Contraindications:</b>{" "}
+                  {selectedRegimenEdit.contraindications}
+                </div>
+                <div>
+                  <b>Side Effects:</b> {selectedRegimenEdit.commonSideEffects}
+                </div>
               </div>
             )}
             <Row gutter={16}>
@@ -1396,11 +1682,11 @@ const CheckedInAppointmentToday = () => {
                   <DatePicker
                     showTime
                     format="YYYY-MM-DD HH:mm:ss"
-                    style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
                 <Form.Item
                   name="expectedEndDate"
                   label="Expected End Date"
@@ -1409,18 +1695,18 @@ const CheckedInAppointmentToday = () => {
                   <DatePicker
                     showTime
                     format="YYYY-MM-DD HH:mm:ss"
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                   />
-              </Form.Item>
-            </Col>
-          </Row>
+                </Form.Item>
+              </Col>
+            </Row>
             <Form.Item
               name="actualDosage"
               label="Actual Dosage"
               rules={[{ required: true }]}
             >
               <Input.TextArea rows={2} />
-          </Form.Item>
+            </Form.Item>
             <Form.Item
               name="status"
               label="Status"
@@ -1431,11 +1717,8 @@ const CheckedInAppointmentToday = () => {
                 <Select.Option value="Completed">Completed</Select.Option>
                 <Select.Option value="Discontinued">Discontinued</Select.Option>
               </Select>
-          </Form.Item>
-            <Form.Item
-              name="regimenAdjustments"
-              label="Regimen Adjustments"
-            >
+            </Form.Item>
+            <Form.Item name="regimenAdjustments" label="Regimen Adjustments">
               <Input.TextArea rows={3} />
             </Form.Item>
             <Form.Item
@@ -1443,20 +1726,24 @@ const CheckedInAppointmentToday = () => {
               label="Reason for Change or Stop"
             >
               <Input.TextArea rows={3} />
-          </Form.Item>
-          <Row justify="end" gutter={16}>
-            <Col>
+            </Form.Item>
+            <Row justify="end" gutter={16}>
+              <Col>
                 <Button onClick={() => setEditTreatmentModalVisible(false)}>
                   Cancel
                 </Button>
-            </Col>
-            <Col>
-                <Button type="primary" htmlType="submit" loading={treatmentLoading}>
+              </Col>
+              <Col>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={treatmentLoading}
+                >
                   Update Treatment
                 </Button>
-            </Col>
-          </Row>
-        </Form>
+              </Col>
+            </Row>
+          </Form>
         )}
       </Modal>
     </div>
