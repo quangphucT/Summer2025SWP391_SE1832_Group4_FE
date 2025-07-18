@@ -491,34 +491,39 @@ const CheckedInAppointmentToday = () => {
   }, [suggestedRegimen]);
 
   const fetchSuggestedRegimens = async (values) => {
-    setSuggestLoading(true);
-    try {
-      const response = await api.post(
-        "/api/standard-arv-regimens/suggest-regimens",
-        {
-          cD4Count: values.cD4Count,
-          hivViralLoadValue: values.hivViralLoadValue,
-        }
-      );
+  setSuggestLoading(true);
+  try {
+    const response = await api.post("/api/standard-arv-regimens/suggest-regimens", {
+      cD4Count: values.cD4Count,
+      hivViralLoadValue: values.hivViralLoadValue,
+    });
 
-      if (response.data?.success && response.data?.data) {
-        const suggested = response.data.data;
-        setSuggestedRegimen(suggested);
-        toast.success(`Suggested regimen applied: ${suggested.regimenName}`);
-      } else {
-        setSuggestedRegimen(null);
-        setSelectedRegimen(null);
-        toast.warning("No suitable regimen found for the given values");
-      }
-    } catch (error) {
-      console.error("Error fetching suggested regimens:", error);
-      toast.error("Failed to fetch suggested regimens");
+    if (response.data?.success && response.data?.data) {
+      const suggested = response.data.data;
+      setSuggestedRegimen(suggested);
+      
+
+      treatmentForm.setFieldValue("regimenId", suggested.regimenId);
+      setSelectedRegimen(suggested);
+      
+
+      treatmentForm.setFieldValue("status", "InTreatment");
+      
+      toast.success(`Suggested regimen applied: ${suggested.regimenName}`);
+    } else {
       setSuggestedRegimen(null);
       setSelectedRegimen(null);
-    } finally {
-      setSuggestLoading(false);
+      toast.warning("No suitable regimen found for the given values");
     }
-  };
+  } catch (error) {
+    console.error("Error fetching suggested regimens:", error);
+    toast.error("Failed to fetch suggested regimens");
+    setSuggestedRegimen(null);
+    setSelectedRegimen(null);
+  } finally {
+    setSuggestLoading(false);
+  }
+};
 
   // Thêm useEffect để debug state previousTreatments
   useEffect(() => {
@@ -1213,7 +1218,6 @@ const CheckedInAppointmentToday = () => {
           >
             <Select>
               <Select.Option value="InTreatment">In Treatment</Select.Option>
-              <Select.Option value="Discontinued">Discontinued</Select.Option>
             </Select>
           </Form.Item>
 
