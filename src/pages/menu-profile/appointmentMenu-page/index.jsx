@@ -13,6 +13,8 @@ import {
   Statistic,
   Button,
   Modal,
+  Form,
+  message,
 } from "antd";
 import {
   SearchOutlined,
@@ -29,6 +31,8 @@ import { getAllAppointmentsFollowingDoctor } from "../../../apis/appointmentAPI/
 import { useSelector } from "react-redux";
 import ResultModal from "../../../components/atoms/ModalResult";
 import { getResultTestHIV } from "../../../apis/Results/getResultTestHIVAPI";
+import { useDispatch } from 'react-redux';
+import { addFeedback, editFeedback, fetchFeedbacks } from '../../../redux/feature/feedbackSlice';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -43,6 +47,10 @@ const AppointmentMenuPage = () => {
   const accountID = useSelector((store) => store?.user?.accountID);
   const [resultData, setResultData] = useState({});
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+
+  // Add state for feedback modal
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [selectedFeedbackAppointmentId, setSelectedFeedbackAppointmentId] = useState(null);
 
   useEffect(() => {
     const fetchingDataAppointmentCustomer = async () => {
@@ -151,6 +159,216 @@ const AppointmentMenuPage = () => {
 
   const hivProcess = getHIVScreeningProcess();
 
+  const handleOpenModalResult = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
+    setOpen(true);
+  };
+
+  const handleOpenFeedback = (appointmentId) => {
+    setSelectedFeedbackAppointmentId(appointmentId);
+    setFeedbackModalOpen(true);
+  };
+
+  const fetchAppointmentResult = useCallback(async () => {
+    try {
+      // Fetch appointment result logic here
+      const result = await getResultTestHIV(selectedAppointmentId);
+      const firstResult = result.data.data;
+      setResultData(firstResult);
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Error fetching appointment result"
+      );
+    }
+  }, [selectedAppointmentId]);
+  
+  useEffect(() => {
+    if (open && selectedAppointmentId) {
+      fetchAppointmentResult();
+    }
+  }, [open, selectedAppointmentId, fetchAppointmentResult]);
+
+  // Feedback tags (customize as needed)
+  const feedbackTags = [
+    "Long waiting time",
+    "Unclear instructions",
+    "Unfriendly staff",
+    "Uncomfortable environment",
+    "Other"
+  ];
+
+  // FeedbackModal component
+  const FeedbackModal = ({ open, onClose, appointmentId }) => {
+    const dispatch = useDispatch();
+    const [form] = Form.useForm();
+    const [submitting, setSubmitting] = useState(false);
+    const [loadingFeedback, setLoadingFeedback] = useState(false);
+    const [feedbackId, setFeedbackId] = useState(null);
+    const [patientId, setPatientId] = useState(null);
+    const [, forceUpdate] = useState({}); // Add this line
+
+    useEffect(() => {
+      if (open && appointmentId) {
+        setLoadingFeedback(true);
+        dispatch(fetchFeedbacks({ appointmentId }))
+          .unwrap()
+          .then(res => {
+            let fb = null;
+            if (Array.isArray(res.data?.data?.feedbacks)) {
+              const feedbacks = res.data.data.feedbacks.filter(f => f.appointmentId === appointmentId);
+              fb = feedbacks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+            } else if (res.data?.data && !Array.isArray(res.data.data)) {
+              fb = res.data.data;
+            }
+            if (fb) {
+              setFeedbackId(fb.feedbackId);
+              setPatientId(fb.patientId);
+              form.setFieldsValue({
+                comment: fb.comment || '',
+                rating: fb.rating,
+              });
+            } else {
+              setFeedbackId(null);
+              setPatientId(null);
+              form.resetFields();
+            }
+          })
+          .finally(() => setLoadingFeedback(false));
+      } else if (!open) {
+        setFeedbackId(null);
+        setPatientId(null);
+        form.resetFields();
+      }
+    }, [open, appointmentId, dispatch, form]);
+
+    const handleTagClick = (tag) => {
+      const currentComment = form.getFieldValue('comment') || '';
+      const tags = currentComment.split(',').map(t => t.trim()).filter(Boolean);
+      let newTags;
+      if (tags.includes(tag)) {
+        newTags = tags.filter(t => t !== tag);
+      } else {
+        newTags = [...tags, tag];
+      }
+      form.setFieldsValue({ comment: newTags.join(', ') });
+      forceUpdate({}); // Force re-render so tag UI updates
+    };
+
+    const handleSubmit = async (values) => {
+      if (!values.rating) {
+        message.warning('Please select your rating!');
+        return;
+      }
+      setSubmitting(true);
+      const comment = values.comment || '';
+      try {
+        if (feedbackId) {
+          await dispatch(
+            editFeedback({ id: feedbackId, data: { appointmentId, patientId, rating: values.rating, comment } })
+          ).unwrap();
+        } else {
+          await dispatch(
+            addFeedback({ appointmentId, rating: values.rating, comment })
+          ).unwrap();
+        }
+        toast.success('Feedback submitted successfully!');
+        onClose();
+      } catch {
+        toast.error('Failed to submit feedback!');
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    return (
+      <Modal open={open} onCancel={onClose} footer={null} title="Feedback" destroyOnClose>
+        {loadingFeedback ? (
+          <Spin style={{ margin: '32px 0' }} />
+        ) : (
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            initialValues={{ rating: null, comment: '' }}
+          >
+            <Form.Item name="rating" style={{ marginBottom: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 12, margin: '16px 0' }}>
+                {[1,2,3,4,5].map((num) => (
+                  <span
+                    key={num}
+                    style={{
+                      fontSize: 32,
+                      cursor: 'pointer',
+                      filter: form.getFieldValue('rating') === num ? 'none' : 'grayscale(1)',
+                      transition: 'filter 0.2s',
+                    }}
+                    onClick={() => {
+                      form.setFieldsValue({ rating: num });
+                      forceUpdate({});
+                    }}
+                    role="img"
+                    aria-label={`rating-${num}`}
+                  >
+                    {num === 1 ? '😡' : num === 2 ? '😕' : num === 3 ? '🙂' : num === 4 ? '😊' : '😍'}
+                  </span>
+                ))}
+              </div>
+            </Form.Item>
+            <Form.Item name="comment" style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 12 }}>
+                {feedbackTags.map((tag) => {
+                  const tags = (form.getFieldValue('comment') || '').split(',').map(t => t.trim()).filter(Boolean);
+                  return (
+                    <span
+                      key={tag}
+                      onClick={() => handleTagClick(tag)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 8,
+                        background: tags.includes(tag) ? '#6366f1' : '#e0e7ff',
+                        color: tags.includes(tag) ? '#fff' : '#222',
+                        cursor: 'pointer',
+                        border: tags.includes(tag) ? '1px solid #6366f1' : '1px solid #e0e7ff',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  );
+                })}
+              </div>
+              <textarea
+                placeholder="Other suggestions…"
+                style={{ width: '100%', minHeight: 60, borderRadius: 8, border: '1px solid #cbd5e1', padding: 8, resize: 'vertical' }}
+                value={form.getFieldValue('comment') || ''}
+                onChange={e => {
+                  form.setFieldsValue({ comment: e.target.value });
+                  forceUpdate({});
+                }}
+              />
+            </Form.Item>
+            <Button
+              htmlType="submit"
+              loading={submitting}
+              style={{
+                width: '100%',
+                background: '#6366f1',
+                color: '#fff',
+                fontWeight: 600,
+                borderRadius: 8,
+                height: 40,
+                fontSize: 16,
+                marginTop: 8
+              }}
+            >
+              {feedbackId ? 'Update Feedback' : 'Submit'}
+            </Button>
+          </Form>
+        )}
+      </Modal>
+    );
+  };
+
   const columns = [
     {
       title: "Appointment ID",
@@ -256,69 +474,51 @@ const AppointmentMenuPage = () => {
   dataIndex: "appointmentId",
   key: "appointmentId",
   width: 120,
-  render: (appointmentId, record) => {
-    if (record.appointmentType === "Consultation") {
-      return (
+  render: (appointmentId, record) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {record.appointmentType === "Consultation" ? (
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          size="large"
+          style={{
+            backgroundColor: "orange",
+            fontWeight: "500",
+            borderRadius: "26px",
+          }}
+        >
+          View Note
+        </Button>
+      ) : (
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          onClick={() => handleOpenModalResult(appointmentId)}
+          size="large"
+          style={{
+            backgroundColor: "#1976d2",
+            borderColor: "#1976d2",
+            fontWeight: "500",
+            borderRadius: "6px",
+          }}
+        >
+          Check Result
+        </Button>
+      )}
       <Button
-        type="primary"
-        icon={<EyeOutlined />}
-        size="large"
-        style={{
-          backgroundColor: "orange",
-          fontWeight: "500",
-          borderRadius: "26px",
-        }}
+        type="default"
+        size="small"
+        style={{ borderRadius: "6px", fontWeight: "500", background: "#f59e42", color: "#fff" }}
+        onClick={() => handleOpenFeedback(record.appointmentId)}
       >
-        View Note
+        Feedback
       </Button>
-    );
-    }
-
-    return (
-      <Button
-        type="primary"
-        icon={<EyeOutlined />}
-        onClick={() => handleOpenModalResult(appointmentId)}
-        size="large"
-        style={{
-          backgroundColor: "#1976d2",
-          borderColor: "#1976d2",
-          fontWeight: "500",
-          borderRadius: "6px",
-        }}
-      >
-        Check Result
-      </Button>
-    );
-  },
+    </div>
+  ),
 }
 
   ];
   
-  const handleOpenModalResult = (appointmentId) => {
-    setSelectedAppointmentId(appointmentId);
-    setOpen(true);
-  };
-
-  const fetchAppointmentResult = useCallback(async () => {
-    try {
-      // Fetch appointment result logic here
-      const result = await getResultTestHIV(selectedAppointmentId);
-      const firstResult = result.data.data;
-      setResultData(firstResult);
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Error fetching appointment result"
-      );
-    }
-  }, [selectedAppointmentId]);
-  
-  useEffect(() => {
-    if (open && selectedAppointmentId) {
-      fetchAppointmentResult();
-    }
-  }, [open, selectedAppointmentId, fetchAppointmentResult]);
-
   return (
     <div className="appointment-history-page">
       {loading ? (
@@ -471,6 +671,11 @@ const AppointmentMenuPage = () => {
           setSelectedAppointmentId(null);
         }}
         resultData={resultData}
+      />
+      <FeedbackModal
+        open={feedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        appointmentId={selectedFeedbackAppointmentId}
       />
     </div>
   );
