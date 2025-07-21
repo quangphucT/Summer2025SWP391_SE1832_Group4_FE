@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+
   LogoutOutlined,
   MedicineBoxOutlined,
   UserOutlined,
@@ -12,7 +13,6 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Avatar, Typography, Button, Row, Col } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../redux/feature/userSlice";
 import "./index.scss";
@@ -31,32 +31,7 @@ function getItem(label, key, icon, children, isGroup = false) {
   };
 }
 
-const DashboardProfile = () => {
-  const user = useSelector((state) => state.user);
-  const avatarUrl = user?.profileImageUrl || "https://ui-avatars.com/api/?name=User";
-  const fullName = user?.fullName || "User";
-  const email = user?.email || "";
-  return (
-    <div className="profile-container">
-      <div className="profile-glass-card">
-        <Row gutter={[40, 20]} align="middle">
-          <Col span={8} className="text-center">
-            <div className="avatar-wrapper">
-              <Avatar src={avatarUrl} size={120} style={{ border: "5px solid white", boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }} />
-              <div className="mt-4 gradient-text" style={{ fontWeight: 600, fontSize: 18 }}>{fullName}</div>
-              <div className="text-[#7d8082] font-semibold text-[12px]">{email}</div>
-              <Button className="mt-2" type="primary" shape="round">Change Password</Button>
-            </div>
-          </Col>
-          <Col span={16}>
-            <Typography.Title level={3} className="gradient-text mb-4">Profile Information</Typography.Title>
-            {/* Thêm các trường thông tin khác nếu muốn */}
-          </Col>
-        </Row>
-      </div>
-    </div>
-  );
-};
+
 
 const DashboardProfileMini = () => {
   const user = useSelector((state) => state.user);
@@ -86,7 +61,7 @@ const DashboardLayout = () => {
   const role = user?.role;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const handleLogout = () => {
+    const handleLogout = () => {
     dispatch(removeInformation());
     sessionStorage.clear();
     navigate("/login-page");
@@ -148,11 +123,10 @@ const DashboardLayout = () => {
 
   const [collapsed, setCollapsed] = useState(false);
 
+
+
   return (
-    <Layout
-      className={`management-dashboard-layout ${collapsed ? "collapsed" : ""}`}
-      style={{ minHeight: "100vh" }}
-    >
+    <Layout className={`management-dashboard-layout ${collapsed ? 'collapsed' : ''}`} style={{ minHeight: "100vh" }}>
       <Sider
         className="management-sidebar"
         width={300}
@@ -164,23 +138,14 @@ const DashboardLayout = () => {
           <div className="management-logo">
             <DashboardOutlined />
           </div>
-          <div className="management-info">
-            <Title level={4} className="management-title">
-              HIV Treatment
-            </Title>
-
-            <div className="staff-info">
-              <Text strong>Email:</Text> <Text>{userInformation?.email}</Text>
-              <br />
-              <Text strong>Username:</Text>{" "}
-              <Text>{userInformation?.username}</Text>
-              <br />
-              <Text strong>Staff:</Text>{" "}
-              <Text>{userInformation?.fullName}</Text>
-            </div>
-          </div>
+          <Title level={4} className="management-title">
+            HIV Treatment
+          </Title>
+          <Text className="management-subtitle">
+            Management System
+          </Text>
         </div>
-
+        
         <Menu
           className="management-menu"
           theme="dark"
@@ -189,7 +154,7 @@ const DashboardLayout = () => {
           items={itemsFiltered}
         />
       </Sider>
-
+      
       <Layout>
         <Header className="management-header">
           <div className="management-header-left">
@@ -202,7 +167,7 @@ const DashboardLayout = () => {
             <DashboardProfileMini />
           </div>
         </Header>
-
+        
         <Content className="management-content">
           <div className="management-content-wrapper">
             <Outlet />
