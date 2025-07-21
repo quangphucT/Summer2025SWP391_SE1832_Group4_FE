@@ -10,8 +10,9 @@ import {
   SettingOutlined,
   DashboardOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Avatar, Typography } from "antd";
+import { Layout, Menu, Avatar, Typography, Button, Row, Col } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../redux/feature/userSlice";
 import "./index.scss";
@@ -30,9 +31,59 @@ function getItem(label, key, icon, children, isGroup = false) {
   };
 }
 
-const DashboardLayout = () => {
-  const userInformation = useSelector((store) => store?.user);
+const DashboardProfile = () => {
+  const user = useSelector((state) => state.user);
+  const avatarUrl = user?.profileImageUrl || "https://ui-avatars.com/api/?name=User";
+  const fullName = user?.fullName || "User";
+  const email = user?.email || "";
+  return (
+    <div className="profile-container">
+      <div className="profile-glass-card">
+        <Row gutter={[40, 20]} align="middle">
+          <Col span={8} className="text-center">
+            <div className="avatar-wrapper">
+              <Avatar src={avatarUrl} size={120} style={{ border: "5px solid white", boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }} />
+              <div className="mt-4 gradient-text" style={{ fontWeight: 600, fontSize: 18 }}>{fullName}</div>
+              <div className="text-[#7d8082] font-semibold text-[12px]">{email}</div>
+              <Button className="mt-2" type="primary" shape="round">Change Password</Button>
+            </div>
+          </Col>
+          <Col span={16}>
+            <Typography.Title level={3} className="gradient-text mb-4">Profile Information</Typography.Title>
+            {/* Thêm các trường thông tin khác nếu muốn */}
+          </Col>
+        </Row>
+      </div>
+    </div>
+  );
+};
 
+const DashboardProfileMini = () => {
+  const user = useSelector((state) => state.user);
+  const avatarUrl = user?.profileImageUrl || "https://ui-avatars.com/api/?name=User";
+  const fullName = user?.fullName || "User";
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      background: 'transparent',
+      padding: '0 8px',
+      boxShadow: 'none',
+      borderRadius: 0
+    }}>
+      <Avatar src={avatarUrl} size={36} />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
+        <span style={{ fontWeight: 500, color: '#222', fontSize: 15 }}>{fullName}</span>
+        <span style={{ color: '#888', fontSize: 12 }}>{user?.role}</span>
+      </div>
+    </div>
+  );
+};
+
+const DashboardLayout = () => {
+  const user = useSelector((state) => state.user);
+  const role = user?.role;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -41,118 +92,59 @@ const DashboardLayout = () => {
     navigate("/login-page");
   };
 
-  const baseItems = [
-    getItem(
-      "Dashboard Overview",
-      "dashboard-statistics",
-      <DashboardOutlined />
-    ),
+  let items = [];
+  if (role === "Admin") {
+    items = [
+      getItem("Dashboard Overview", "dashboard-statistics", <DashboardOutlined />),
 
-    getItem(
-      "Doctor Management",
-      "doctor-management",
-      <SettingOutlined />,
-      [
-        getItem(
-          "Doctor Account Creation",
-          "doctor-create-account",
-          <UserOutlined />
-        ),
-        getItem(
-          "Doctor List Management",
-          "doctor-list-management",
-          <UserOutlined />
-        ),
-      ],
-      true
-    ),
-    getItem(
-      "Management",
-      "management",
-      <SettingOutlined />,
-      [
-        getItem(
-          "Protocol Management",
-          "protocal-management",
-          <FileTextOutlined />
-        ),
+      getItem("Doctor Management", "doctor-management", <SettingOutlined />, [
+        getItem("Doctor Account Creation", "doctor-create-account", <UserOutlined />),
+      getItem("Doctor List Management", "doctor-list-management", <UserOutlined />),
+      ], true),
+      getItem("Management", "management", <SettingOutlined />, [
+        getItem("Protocol Management", "protocal-management", <FileTextOutlined />),
         getItem("Customer Management", "customer-management", <TeamOutlined />),
         getItem("Account Management", "account-management", <UserOutlined />),
         getItem("Doctor Management", "doctor-management", <UserOutlined />),
-        getItem(
-          "ARV Standard Management",
-          "arvstandard-management",
-          <MedicineBoxOutlined />
-        ),
-        getItem(
-          "Schedule Activity Management",
-          "schedule-activity-management",
-          <UserOutlined />
-        ),
-      ],
-      true
-    ),
+        getItem("ARV Standard Management", "arvstandard-management", <MedicineBoxOutlined />),
+        
+      ], true),
 
-    getItem(
-      "Content Management",
-      "content",
-      <FileTextOutlined />,
-      [
+      getItem("Content Management", "content", <FileTextOutlined />, [
         getItem("Blog Management", "blog-management", <FileTextOutlined />),
-        getItem(
-          "Experience Management",
-          "experience-management",
-          <MedicineBoxOutlined />
-        ),
-        getItem(
-          "Certificate Management",
-          "certificate-management",
-          <MedicineBoxOutlined />
-        ),
-      ],
-      true
-    ),
+      ], true),
 
-    getItem(
-      "Appointment System",
-      "appointments",
-      <CalendarOutlined />,
-      [
-        getItem(
-          "Confirm Appointments",
-          "appointment-management",
-          <CalendarOutlined />
+      {
+        key: "logout",
+        icon: <LogoutOutlined />,
+        label: (
+          <div onClick={handleLogout} style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+            <span>Logout</span>
+          </div>
         ),
-        getItem(
-          "Today's Appointments",
-          "today-appointment-management",
-          <CalendarOutlined />
+      },
+    ];
+  } else if (role === "Staff") {
+    items = [
+      getItem("Appointment System", "appointments", <CalendarOutlined />, [
+        getItem("Confirm Appointments", "appointment-management", <CalendarOutlined />),
+        getItem("Today's Appointments", "today-appointment-management", <CalendarOutlined />),
+      ], true),
+      getItem("Checked-In Appointments", "checked-in-appointment-today", <CheckCircleOutlined />),
+      getItem("Schedule Activity Management", "schedule-activity-management", <UserOutlined />),
+      {
+        key: "logout",
+        icon: <LogoutOutlined />,
+        label: (
+          <div onClick={handleLogout} style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+            <span>Logout</span>
+          </div>
         ),
-      ],
-      true
-    ),
+      },
+    ];
+  }
 
-    getItem(
-      "Checked-In Appointments",
-      "checked-in-appointment-today",
-      <CheckCircleOutlined />
-    ),
-
-    {
-      key: "logout",
-      icon: <LogoutOutlined />,
-      label: (
-        <div
-          onClick={handleLogout}
-          style={{ color: "rgba(255, 255, 255, 0.8)" }}
-        >
-          <span>Logout</span>
-        </div>
-      ),
-    },
-  ];
-
-  const items = baseItems.filter(Boolean);
+   const itemsFiltered = items.filter(Boolean);
 
   const [collapsed, setCollapsed] = useState(false);
 
@@ -194,7 +186,7 @@ const DashboardLayout = () => {
           theme="dark"
           defaultSelectedKeys={["dashboard-statistics"]}
           mode="inline"
-          items={items}
+          items={itemsFiltered}
         />
       </Sider>
 
@@ -206,15 +198,8 @@ const DashboardLayout = () => {
               <Text className="current-page"> / Management</Text>
             </div>
           </div>
-
           <div className="management-header-right">
-            <div className="management-user-info">
-              <Avatar
-                className="management-avatar"
-                size={40}
-                src={userInformation?.profileImageUrl}
-              />
-            </div>
+            <DashboardProfileMini />
           </div>
         </Header>
 

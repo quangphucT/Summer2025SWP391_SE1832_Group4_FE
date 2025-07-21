@@ -45,7 +45,6 @@ const Login = () => {
               break;
           }
           break;
-
         default:
           navigate("/dashboard"); // fallback cho các role khác như Admin, Nurse,...
           break;
