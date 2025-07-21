@@ -70,8 +70,12 @@ const CheckedInAppointmentToday = () => {
               const timeB = b.appointmentTime;
               return timeA.localeCompare(timeB);
             }) || [];
-
+       
         setData(responseAfterFilterCheckedIn);
+        sessionStorage.setItem(
+          "checkedInPatients",
+          JSON.stringify(responseAfterFilterCheckedIn)
+        );
       } catch (error) {
         toast.error(
           error?.response?.data?.message?.error || "Error while fetching"

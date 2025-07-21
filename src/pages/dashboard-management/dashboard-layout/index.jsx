@@ -31,32 +31,7 @@ function getItem(label, key, icon, children, isGroup = false) {
   };
 }
 
-const DashboardProfile = () => {
-  const user = useSelector((state) => state.user);
-  const avatarUrl = user?.profileImageUrl || "https://ui-avatars.com/api/?name=User";
-  const fullName = user?.fullName || "User";
-  const email = user?.email || "";
-  return (
-    <div className="profile-container">
-      <div className="profile-glass-card">
-        <Row gutter={[40, 20]} align="middle">
-          <Col span={8} className="text-center">
-            <div className="avatar-wrapper">
-              <Avatar src={avatarUrl} size={120} style={{ border: "5px solid white", boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }} />
-              <div className="mt-4 gradient-text" style={{ fontWeight: 600, fontSize: 18 }}>{fullName}</div>
-              <div className="text-[#7d8082] font-semibold text-[12px]">{email}</div>
-              <Button className="mt-2" type="primary" shape="round">Change Password</Button>
-            </div>
-          </Col>
-          <Col span={16}>
-            <Typography.Title level={3} className="gradient-text mb-4">Profile Information</Typography.Title>
-            {/* Thêm các trường thông tin khác nếu muốn */}
-          </Col>
-        </Row>
-      </div>
-    </div>
-  );
-};
+
 
 const DashboardProfileMini = () => {
   const user = useSelector((state) => state.user);

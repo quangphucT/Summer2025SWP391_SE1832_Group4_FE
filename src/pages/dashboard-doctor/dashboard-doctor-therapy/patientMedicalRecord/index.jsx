@@ -33,7 +33,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { createMedicalRecord } from "../../../../apis/medicalRecord/createMedicalRecordApi";
 import { toast } from "react-toastify";
-import { getMedicalRecordByPatientId } from "../../../../apis/medicalRecord/getMedicalRecordByPatientIdApi";
+import { getMedicalRecordByPatientEmail } from "../../../../apis/medicalRecord/getMedicalRecordByPatientEmailApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
 import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
 import api from "../../../../config/api";
@@ -141,7 +141,7 @@ const PatientMedicalRecord = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      const response = await getMedicalRecordByPatientId(searchPatientId.trim());
+      const response = await getMedicalRecordByPatientEmail(searchPatientId.trim());
       let records = response?.data?.data;
       // Đảm bảo records luôn là mảng
       if (Array.isArray(records)) {
