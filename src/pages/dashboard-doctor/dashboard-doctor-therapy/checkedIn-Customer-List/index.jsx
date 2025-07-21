@@ -1213,7 +1213,6 @@ const CheckedInAppointmentToday = () => {
           >
             <Select>
               <Select.Option value="InTreatment">In Treatment</Select.Option>
-              <Select.Option value="Discontinued">Discontinued</Select.Option>
             </Select>
           </Form.Item>
 

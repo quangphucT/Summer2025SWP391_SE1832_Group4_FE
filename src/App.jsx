@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import Layout from "./components/layout";
 import HomePage from "./pages/home-page";
 import DashboardLayout from "./pages/dashboard-management/dashboard-layout";
@@ -43,8 +43,19 @@ import SchedulePostTestConsultation from "./pages/schedule-consultationPost-page
 import DashboardDoctorTherapyLayout from "./pages/dashboard-doctor/dashboard-doctor-therapy/layout-dashboard";
 import ScheduleActivityManagement from "./pages/dashboard-management/staff/schedule-activity-management/schedule-activity-management";
 import MedicalRecordSchedule from "./pages/menu-profile/medicalRecordMenu-page/schedule";
+import { useSelector } from "react-redux";
+
+// Component wrapper phân quyền
+const WithRole = ({ component, allowedRoles }) => {
+  const user = useSelector((state) => state.user);
+  if (!user?.accountID) return <Navigate to="/login-page" replace />;
+  if (!allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
+  const Component = component;
+  return <Component />;
+};
 
 const App = () => {
+  // Đã dùng useSelector trong WithRole, không cần ở đây nữa
   const router = createBrowserRouter([
     {
       path: endPoint.LAYOUT,
@@ -142,84 +153,84 @@ const App = () => {
     // dashboard for doctor testing
     {
       path: endPoint.DASHBOARDLAYOUTDOCTORTESTING,
-      element: <DashboardDoctorTestingLayout />,
+      element: <WithRole component={DashboardDoctorTestingLayout} allowedRoles={["Doctor"]} />,
     },
 
     // dashboard for doctor consultant
     {
       path: endPoint.DASHBOARDLAYOUTDOCTORCONSULTANT,
-      element: <DashboardDoctorConsultantLayout />,
+      element: <WithRole component={DashboardDoctorConsultantLayout} allowedRoles={["Doctor"]} />,
     },
     // dashboard for doctor therapy
     {
       path: endPoint.DASHBOARDLAYOUTDOCTORTHERAPY,
-      element: <DashboardDoctorTherapyLayout />,
+      element: <WithRole component={DashboardDoctorTherapyLayout} allowedRoles={["Doctor"]} />,
     },
     {
       path: endPoint.DASHBOARD,
-      element: <DashboardLayout />,
+      element: <WithRole component={DashboardLayout} allowedRoles={["Admin" , "Staff" ]} />,
       children: [
         {
           path: endPoint.DASHBOARDSTATISTICS,
-          element: <DashboardStatistics />,
+          element: <WithRole component={DashboardStatistics} allowedRoles={["Admin"]} />,
         },
         {
           path: endPoint.PROTOCOLMANAGEMENT,
-          element: <ProtocolManagement />,
+          element: <WithRole component={ProtocolManagement} allowedRoles={["Admin"]} />,
         },
         {
           path: endPoint.CUSTOMERMANAGEMENT,
-          element: <CustomerManagement />,
+          element: <WithRole component={CustomerManagement} allowedRoles={["Admin"]} />,
         },
 
         {
           path: endPoint.DOCTORMANAGEMENT,
-          element: <DoctorManagement />,
+          element: <WithRole component={DoctorManagement} allowedRoles={["Admin"]} />,
         },
 
         {
           path: endPoint.DOCTORCREATEACCOUNTBYSTAFF,
-          element: <DoctorCreationManagement />,
+          element: <WithRole component={DoctorCreationManagement} allowedRoles={["Admin"]} />,
         },
 
         {
           path: endPoint.DOCTORLISTMANAGEMENT,
-          element: <DoctorListManagement />,
+          element: <WithRole component={DoctorListManagement} allowedRoles={["Admin"]} />,
         },
 
         {
           path: endPoint.APPOINTMENTMANAGEMENT,
-          element: <AppointmentManagement />,
+          element: <WithRole component={AppointmentManagement} allowedRoles={["Staff"]} />,
         },
 
         {
           path: endPoint.CHECKEDINAPPOINTMENTTODAY,
-          element: <AppointmentTodayManagement />,
+          element: <WithRole component={AppointmentTodayManagement} allowedRoles={["Staff"]} />,
         },
 
         {
           path: endPoint.TODAYAPPOINTMENTMANAGEMENT,
-          element: <AppointmentTodayManagement />,
+          element: <WithRole component={AppointmentTodayManagement} allowedRoles={["Staff"]} />,
         },
 
         {
           path: endPoint.BLOGMANAGEMENT,
-          element: <BlogManagement />,
+          element: <WithRole component={BlogManagement} allowedRoles={["Admin"]} />,
         },
 
         {
           path: endPoint.ACCOUNTMANAGEMENT,
-          element: <AccountManagement />,
+          element: <WithRole component={AccountManagement} allowedRoles={["Admin"]} />,
         },
 
         {
           path: "experience-management/:doctorId",
-          element: <ExperienceManagement />,
+          element: <WithRole component={ExperienceManagement} allowedRoles={["Admin"]} />,
         },
 
         {
           path: "certificate-management/:doctorId",
-          element: <CertificateManagement />,
+          element: <WithRole component={CertificateManagement} allowedRoles={["Admin"]} />,
         },
         {
           path: endPoint.BLOGMANAGEMENT,
@@ -227,11 +238,11 @@ const App = () => {
         },
         {
           path: endPoint.ARVMANAGEMENT,
-          element: <ArvManagement />,
+          element: <WithRole component={ArvManagement} allowedRoles={["Admin"]} />,
         },
         {
           path: endPoint.SCHEDULEACTIVITYMANAGEMENT,
-          element: <ScheduleActivityManagement />,
+          element: <WithRole component={ScheduleActivityManagement} allowedRoles={["Admin", "Staff"]} />,
         },
       ],
     },
