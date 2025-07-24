@@ -6,6 +6,10 @@ import { fetchAllDoctors } from '../../redux/feature/doctorSlice';
 import { fetchDoctorExperience } from '../../redux/feature/experienceWorkingSlice';
 import { fetchCertificatesByDoctorId } from '../../redux/feature/certificateSlice';
 import dayjs from 'dayjs';
+import { getPatientById } from '../../apis/patientApi/updateProfileApi';
+import { Spin } from 'antd';
+import { getFeedbackRatingStatisticsByDoctorId } from '../../apis/feedbackApi/feedbackApi';
+import { getFeedbacks } from '../../apis/feedbackApi/feedbackApi';
 
 const DoctorDetail = ({ onBook }) => {
   const { id } = useParams();
@@ -20,6 +24,10 @@ const DoctorDetail = ({ onBook }) => {
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [patientNames, setPatientNames] = useState({});
+  const [avgRating, setAvgRating] = useState(null);
+  const [patientProfiles, setPatientProfiles] = useState({});
 
   useEffect(() => {
     const fetchDoctorData = async () => {
@@ -50,6 +58,106 @@ const DoctorDetail = ({ onBook }) => {
     }
   }, [doctors, id]);
 
+  // Lấy feedbacks bằng getFeedbacks({ doctorId })
+  useEffect(() => {
+    let isMounted = true;
+    setFeedbacks([]);
+    getFeedbacks({ doctorId: id })
+      .then(res => {
+        if (isMounted) {
+          const fb = res.data?.data?.feedbacks || res.data?.data || [];
+          setFeedbacks(fb);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setFeedbacks([]);
+      });
+    return () => { isMounted = false; };
+  }, [id]);
+
+  // Lấy rating trung bình và feedbacks từ API statistics duy nhất
+  useEffect(() => {
+    let isMounted = true;
+    setAvgRating(null);
+    setFeedbacks([]);
+    getFeedbackRatingStatisticsByDoctorId(id)
+      .then(res => {
+        if (isMounted) {
+          const data = res.data?.data || {};
+          // Lấy rating trung bình
+          const avg = data.averageRating;
+          setAvgRating(typeof avg === 'number' ? avg : null);
+          // Lấy danh sách feedbacks (giả sử là data.feedbackList hoặc data.feedbacks)
+          const fb = data.feedbackList || data.feedbacks || [];
+          setFeedbacks(fb);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setAvgRating(null);
+          setFeedbacks([]);
+        }
+      });
+    return () => { isMounted = false; };
+  }, [id]);
+
+  // Lấy tên bệnh nhân cho từng feedback (chỉ khi chưa có)
+  useEffect(() => {
+    const fetchNames = async () => {
+      const missingIds = feedbacks
+        .map(fb => fb.patientId)
+        .filter(pid => pid && !patientNames[pid]);
+      // Loại bỏ trùng lặp
+      const uniqueIds = [...new Set(missingIds)];
+      if (uniqueIds.length === 0) return;
+      const updates = {};
+      await Promise.all(uniqueIds.map(async (pid) => {
+        try {
+          const res = await getPatientById(pid);
+          // Lấy username từ res.data.data.account.username
+          const username = res.data?.data?.account?.username || null;
+          if (username) updates[pid] = username;
+        } catch {
+          updates[pid] = null;
+        }
+      }));
+      if (Object.keys(updates).length > 0) {
+        setPatientNames(prev => ({ ...prev, ...updates }));
+      }
+    };
+    if (feedbacks.length > 0) fetchNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbacks]);
+
+  // Lấy profile (fullName, profileImageUrl) cho từng feedback (chỉ khi chưa có)
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      const missingIds = feedbacks
+        .map(fb => fb.patientId)
+        .filter(pid => pid && !patientProfiles[pid]);
+      const uniqueIds = [...new Set(missingIds)];
+      if (uniqueIds.length === 0) return;
+      const updates = {};
+      await Promise.all(uniqueIds.map(async (pid) => {
+        try {
+          const res = await getPatientById(pid);
+          const account = res.data?.data?.account || {};
+          updates[pid] = {
+            fullName: account.fullName || account.username || 'Anonymous',
+            profileImageUrl: account.profileImageUrl || null
+          };
+        } catch {
+          updates[pid] = { fullName: 'Anonymous', profileImageUrl: null };
+        }
+      }));
+      if (Object.keys(updates).length > 0) {
+        setPatientProfiles(prev => ({ ...prev, ...updates }));
+      }
+    };
+    if (feedbacks.length > 0) fetchProfiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbacks]);
+
   const formatDate = (dateString) => {
     return dayjs(dateString).format('MM/DD/YYYY');
   };
@@ -66,7 +174,7 @@ const DoctorDetail = ({ onBook }) => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-red-500 mb-4">{error || "An error occurred while loading information"}</p>
-        <Link to="/doctors" className="text-[#0072BC] hover:underline">
+        <Link to="/" className="text-[#0072BC] hover:underline">
           Back to Doctors List
         </Link>
       </div>
@@ -77,7 +185,7 @@ const DoctorDetail = ({ onBook }) => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-gray-600 mb-4">Doctor information not found</p>
-        <Link to="/doctors" className="text-[#0072BC] hover:underline">
+        <Link to="/" className="text-[#0072BC] hover:underline">
           Back to Doctors List
         </Link>
       </div>
@@ -113,11 +221,14 @@ const DoctorDetail = ({ onBook }) => {
             <h1 className="text-2xl font-bold text-[#0072BC] mb-2">{doctor.fullName}</h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <div className="flex">
-                {[...Array(5)].map((_, i) => (
+                {[...Array(avgRating !== null ? Math.floor(avgRating) : 5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                 ))}
+                {[...Array(5 - (avgRating !== null ? Math.floor(avgRating) : 5))].map((_, i) => (
+                  <Star key={100 + i} className="w-5 h-5 text-gray-300" />
+                ))}
               </div>
-              <span className="text-gray-600">5 out of 5</span>
+              <span className="text-gray-600">{avgRating !== null ? avgRating.toFixed(1) : 5} out of 5</span>
             </div>
             <button 
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium text-lg px-6 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
@@ -133,6 +244,42 @@ const DoctorDetail = ({ onBook }) => {
             >
               Book an Appointment
             </button>
+            {/* Feedback Section */}
+            <div className="mt-6 text-left">
+              <div className="font-semibold text-gray-800 mb-2 text-base">Patient Feedback</div>
+              {feedbacks.length === 0 ? (
+                <div className="text-gray-500 text-sm">No feedback yet</div>
+              ) : (
+                <div className="space-y-3">
+                  {feedbacks.map((fb, idx) => (
+                    <div key={fb.feedbackId || idx} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                      <div className="flex items-center gap-2 mb-1">
+                        {patientProfiles[fb.patientId]?.profileImageUrl ? (
+                          <img
+                            src={patientProfiles[fb.patientId].profileImageUrl}
+                            alt={patientProfiles[fb.patientId].fullName}
+                            className="w-8 h-8 rounded-full object-cover mr-2 border"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 bg-gray-300 rounded-full mr-2"></div>
+                        )}
+                        <span className="font-medium text-blue-700 text-sm">{patientProfiles[fb.patientId]?.fullName || 'Anonymous'}</span>
+                        <span className="flex items-center gap-0.5">
+                          {[...Array(fb.rating || 0)].map((_, i) => (
+                            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          ))}
+                          {[...Array(5 - (fb.rating || 0))].map((_, i) => (
+                            <Star key={100 + i} className="w-4 h-4 text-gray-300" />
+                          ))}
+                        </span>
+                        <span className="text-xs text-gray-400 ml-2">{fb.createdAt ? new Date(fb.createdAt).toLocaleDateString() : ''}</span>
+                      </div>
+                      <div className="text-gray-700 text-sm">{fb.comment || 'No comment'}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

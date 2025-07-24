@@ -9,6 +9,8 @@ import { Select, Spin } from "antd";
 import { getDoctorsBySpecialty } from "../../apis/doctorApi/doctorApi";
 import DoctorCard from '../../components/DoctorCard';
 import { getAllBlogs } from '../../apis/blogsApi';
+import { getFeedbacks } from '../../apis/feedbackApi/feedbackApi';
+import { getPatientById } from '../../apis/patientApi/updateProfileApi';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -16,6 +18,11 @@ const HomePage = () => {
   const [openFaq, setOpenFaq] = useState(null);
   const [consultantDoctors, setConsultantDoctors] = useState([]);
   const [blogs, setBlogs] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [testimonialNames, setTestimonialNames] = useState({});
+  const [testimonialLoading, setTestimonialLoading] = useState(false);
+  const [testimonialError, setTestimonialError] = useState(null);
+  const [testimonialProfiles, setTestimonialProfiles] = useState({});
 
   const faqData = [
     {
@@ -53,6 +60,74 @@ const HomePage = () => {
       .then(data => setBlogs(data.slice(0, 3))) // lấy 3 bài mới nhất
       .catch(() => setBlogs([]));
   }, []);
+
+  // Fetch 3 latest feedbacks for testimonials
+  useEffect(() => {
+    setTestimonialLoading(true);
+    setTestimonialError(null);
+    getFeedbacks({ page: 1, pageSize: 3, sort: 'desc' })
+      .then(res => {
+        const fb = res.data?.data?.feedbacks || res.data?.data || [];
+        setTestimonials(fb.slice(0, 3));
+      })
+      .catch(() => setTestimonialError('Could not load testimonials'))
+      .finally(() => setTestimonialLoading(false));
+  }, []);
+
+  // Fetch patient username for each feedback
+  useEffect(() => {
+    const fetchNames = async () => {
+      const missingIds = testimonials
+        .map(fb => fb.patientId)
+        .filter(pid => pid && !testimonialNames[pid]);
+      const uniqueIds = [...new Set(missingIds)];
+      if (uniqueIds.length === 0) return;
+      const updates = {};
+      await Promise.all(uniqueIds.map(async (pid) => {
+        try {
+          const res = await getPatientById(pid);
+          const username = res.data?.data?.account?.username || null;
+          if (username) updates[pid] = username;
+        } catch {
+          updates[pid] = null;
+        }
+      }));
+      if (Object.keys(updates).length > 0) {
+        setTestimonialNames(prev => ({ ...prev, ...updates }));
+      }
+    };
+    if (testimonials.length > 0) fetchNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [testimonials]);
+
+  // Fetch patient profile (fullName, profileImageUrl) for each feedback
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      const missingIds = testimonials
+        .map(fb => fb.patientId)
+        .filter(pid => pid && !testimonialProfiles[pid]);
+      const uniqueIds = [...new Set(missingIds)];
+      if (uniqueIds.length === 0) return;
+      const updates = {};
+      await Promise.all(uniqueIds.map(async (pid) => {
+        try {
+          const res = await getPatientById(pid);
+          const account = res.data?.data?.account || {};
+          updates[pid] = {
+            fullName: account.fullName || account.username || 'Anonymous',
+            profileImageUrl: account.profileImageUrl || null
+          };
+        } catch {
+          updates[pid] = { fullName: 'Anonymous', profileImageUrl: null };
+        }
+      }));
+      if (Object.keys(updates).length > 0) {
+        setTestimonialProfiles(prev => ({ ...prev, ...updates }));
+      }
+    };
+    if (testimonials.length > 0) fetchProfiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [testimonials]);
 
   return (
     <div className="h-auto">
@@ -356,67 +431,45 @@ const HomePage = () => {
               Real experiences from patients who have trusted us with their health
             </p>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-current" />
-                  ))}
+            {testimonialLoading ? (
+              <div className="col-span-3 text-center text-gray-500">Loading...</div>
+            ) : testimonialError ? (
+              <div className="col-span-3 text-center text-red-500">{testimonialError}</div>
+            ) : testimonials.length === 0 ? (
+              <div className="col-span-3 text-center text-gray-500">No testimonials yet</div>
+            ) : (
+              testimonials.map((fb, idx) => (
+                <div key={fb.feedbackId || idx} className="bg-white p-6 rounded-lg shadow-sm flex flex-col h-full">
+                  <div className="flex items-center mb-4">
+                    <div className="flex text-yellow-400">
+                      {[...Array(fb.rating || 0)].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      ))}
+                      {[...Array(5 - (fb.rating || 0))].map((_, i) => (
+                        <Star key={100 + i} className="w-5 h-5 text-gray-300" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-4">{fb.comment || 'No comment'}</p>
+                  <div className="flex items-center mt-auto">
+                    {testimonialProfiles[fb.patientId]?.profileImageUrl ? (
+                      <img
+                        src={testimonialProfiles[fb.patientId].profileImageUrl}
+                        alt={testimonialProfiles[fb.patientId].fullName}
+                        className="w-10 h-10 rounded-full object-cover mr-3 border"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                    )}
+                    <div>
+                      <p className="font-semibold">{testimonialProfiles[fb.patientId]?.fullName || 'Anonymous'}</p>
+                      <p className="text-sm text-gray-500">{fb.createdAt ? `Feedback on ${new Date(fb.createdAt).toLocaleDateString()}` : ''}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <p className="text-gray-600 mb-4">
-                "The staff here is incredibly professional and caring. They made me feel comfortable throughout my entire treatment journey."
-              </p>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-semibold">Nguyen Van A</p>
-                  <p className="text-sm text-gray-500">Patient since 2020</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-current" />
-                  ))}
-                </div>
-              </div>
-              <p className="text-gray-600 mb-4">
-                "Fast, accurate testing and professional consultation. The doctors here really know their field and care about patients."
-              </p>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-semibold">Tran Thi B</p>
-                  <p className="text-sm text-gray-500">Patient since 2021</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-current" />
-                  ))}
-                </div>
-              </div>
-              <p className="text-gray-600 mb-4">
-                "Excellent service and complete privacy. I feel safe and supported here. Highly recommend to anyone seeking professional care."
-              </p>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-semibold">Le Van C</p>
-                  <p className="text-sm text-gray-500">Patient since 2019</p>
-                </div>
-              </div>
-            </div>
+              ))
+            )}
           </div>
         </div>
       </div>

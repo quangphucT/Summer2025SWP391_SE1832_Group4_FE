@@ -35,8 +35,19 @@ import { createMedicalRecord } from "../../../../apis/medicalRecord/createMedica
 import { toast } from "react-toastify";
 import { getMedicalRecordByPatientPhone } from "../../../../apis/medicalRecord/getMedicalRecordByPatientPhoneApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
-import { useSelector } from "react-redux";
 const { Title, Text } = Typography;
+
+// Hàm chuẩn hóa số điện thoại về dạng +84...
+function normalizePhone(phone) {
+  let p = phone.replace(/\D/g, "");
+  if (p.startsWith("0") && p.length === 10) {
+    return "+84" + p.substring(1);
+  }
+  if (phone.startsWith("+84")) {
+    return phone;
+  }
+  return phone;
+}
 
 const PatientMedicalRecord = () => {
   const [dataMedicalRecord, setDataMedicalRecord] = useState([]);
@@ -50,7 +61,6 @@ const PatientMedicalRecord = () => {
   const [addTestResultLoading, setAddTestResultLoading] = useState(false);
   const [selectedGender, setSelectedGender] = useState(null);
 
-  const userInformation = useSelector((store) => store?.user);
   const checkedInInformationRaw = sessionStorage.getItem("checkedInPatients");
   const checkedInPatients = checkedInInformationRaw
     ? JSON.parse(checkedInInformationRaw)
@@ -59,7 +69,7 @@ const PatientMedicalRecord = () => {
     ? checkedInPatients[0]
     : null;
   const patientId = firstPatient?.patient?.patientId || null;
-
+  const doctorIdFromAppointment = firstPatient?.doctor?.doctorId || null;
 
 
   const [form] = Form.useForm();
@@ -121,10 +131,9 @@ const PatientMedicalRecord = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      // Gọi API giống như bên medicalRecordMenu-page, nhưng dùng searchPatientEmail
-      const response = await getMedicalRecordByPatientPhone(
-        searchPatientPhone.trim()
-      );
+      // Luôn chuẩn hóa số điện thoại trước khi gọi API
+      const normalizedPhone = normalizePhone(searchPatientPhone.trim());
+      const response = await getMedicalRecordByPatientPhone(normalizedPhone);
       let records = response?.data?.data;
       // Đảm bảo records luôn là mảng
       if (Array.isArray(records)) {
@@ -143,11 +152,11 @@ const PatientMedicalRecord = () => {
 
   const handleCreateMedicalRecord = () => {
     setOpenCreateModal(true);
-    // Set default consultation date to today and doctor ID from Redux
+    // Set default consultation date to today and doctor ID from appointment
     form.setFieldsValue({
       consultationDate: dayjs(),
       pregnancyStatus: "NotPregnant",
-      doctorId: userInformation?.accountID || "",
+      doctorId: doctorIdFromAppointment || "",
       testResultId: testResultId || "",
     });
   };
@@ -170,7 +179,7 @@ const PatientMedicalRecord = () => {
         ),
       
         testResultId: parseInt(values.testResultId) || 0,
-        doctorId: parseInt(userInformation?.accountID) || 0, // Always use doctorId from Redux
+        doctorId: parseInt(doctorIdFromAppointment) || 0, // Always use doctorId from appointment
       };
 
       // Only include pregnancy fields if gender is FEMALE
@@ -706,13 +715,11 @@ const PatientMedicalRecord = () => {
                 <Col span={12}>
                   <Form.Item
                     name="doctorId"
-                    label={`Doctor ID - ${
-                      userInformation?.fullName || "Doctor"
-                    }`}
-                    initialValue={userInformation?.accountID || ""}
+                    label={`Doctor ID - ${firstPatient?.doctor?.fullName || "Doctor"}`}
+                    initialValue={doctorIdFromAppointment || ""}
                   >
                     <Input
-                      value={userInformation?.accountID || ""}
+                      value={doctorIdFromAppointment || ""}
                       disabled
                       style={{
                         backgroundColor: "#f5f5f5",

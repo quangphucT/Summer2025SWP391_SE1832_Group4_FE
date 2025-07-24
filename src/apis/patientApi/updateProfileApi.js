@@ -29,3 +29,18 @@ export const getPatientByAccountId = async (accountId) => {
         throw new Error(msg);
     }
 };
+
+//get patient by id
+export const getPatientById = async (id) => {
+    try {
+        const response = await api.get(`/api/patients/${id}`);
+        return response;
+    } catch (err) {
+        if (!err.response) {
+            throw new Error("Could not establish connection. Please check your internet connection.");
+        }
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getPatientById failed:", msg);
+        throw new Error(msg);
+    }
+}
