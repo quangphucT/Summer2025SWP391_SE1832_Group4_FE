@@ -62,7 +62,7 @@ export * as getTestResultByPatientId from './Results/getTestResultByPatientIdAPI
 // create medical record from test result
 export * as createMedicalRecord from './medicalRecord/createMedicalRecordApi'
 // get medical record by patient email
-export * as getMedicalRecordByPatientEmail from './medicalRecord/getMedicalRecordByPatientEmailApi'
+export * as getMedicalRecordByPatientPhone from './medicalRecord/getMedicalRecordByPatientPhoneApi'
 // create therapy for patient
 export * as createTherapyForPatient from './doctorApi/createTherapyForPatientApi' 
 // add test result to medical record
