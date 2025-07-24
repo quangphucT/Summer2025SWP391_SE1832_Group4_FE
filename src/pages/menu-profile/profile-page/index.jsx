@@ -204,7 +204,7 @@ const ProfilePage = () => {
       fullName: fullInformUserOnRedux?.fullName || "",
       username: fullInformUserOnRedux?.username || "",
       email: fullInformUserOnRedux?.email || "",
-      phoneNumber: fullInformUserOnRedux?.phoneNumber || "",
+      phoneNumber: fullInformUserOnRedux?.phone || "",
       dateOfBirth: patientInfo?.dateOfBirth ? dayjs(patientInfo.dateOfBirth) : null,
       gender: patientInfo?.gender || undefined,
       address: patientInfo?.address || "",

@@ -172,7 +172,7 @@ const App = () => {
       children: [
         {
           path: endPoint.DASHBOARDSTATISTICS,
-          element: <WithRole component={DashboardStatistics} allowedRoles={["Admin"]} />,
+          element: <WithRole component={DashboardStatistics} allowedRoles={["Admin", "Staff"]} />,
         },
         {
           path: endPoint.PROTOCOLMANAGEMENT,
