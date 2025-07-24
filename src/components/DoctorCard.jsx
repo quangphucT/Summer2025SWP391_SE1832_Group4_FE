@@ -1,10 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { User2, GraduationCap, Stethoscope, Building2, ClipboardCheck, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getFeedbackRatingStatisticsByDoctorId } from '../apis/feedbackApi/feedbackApi';
 
 const DoctorCard = ({ doctor, onBook }) => {
-  // Generate array of 5 stars for rating
-  const rating = Array(5).fill(null);
+  const [avgRating, setAvgRating] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    setAvgRating(null);
+    getFeedbackRatingStatisticsByDoctorId(doctor.doctorId)
+      .then(res => {
+        if (isMounted) {
+          const avg = res.data?.data?.averageRating;
+          setAvgRating(typeof avg === 'number' ? avg : null);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setAvgRating(null);
+      });
+    return () => { isMounted = false; };
+  }, [doctor.doctorId]);
+
+  // Render stars based on avgRating (rounded down)
+  const renderStars = () => {
+    const rating = avgRating !== null ? Math.floor(avgRating) : 5;
+    return (
+      <>
+        {[...Array(rating)].map((_, i) => (
+          <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+        ))}
+        {[...Array(5 - rating)].map((_, i) => (
+          <Star key={rating + i} className="w-5 h-5 text-gray-300" />
+        ))}
+      </>
+    );
+  };
 
   return (
     <div className="w-full flex flex-col md:flex-row bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 gap-6 items-start border border-gray-100 hover:shadow-xl transition-shadow">
@@ -41,11 +72,9 @@ const DoctorCard = ({ doctor, onBook }) => {
         {/* Rating */}
         <div className="flex items-center gap-2 mb-3">
           <div className="flex">
-            {rating.map((_, index) => (
-              <Star key={index} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-            ))}
+            {renderStars()}
           </div>
-          <span className="text-gray-600">5 trên 5</span>
+          <span className="text-gray-600">{avgRating !== null ? avgRating.toFixed(1) : 5} trên 5</span>
         </div>
         {/* Qualifications */}
         {doctor.qualifications && (

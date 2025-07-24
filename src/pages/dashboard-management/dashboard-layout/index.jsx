@@ -101,6 +101,7 @@ const DashboardLayout = () => {
     ];
   } else if (role === "Staff") {
     items = [
+      getItem("Dashboard Statistics", "dashboard-statistics", <DashboardOutlined />),
       getItem("Appointment System", "appointments", <CalendarOutlined />, [
         getItem("Confirm Appointments", "appointment-management", <CalendarOutlined />),
         getItem("Today's Appointments", "today-appointment-management", <CalendarOutlined />),

@@ -90,9 +90,6 @@ const menuItems = [
   { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
 ];
 
-const accountFields = [
-  "fullName", "username", "email", "phoneNumber", "profileImageUrl", "accountStatus", "roleId", "passwordHash"
-];
 const patientFields = [
   "dateOfBirth", "gender", "address", "hivDiagnosisDate", "consentInformation", "additionalNotes"
 ];
@@ -110,6 +107,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(false);
+  const [patientInfo, setPatientInfo] = useState(null);
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
       dispatch(removeInformation());
@@ -142,24 +140,19 @@ const ProfilePage = () => {
     }
     try {
       // Nếu người dùng chọn ảnh mới
-      if (values.profileImageUrl && values.profileImageUrl[0]?.originFileObj) {
-        const urlImageFromFirebase = await uploadFile(
-          values.profileImageUrl[0].originFileObj
-        );
-        values.profileImageUrl = urlImageFromFirebase;
-      } else if (values.profileImageUrl && values.profileImageUrl[0]?.url) {
-        // Người dùng không đổi ảnh, dùng ảnh cũ
-        values.profileImageUrl = values.profileImageUrl[0].url;
-      } else {
-        values.profileImageUrl = ""; // hoặc null nếu bạn muốn gửi rỗng
-      }
+      // Đã xử lý upload ảnh qua customRequest bên dưới, nên không cần uploadFile ở đây nữa
       if (values.dateOfBirth) {
         values.dateOfBirth = values.dateOfBirth.toISOString();
       }
       // Tách dữ liệu
       const accountData = {
-        ...fullInformUserOnRedux,
-        ...Object.fromEntries(Object.entries(values).filter(([key]) => accountFields.includes(key)))
+        username: values.username,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        fullName: values.fullName,
+        accountStatus: fullInformUserOnRedux?.accountStatus || "Active",
+        roleId: fullInformUserOnRedux?.roleId || 2,
+        profileImageUrl: fileList && fileList[0]?.url ? fileList[0].url : (fullInformUserOnRedux?.profileImageUrl || "")
       };
       const patientData = {};
       Object.keys(values).forEach(key => {
@@ -194,32 +187,47 @@ const ProfilePage = () => {
     setLoading(false);
   };
 
+  // Gọi API lấy thông tin patient khi vào trang
   useEffect(() => {
-    form.setFieldsValue({
-      fullName: fullInformUserOnRedux?.fullName,
-      username: fullInformUserOnRedux?.username,
-      phoneNumber: fullInformUserOnRedux?.phone,
-      dateOfBirth: fullInformUserOnRedux?.dateOfBirth ? dayjs(fullInformUserOnRedux?.dateOfBirth) : null,
-      gender: fullInformUserOnRedux?.gender,
-      address: fullInformUserOnRedux?.address,
-      profileImageUrl: [
-        {
-          uid: "-1",
-          name: "profile.jpg",
-          status: "done",
-          url: fullInformUserOnRedux?.profileImageUrl,
-        },
-      ],
+    if (!accountId) return;
+    getPatientByAccountId(accountId).then(res => {
+      setPatientInfo(res?.data?.data || null);
     });
-    setFileList([
-      {
-        uid: "-1",
-        name: "profile.jpg",
-        status: "done",
-        url: fullInformUserOnRedux?.profileImageUrl,
-      },
-    ]);
-  }, [fullInformUserOnRedux]);
+  }, [accountId]);
+
+  useEffect(() => {
+    // Chỉ set khi đã có user và có accountID và đã có patientInfo
+    if (!fullInformUserOnRedux || !fullInformUserOnRedux.accountID || !patientInfo) return;
+
+    const imgUrl = fullInformUserOnRedux?.profileImageUrl;
+    form.setFieldsValue({
+      fullName: fullInformUserOnRedux?.fullName || "",
+      username: fullInformUserOnRedux?.username || "",
+      email: fullInformUserOnRedux?.email || "",
+      phoneNumber: fullInformUserOnRedux?.phone || "",
+      dateOfBirth: patientInfo?.dateOfBirth ? dayjs(patientInfo.dateOfBirth) : null,
+      gender: patientInfo?.gender || undefined,
+      address: patientInfo?.address || "",
+      profileImageUrl: imgUrl
+        ? [{
+            uid: "-1",
+            name: "profile.jpg",
+            status: "done",
+            url: imgUrl,
+          }]
+        : [],
+    });
+    setFileList(
+      imgUrl
+        ? [{
+            uid: "-1",
+            name: "profile.jpg",
+            status: "done",
+            url: imgUrl,
+          }]
+        : []
+    );
+  }, [fullInformUserOnRedux, patientInfo, form]);
 
   // 💡 Nội dung động theo `selectedKey`
   const renderContent = () => {
@@ -300,6 +308,19 @@ const ProfilePage = () => {
                       </Col>
                       <Col span={12}>
                         <Form.Item
+                          name="email"
+                          label="Email"
+                          rules={[{ required: true, message: "Please input your email!" }, { type: "email", message: "Email is not valid!" }]}
+                        >
+                          <Input
+                            prefix={<MailOutlined />}
+                            placeholder="example@email.com"
+                            className="rounded-lg"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
                           name="phoneNumber"
                           label="Phone"
                           rules={[{ required: true }]}
@@ -360,14 +381,30 @@ const ProfilePage = () => {
                           name={"profileImageUrl"}
                         >
                           <Upload
-                            action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                            customRequest={async ({ file, onSuccess, onError }) => {
+                              try {
+                                const url = await uploadFile(file);
+                                const fileObj = {
+                                  uid: "-1",
+                                  name: file.name,
+                                  status: "done",
+                                  url,
+                                };
+                                setFileList([fileObj]);
+                                form.setFieldsValue({ profileImageUrl: [fileObj] });
+                                onSuccess("ok");
+                              } catch (err) {
+                                onError(err);
+                              }
+                            }}
                             listType="picture-card"
                             fileList={fileList}
                             onPreview={handlePreview}
-                            onChange={handleChange}
-                            //  showUploadList={{ showRemoveIcon: false }}
+                            
+                            showUploadList={{ showRemoveIcon: false }}
+                            maxCount={1}
                           >
-                            {fileList.length >= 8 ? null : uploadButton}
+                            {uploadButton}
                           </Upload>
                         </Form.Item>
                       </Col>
@@ -427,11 +464,7 @@ const ProfilePage = () => {
       setPreviewOpen(true);
     });
 
-  const handleChange = ({ fileList: newFileList }) => {
-    const latestFileList = newFileList.slice(-1);
-    setFileList(latestFileList);
-    form.setFieldsValue({ profileImageUrl: latestFileList });
-  };
+  
 
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">

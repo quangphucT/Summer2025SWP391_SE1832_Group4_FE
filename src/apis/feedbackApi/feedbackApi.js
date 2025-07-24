@@ -74,3 +74,18 @@ export const deleteFeedback = async (id) => {
         throw new Error(msg);
     }
 };
+
+// GET /api/feedback/rating-statistics/doctor/{doctorId}
+export const getFeedbackRatingStatisticsByDoctorId = async (doctorId) => {
+    try {
+        const response = await api.get(`/api/feedback/rating-statistics/doctor/${doctorId}`);
+        return response;
+    } catch (err) {
+        if (!err.response) {
+            throw new Error("Could not establish connection. Please check your internet connection.");
+        }
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getFeedbackRatingStatisticsByDoctorId failed:", msg);
+        throw new Error(msg);
+    }
+};
