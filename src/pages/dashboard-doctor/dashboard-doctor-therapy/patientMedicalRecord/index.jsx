@@ -33,7 +33,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { createMedicalRecord } from "../../../../apis/medicalRecord/createMedicalRecordApi";
 import { toast } from "react-toastify";
-import { getMedicalRecordByPatientEmail } from "../../../../apis/medicalRecord/getMedicalRecordByPatientEmailApi";
+import { getMedicalRecordByPatientPhone } from "../../../../apis/medicalRecord/getMedicalRecordByPatientPhoneApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
 import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
 import api from "../../../../config/api";
@@ -141,7 +141,7 @@ const PatientMedicalRecord = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      const response = await getMedicalRecordByPatientEmail(searchPatientId.trim());
+      const response = await getMedicalRecordByPatientPhone(searchPatientId.trim());
       let records = response?.data?.data;
       // Đảm bảo records luôn là mảng
       if (Array.isArray(records)) {
@@ -732,7 +732,7 @@ const PatientMedicalRecord = () => {
         <div className="create-medical-record-form">
           <div className="patient-info-header">
             <Text type="secondary">
-              Creating medical record for Patient ID:{" "}
+              Creating medical record for Patient with phone:{" "}
               <strong>{searchPatientId}</strong>
             </Text>
           </div>

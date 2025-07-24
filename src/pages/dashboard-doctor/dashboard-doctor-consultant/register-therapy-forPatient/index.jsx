@@ -37,8 +37,15 @@ const RegisterTherapyForPatient = () => {
   const [selectedTime, setSelectedTime] = useState(null);
   
   const [form] = Form.useForm();
-
- 
+   
+  const checkedInInformationRaw = sessionStorage.getItem("checkedInPatients");
+  const checkedInPatients = checkedInInformationRaw
+    ? JSON.parse(checkedInInformationRaw)
+    : [];
+  const firstPatient = Array.isArray(checkedInPatients)
+    ? checkedInPatients[0]
+    : null;
+  const patientId = firstPatient?.patient?.patientId || null;
   const handleDateTimeChange = () => {
      const date = form.getFieldValue("appointmentDate");
         const time = form.getFieldValue("appointmentTime");
@@ -111,6 +118,11 @@ const RegisterTherapyForPatient = () => {
           layout="vertical"
           onFinish={registerTherapyForPatient}
           className="therapy-form"
+          initialValues={
+            {
+              patientId: patientId || "",
+            }
+          }
         >
           <Row gutter={16}>
             <Col span={12}>

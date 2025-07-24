@@ -33,14 +33,14 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { createMedicalRecord } from "../../../../apis/medicalRecord/createMedicalRecordApi";
 import { toast } from "react-toastify";
-import { getMedicalRecordByPatientEmail } from "../../../../apis/medicalRecord/getMedicalRecordByPatientEmailApi";
+import { getMedicalRecordByPatientPhone } from "../../../../apis/medicalRecord/getMedicalRecordByPatientPhoneApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
 import { useSelector } from "react-redux";
 const { Title, Text } = Typography;
 
 const PatientMedicalRecord = () => {
   const [dataMedicalRecord, setDataMedicalRecord] = useState([]);
-  const [searchPatientEmail, setSearchPatientEmail] = useState("");
+  const [searchPatientPhone, setSearchPatientPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [openCreateModal, setOpenCreateModal] = useState(false);
@@ -64,8 +64,12 @@ const PatientMedicalRecord = () => {
 
   const [form] = Form.useForm();
   const [addTestResultForm] = Form.useForm();
+  const testResultNew = sessionStorage.getItem("testResultNew");
+  const testResultId = testResultNew
+    ? JSON.parse(testResultNew)?.testResultId || null
+    : null;
 
-  // Helper function to display value or N/A
+
   const displayValue = (value) => {
     if (value === null || value === undefined || value === "") return "N/A";
     return value;
@@ -90,7 +94,7 @@ const PatientMedicalRecord = () => {
       setOpenAddTestResultModal(false);
 
       // Refresh the medical records to show updated data
-      await searchMedicalRecordByPatientEmail();
+      await searchMedicalRecordByPatientPhone();
     } catch (error) {
       console.error("Error adding test result to medical record:", error);
       toast.error(
@@ -109,8 +113,8 @@ const PatientMedicalRecord = () => {
     addTestResultForm.resetFields();
   };
 
-  const searchMedicalRecordByPatientEmail = async () => {
-    if (!searchPatientEmail.trim()) {
+  const searchMedicalRecordByPatientPhone = async () => {
+    if (!searchPatientPhone.trim()) {
       return;
     }
 
@@ -118,8 +122,8 @@ const PatientMedicalRecord = () => {
     setHasSearched(true);
     try {
       // Gọi API giống như bên medicalRecordMenu-page, nhưng dùng searchPatientEmail
-      const response = await getMedicalRecordByPatientEmail(
-        searchPatientEmail.trim()
+      const response = await getMedicalRecordByPatientPhone(
+        searchPatientPhone.trim()
       );
       let records = response?.data?.data;
       // Đảm bảo records luôn là mảng
@@ -144,6 +148,7 @@ const PatientMedicalRecord = () => {
       consultationDate: dayjs(),
       pregnancyStatus: "NotPregnant",
       doctorId: userInformation?.accountID || "",
+      testResultId: testResultId || "",
     });
   };
   // get Medical Record by Patient ID
@@ -152,7 +157,7 @@ const PatientMedicalRecord = () => {
     setCreateLoading(true);
     try {
       // Kiểm tra nếu searchPatientEmail rỗng thì không cho phép tạo
-      if (!searchPatientEmail || !searchPatientEmail.trim()) {
+      if (!searchPatientPhone || !searchPatientPhone.trim()) {
         toast.error("Patient Email is required!");
         setCreateLoading(false);
         return;
@@ -163,6 +168,7 @@ const PatientMedicalRecord = () => {
         consultationDate: values.consultationDate.format(
           "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
         ),
+      
         testResultId: parseInt(values.testResultId) || 0,
         doctorId: parseInt(userInformation?.accountID) || 0, // Always use doctorId from Redux
       };
@@ -179,8 +185,8 @@ const PatientMedicalRecord = () => {
       setSelectedGender(null); // Reset gender selection
       setOpenCreateModal(false);
       toast.success("Medical record created successfully!");
-      if (searchPatientEmail) {
-        searchMedicalRecordByPatientEmail();
+      if (searchPatientPhone) {
+        searchMedicalRecordByPatientPhone();
       }
     } catch (error) {
       console.error("Error creating medical record:", error);
@@ -196,7 +202,7 @@ const PatientMedicalRecord = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      searchMedicalRecordByPatientEmail();
+      searchMedicalRecordByPatientPhone();
     }
   };
 
@@ -221,8 +227,8 @@ const PatientMedicalRecord = () => {
               size="large"
               placeholder="Enter Patient Email to search medical records"
               prefix={<UserOutlined />}
-              value={searchPatientEmail}
-              onChange={(e) => setSearchPatientEmail(e.target.value)}
+              value={searchPatientPhone}
+              onChange={(e) => setSearchPatientPhone(e.target.value)}
               onKeyPress={handleKeyPress}
               className="search-input"
             />
@@ -231,8 +237,8 @@ const PatientMedicalRecord = () => {
               size="large"
               icon={<SearchOutlined />}
               loading={loading}
-              onClick={searchMedicalRecordByPatientEmail}
-              disabled={!searchPatientEmail.trim()}
+              onClick={searchMedicalRecordByPatientPhone}
+              disabled={!searchPatientPhone.trim()}
               className="search-button"
             >
               Search Records
@@ -251,8 +257,8 @@ const PatientMedicalRecord = () => {
                   description={
                     <div className="empty-description">
                       <Text>
-                        No medical records found for Patient Email:{" "}
-                        <strong>{searchPatientEmail}</strong>
+                        No medical records found for Patient Phone:{" "}
+                        <strong>{searchPatientPhone}</strong>
                       </Text>
                     </div>
                   }
@@ -504,8 +510,29 @@ const PatientMedicalRecord = () => {
                                             : "N/A"}
                                         </Text>
                                       </Col>
-                                    </Row>
 
+                                        
+                                    </Row>
+                                     <Row gutter={8} style={{ marginTop: 12 }}>
+                                       <Col span={6}>
+                                        <Text strong>Testing Doctor:</Text>
+                                        <br />
+                                        <Text>
+                                          {test.doctorFullName
+                                            ? test.doctorFullName
+                                            : "N/A"}
+                                        </Text>
+                                      </Col>
+                                       <Col span={6}>
+                                        <Text strong>Email Doctor:</Text>
+                                        <br />
+                                        <Text>
+                                          {test.doctorEmail
+                                            ? test.doctorEmail
+                                            : "N/A"}
+                                        </Text>
+                                      </Col>
+                                      </Row>
                                     {/* Additional medical indicators */}
                                     {(test.cD4Count !== null ||
                                       test.hivViralLoadValue !== null) && (
@@ -642,8 +669,8 @@ const PatientMedicalRecord = () => {
         <div className="create-medical-record-form">
           <div className="patient-info-header">
             <Text type="secondary">
-              Creating medical record for Patient Email:{" "}
-              <strong>{searchPatientEmail}</strong>
+              Creating medical record for Patient with Phone:{" "}
+              <strong>{searchPatientPhone}</strong>
             </Text>
           </div>
 
@@ -935,6 +962,11 @@ const PatientMedicalRecord = () => {
             layout="vertical"
             onFinish={handleAddTestResultSubmit}
             className="test-result-form"
+            initialValues={
+              {
+                testResultId: testResultId, // Default value for test result ID
+              }
+            }
           >
             <Form.Item
               name="testResultId"
