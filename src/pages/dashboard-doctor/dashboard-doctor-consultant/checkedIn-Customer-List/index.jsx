@@ -34,6 +34,7 @@ import { getAllAppointmentsFollowingDoctor } from "../../../../apis/appointmentA
 import { useSelector } from "react-redux";
 import { updateAppointmentCompleted } from "../../../../apis/appointmentAPI/updateAppointmentCompletedApi";
 import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
@@ -107,6 +108,8 @@ const CheckedInAppointmentToday = () => {
       toast.success("Appointment marked as completed successfully!");
       setSelectedRecord(null);
       await getAllAppointmentsFollowingDoctor(accountID);
+      sessionStorage.removeItem("checkedInPatients");
+      sessionStorage.removeItem("testResultNew");
     } catch (error) {
       toast.error(  
         error?.response?.data?.message || "Error while handling logic!"
@@ -283,7 +286,14 @@ const CheckedInAppointmentToday = () => {
     try {
       const response = await getTestResultByPatientId(patientId);
       const testResults = response.data.data || [];
-      setTestResults(testResults);
+      const sortedResults = testResults.sort((a, b) => {
+        return (b.testResultId) - (a.testResultId);
+      }); 
+      sessionStorage.setItem(
+        "testResultNew",
+        JSON.stringify(sortedResults[0])
+      );
+      setTestResults(sortedResults);
     } catch {
       toast.error("Error fetching test results");
       setTestResults([]);
@@ -549,13 +559,14 @@ const CheckedInAppointmentToday = () => {
                         <Tag color="blue">{result.testType}</Tag>
                       </Descriptions.Item>
                       <Descriptions.Item label="Test Date">
-                        {new Date(result.testDate).toLocaleDateString("vi-VN", {
+                        {/* {new Date(result.testDate).toLocaleDateString("vi-VN", {
                           year: "numeric",
                           month: "2-digit",
                           day: "2-digit",
                           hour: "2-digit",
                           minute: "2-digit",
-                        })}
+                        })} */}
+                        {dayjs(result.testDate).format("DD/MM/YYYY")}
                       </Descriptions.Item>
                       <Descriptions.Item label="Lab Name">
                         {result.labName || "N/A"}
