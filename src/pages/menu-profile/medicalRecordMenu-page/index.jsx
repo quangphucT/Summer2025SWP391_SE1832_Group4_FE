@@ -196,7 +196,7 @@ const MedicalRecordMenuPage = ({ setSelectedKey }) => {
                               </span>
                             </div>
                             <div style={{ position: 'relative', zIndex: 10 }}>
-                              <Button
+                              {/* <Button
                                 type="primary"
                                 style={{
                                   background: '#1e3a8a',
@@ -222,7 +222,7 @@ const MedicalRecordMenuPage = ({ setSelectedKey }) => {
                                 }}
                               >
                                 Schedule
-                              </Button>
+                              </Button> */}
                             </div>
                           </div>
                         </Card>
