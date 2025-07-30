@@ -29,25 +29,26 @@ import {
   ExperimentOutlined,
 } from "@ant-design/icons";
 import "./index.scss";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { createMedicalRecord } from "../../../../apis/medicalRecord/createMedicalRecordApi";
 import { toast } from "react-toastify";
 import { getMedicalRecordByPatientPhone } from "../../../../apis/medicalRecord/getMedicalRecordByPatientPhoneApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
+import { getDoctorByAccountId } from "../../../../apis/doctorApi/doctorApi";
 const { Title, Text } = Typography;
 
-// Hàm chuẩn hóa số điện thoại về dạng +84...
-function normalizePhone(phone) {
-  let p = phone.replace(/\D/g, "");
-  if (p.startsWith("0") && p.length === 10) {
-    return "+84" + p.substring(1);
-  }
-  if (phone.startsWith("+84")) {
-    return phone;
-  }
-  return phone;
-}
+// // Hàm chuẩn hóa số điện thoại về dạng +84...
+// function normalizePhone(phone) {
+//   let p = phone.replace(/\D/g, "");
+//   if (p.startsWith("0") && p.length === 10) {
+//     return "+84" + p.substring(1);
+//   }
+//   if (phone.startsWith("+84")) {
+//     return phone;
+//   }
+//   return phone;
+// }
 
 const PatientMedicalRecord = () => {
   const [dataMedicalRecord, setDataMedicalRecord] = useState([]);
@@ -61,6 +62,25 @@ const PatientMedicalRecord = () => {
   const [addTestResultLoading, setAddTestResultLoading] = useState(false);
   const [selectedGender, setSelectedGender] = useState(null);
 
+  const accountID = sessionStorage.getItem("accountID") || null;
+  const [doctorIdFromAppointment, setDoctorIdFromAppointment] = useState(null);
+
+  useEffect(() => {
+    const checkedInInformationRaw = sessionStorage.getItem("checkedInPatients");
+    const checkedInPatients = checkedInInformationRaw ? JSON.parse(checkedInInformationRaw) : [];
+    const firstPatient = Array.isArray(checkedInPatients) ? checkedInPatients[0] : null;
+    const doctorId = firstPatient?.doctor?.doctorId;
+    if (doctorId) {
+      setDoctorIdFromAppointment(doctorId);
+    } else if (accountID) {
+      getDoctorByAccountId(accountID)
+        .then(res => {
+          setDoctorIdFromAppointment(res.data?.data?.doctorId || null);
+        })
+        .catch(() => setDoctorIdFromAppointment(null));
+    }
+  }, [accountID]);
+
   const checkedInInformationRaw = sessionStorage.getItem("checkedInPatients");
   const checkedInPatients = checkedInInformationRaw
     ? JSON.parse(checkedInInformationRaw)
@@ -69,7 +89,6 @@ const PatientMedicalRecord = () => {
     ? checkedInPatients[0]
     : null;
   const patientId = firstPatient?.patient?.patientId || null;
-  const doctorIdFromAppointment = firstPatient?.doctor?.doctorId || null;
 
 
   const [form] = Form.useForm();
@@ -131,9 +150,8 @@ const PatientMedicalRecord = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      // Luôn chuẩn hóa số điện thoại trước khi gọi API
-      const normalizedPhone = normalizePhone(searchPatientPhone.trim());
-      const response = await getMedicalRecordByPatientPhone(normalizedPhone);
+      // Gọi API trực tiếp với số điện thoại không chuẩn hóa
+      const response = await getMedicalRecordByPatientPhone(searchPatientPhone.trim());
       let records = response?.data?.data;
       // Đảm bảo records luôn là mảng
       if (Array.isArray(records)) {
@@ -152,7 +170,7 @@ const PatientMedicalRecord = () => {
 
   const handleCreateMedicalRecord = () => {
     setOpenCreateModal(true);
-    // Set default consultation date to today and doctor ID from appointment
+    // Set default consultation date to today và doctorId từ state doctorIdFromAppointment
     form.setFieldsValue({
       consultationDate: dayjs(),
       pregnancyStatus: "NotPregnant",
@@ -234,7 +252,7 @@ const PatientMedicalRecord = () => {
           <Space.Compact className="search-input-group">
             <Input
               size="large"
-              placeholder="Enter Patient Email to search medical records"
+              placeholder="Enter Phone Number to search medical records"
               prefix={<UserOutlined />}
               value={searchPatientPhone}
               onChange={(e) => setSearchPatientPhone(e.target.value)}

@@ -687,7 +687,7 @@ const HomePage = () => {
               Choose a consultant doctor for your needs and book a consultation easily.
             </p>
           </div>
-          <div className="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 justify-center">
+          <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 justify-center">
             {consultantDoctors.map(doc => (
               <DoctorCard
                 key={doc.doctorId}
