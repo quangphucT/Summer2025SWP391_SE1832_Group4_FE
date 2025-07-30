@@ -40,6 +40,7 @@ import { updateAppointmentCompleted } from "../../../../apis/appointmentAPI/upda
 import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
 import api from "../../../../config/api";
 import dayjs from "dayjs";
+import { getDoctorByAccountId } from "../../../../apis/doctorApi/doctorApi";
 
 const { Title, Text } = Typography;
 
@@ -77,6 +78,7 @@ const CheckedInAppointmentToday = () => {
   const [selectedRegimenEdit, setSelectedRegimenEdit] = useState(null);
 
   const accountID = useSelector((store) => store?.user?.accountID);
+  const [doctorId, setDoctorId] = useState("");
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -128,6 +130,22 @@ const CheckedInAppointmentToday = () => {
     };
     fetchRegimens();
   }, []);
+
+  useEffect(() => {
+    const checkedInInformationRaw = sessionStorage.getItem("checkedInPatients");
+    const checkedInPatients = checkedInInformationRaw ? JSON.parse(checkedInInformationRaw) : [];
+    const firstPatient = Array.isArray(checkedInPatients) ? checkedInPatients[0] : null;
+    const doctorIdFromAppointment = firstPatient?.doctor?.doctorId;
+    if (doctorIdFromAppointment) {
+      setDoctorId(doctorIdFromAppointment);
+    } else if (accountID) {
+      getDoctorByAccountId(accountID)
+        .then(res => {
+          setDoctorId(res.data?.data?.doctorId || "");
+        })
+        .catch(() => setDoctorId(""));
+    }
+  }, [accountID]);
 
   const fetchAvailableDoctors = async (date, time) => {
     try {
@@ -575,6 +593,23 @@ const CheckedInAppointmentToday = () => {
     }
   };
 
+  // Thêm hàm handleViewPreviousTreatment để gọi API lấy treatment history
+  const handleViewPreviousTreatment = async (patientId) => {
+    setLoadingPreviousTreatment(true);
+    try {
+      const response = await api.get(`/api/patient-treatments/patient/${patientId}`);
+      const treatments = response.data?.data || [];
+      setPreviousTreatments(treatments);
+      setPreviousTreatmentModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching previous treatments:", error);
+      toast.error("Failed to fetch treatment history");
+      setPreviousTreatments([]);
+    } finally {
+      setLoadingPreviousTreatment(false);
+    }
+  };
+
   // 3. Thêm hàm fetchSuggestedRegimensEdit (tương tự fetchSuggestedRegimens)
   const fetchSuggestedRegimensEdit = async (values) => {
     setSuggestLoading(true);
@@ -1003,10 +1038,10 @@ const CheckedInAppointmentToday = () => {
               <Form.Item
                 label="Prescribing Doctor ID"
                 name="prescribingDoctorId"
-                initialValue={accountID}
+                initialValue={doctorId}
                 rules={[{ required: true, message: "Please enter doctor ID" }]}
               >
-                <Input disabled />
+                <Input value={doctorId} disabled />
               </Form.Item>
             </Col>
           </Row>

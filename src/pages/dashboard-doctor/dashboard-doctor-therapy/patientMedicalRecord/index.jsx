@@ -33,7 +33,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { createMedicalRecord } from "../../../../apis/medicalRecord/createMedicalRecordApi";
 import { toast } from "react-toastify";
-import { getMedicalRecordByPatientId } from "../../../../apis/medicalRecord/getMedicalRecordByPatientIdApi";
+import { getMedicalRecordByPatientPhone } from "../../../../apis/medicalRecord/getMedicalRecordByPatientPhoneApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
 import { getTestResultByPatientId } from "../../../../apis/Results/getTestResultByPatientIdAPI";
 import api from "../../../../config/api";
@@ -141,7 +141,7 @@ const PatientMedicalRecord = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      const response = await getMedicalRecordByPatientId(searchPatientId.trim());
+      const response = await getMedicalRecordByPatientPhone(searchPatientId.trim());
       let records = response?.data?.data;
       // Đảm bảo records luôn là mảng
       if (Array.isArray(records)) {
@@ -263,106 +263,6 @@ const PatientMedicalRecord = () => {
       searchMedicalRecordByPatientId();
     }
   };
-
-  // Add this section in your JSX where you want to display the latest test results
-  // 1. Loại bỏ <p> bọc <h5> (và các heading khác)
-  // (Không thể sửa trực tiếp nếu không thấy, nhưng hãy tìm và thay thế trong JSX như hướng dẫn dưới đây)
-  // Ví dụ:
-  // <p><h5>Tiêu đề</h5></p> => <div><h5>Tiêu đề</h5></div>
-  // hoặc chỉ <h5>Tiêu đề</h5>
-
-  // 2. Xử lý linter renderLatestTestResults
-  // const renderLatestTestResults = () => {
-  //   if (!latestTestResults.rapidTest && !latestTestResults.otherTest) {
-  //     return null;
-  //   }
-
-  //   const formatDateTime = (dateString) => {
-  //     return new Date(dateString).toLocaleString("vi-VN", {
-  //       year: "numeric",
-  //       month: "2-digit",
-  //       day: "2-digit",
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //     });
-  //   };
-
-  //   const renderTestCard = (test, title) => (
-  //     <Card 
-  //       size="small" 
-  //       title={
-  //         <Space>
-  //           <ExperimentOutlined />
-  //           {title}
-  //         </Space>
-  //       } 
-  //       className="test-result-card"
-  //       style={{ marginBottom: 16 }}
-  //     >
-  //       <Descriptions 
-  //         column={1} 
-  //         size="small" 
-  //         bordered
-  //         style={{ 
-  //           wordBreak: 'break-word',
-  //         }}
-  //       >
-  //         <Descriptions.Item label={<div style={{ width: 120 }}>Test Date</div>}>
-  //           {formatDateTime(test.testDate)}
-  //         </Descriptions.Item>
-  //         <Descriptions.Item label={<div style={{ width: 120 }}>Test Type</div>}>
-  //           <Tag color="blue">{test.testType}</Tag>
-  //         </Descriptions.Item>
-  //         <Descriptions.Item label={<div style={{ width: 120 }}>Result</div>}>
-  //           <Tag color={test.testResults === "Positive" ? "red" : "green"}>
-  //             {test.testResults}
-  //           </Tag>
-  //         </Descriptions.Item>
-  //         <Descriptions.Item label={<div style={{ width: 120 }}>Lab</div>}>
-  //           {test.labName}
-  //         </Descriptions.Item>
-  //         {test.cD4Count && (
-  //           <Descriptions.Item label={<div style={{ width: 120 }}>CD4 Count</div>}>
-  //             <Tag color="purple">{test.cD4Count} cells/μL</Tag>
-  //           </Descriptions.Item>
-  //         )}
-  //         {test.hivViralLoadValue && (
-  //           <Descriptions.Item label={<div style={{ width: 120 }}>HIV Viral Load</div>}>
-  //             <Tag color="orange">{test.hivViralLoadValue} copies/mL</Tag>
-  //           </Descriptions.Item>
-  //         )}
-  //         {test.doctorComments && (
-  //           <Descriptions.Item 
-  //             label={<div style={{ width: 120 }}>Doctor Comments</div>}
-  //             style={{ whiteSpace: 'pre-wrap' }}
-  //           >
-  //             <Text type="secondary" italic style={{ wordBreak: 'break-word' }}>
-  //               {test.doctorComments}
-  //             </Text>
-  //           </Descriptions.Item>
-  //         )}
-  //       </Descriptions>
-  //     </Card>
-  //   );
-
-  //   return (
-  //     <div className="latest-test-results" style={{ padding: '0 16px' }}>
-  //       <Title level={4} style={{ marginBottom: 16 }}>Latest Test Results</Title>
-  //       <Row gutter={[16, 16]}>
-  //         {latestTestResults.rapidTest && (
-  //           <Col xs={24} sm={24} md={12}>
-  //             {renderTestCard(latestTestResults.rapidTest, "Latest Rapid Test")}
-  //           </Col>
-  //         )}
-  //         {latestTestResults.otherTest && (
-  //           <Col xs={24} sm={24} md={12}>
-  //             {renderTestCard(latestTestResults.otherTest, `Latest ${latestTestResults.otherTest.testType} Test`)}
-  //           </Col>
-  //         )}
-  //       </Row>
-  //     </div>
-  //   );
-  // };
 
   return (
     <div className="patient-medical-record">
@@ -832,7 +732,7 @@ const PatientMedicalRecord = () => {
         <div className="create-medical-record-form">
           <div className="patient-info-header">
             <Text type="secondary">
-              Creating medical record for Patient ID:{" "}
+              Creating medical record for Patient with phone:{" "}
               <strong>{searchPatientId}</strong>
             </Text>
           </div>
