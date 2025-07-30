@@ -134,3 +134,48 @@ export const getTestResultStatsByYear = async () => {
         throw new Error(msg);
     }
 };
+
+// GET /api/dashboard
+export const getDashboard = async () => {
+    try {
+        const response = await api.get('/api/dashboard');
+        return response;
+    } catch (err) {
+        if (!err.response) {
+            throw new Error("Could not establish connection. Please check your internet connection.");
+        }
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getDashboard failed:", msg);
+        throw new Error(msg);
+    }
+};
+
+// GET /api/dashboard/statistics/test-result-summary
+export const getTestResultSummary = async () => {
+    try {
+        const response = await api.get('/api/dashboard/statistics/test-result-summary');
+        return response;
+    } catch (err) {
+        if (!err.response) {
+            throw new Error("Could not establish connection. Please check your internet connection.");
+        }
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getTestResultSummary failed:", msg);
+        throw new Error(msg);
+    }
+};
+
+// GET /api/dashboard/treatments
+export const getTreatments = async () => {
+    try {
+        const response = await api.get('/api/dashboard/treatments');
+        return response;
+    } catch (err) {
+        if (!err.response) {
+            throw new Error("Could not establish connection. Please check your internet connection.");
+        }
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getTreatments failed:", msg);
+        throw new Error(msg);
+    }
+};
