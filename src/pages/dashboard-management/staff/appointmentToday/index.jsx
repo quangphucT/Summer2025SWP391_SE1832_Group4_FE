@@ -203,7 +203,7 @@ const AppointmentTodayManagement = () => {
        setOpenModalConfirmCheckIn(false)
        fetchingData();
     } catch (error) {
-      toast.error(error?.response?.data?.error || "Error while handling logic!!")
+      toast.error(error?.response?.data?.data || "Error while handling logic!!")
     }
     setLoading(false)
   }

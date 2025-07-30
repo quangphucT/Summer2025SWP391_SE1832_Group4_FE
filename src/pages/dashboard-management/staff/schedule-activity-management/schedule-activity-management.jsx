@@ -380,6 +380,40 @@ const ScheduleActivityManagement = () => {
                 >
                   Cancel
                 </button>
+                {/* Nút tạo schedule với payload mẫu */}
+                <button
+                  type="button"
+                  style={{ background: '#1976d2', color: 'white', borderRadius: 4, padding: '8px 16px' }}
+                  onClick={async () => {
+                    try {
+                      const examplePayload = {
+                        patientId: 0,
+                        createdByStaffId: 0,
+                        scheduledDate: '2025-07-30T18:48:23.992Z',
+                        activityType: 'ReExamination',
+                        description: 'string',
+                        status: 'Scheduled',
+                      };
+                      await createScheduledActivity(examplePayload);
+                      toast.success('Created schedule with example payload!');
+                      setIsModalOpen(false);
+                      setEditingActivity(null);
+                      setFormData({
+                        patientId: '',
+                        createdByStaffId: '',
+                        scheduledDate: '',
+                        activityType: '',
+                        description: '',
+                        status: '',
+                      });
+                      fetchActivities();
+                    } catch {
+                      toast.error('Failed to create schedule with example payload!');
+                    }
+                  }}
+                >
+                  Create Schedule (API Example)
+                </button>
               </div>
             </form>
           </div>

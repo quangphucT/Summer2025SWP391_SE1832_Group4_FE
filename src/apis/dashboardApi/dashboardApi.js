@@ -179,3 +179,20 @@ export const getTreatments = async () => {
         throw new Error(msg);
     }
 };
+
+// GET /api/dashboard/statistics/treatment-status-count
+export const getTreatmentStatusCount = async () => {
+    try {
+        const response = await api.get('/api/dashboard/statistics/treatment-status-count');
+        return response;
+    } catch (err) {
+        if (!err.response) {
+            throw new Error("Could not establish connection. Please check your internet connection.");
+        }
+        const msg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+        console.error("[API] getTreatmentStatusCount failed:", msg);
+        throw new Error(msg);
+    }
+};
+
+
