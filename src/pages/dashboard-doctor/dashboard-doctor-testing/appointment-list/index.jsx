@@ -1,6 +1,6 @@
 
-import { Table, Tag, Button, Avatar, Select, Input, Card, Typography } from "antd";
-import { CalendarOutlined, UserOutlined, PhoneOutlined, MedicineBoxOutlined, SearchOutlined, FilterOutlined } from "@ant-design/icons";
+import { Table, Tag, Button, Avatar, Select, Input, Card, Typography, Modal, Form, Row, Col, Divider, Tooltip } from "antd";
+import { CalendarOutlined, UserOutlined, PhoneOutlined, MedicineBoxOutlined, SearchOutlined, FilterOutlined, ExperimentOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "./index.scss";
 
@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { useEffect, useState, useCallback } from "react";
 import { getAllAppointmentsFollowingDoctor } from "../../../../apis/appointmentAPI/getAppointmentFollowingDoctorApi";
+import { createResultAfterTest } from "../../../../apis/doctorTestingAPI/createResultAfterTestApi";
 
 
 const { Title } = Typography;
@@ -17,15 +18,83 @@ const AppointmentListByDoctorTestingAccountId = () => {
     const accountID = useSelector((store) => store?.user?.accountID);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingCreateResult, setLoadingCreateResult] = useState(false);
+    const [form] = Form.useForm();
+    const [isModalOpen, setIsModalOpen] = useState(false);
     
     // Filter states
     const [statusFilter, setStatusFilter] = useState("All");
     const [serviceFilter, setServiceFilter] = useState("All");
     const [searchPatientName, setSearchPatientName] = useState("");
-     const handleStartConsultation = (record) => {
-        console.log("Starting consultation for:", record);
-        toast.success(`Starting consultation for ${record.patientName}`);
-        // Add your consultation logic here
+     // create result handling
+    const handleCreateResult = (record) => {
+        console.log("Value record: ", record);
+        setIsModalOpen(true);
+        form.setFieldsValue({
+            appointmentId: record.appointmentId,
+            patientName: record?.patient?.account?.fullName || record.patientName,
+            patientCode: record?.patient?.patientCodeAtFacility,
+            appointmentTime: record.appointmentTime,
+            appointmentType: record.appointmentType,
+            appointmentService: record.appointmentService,
+            doctorName: record.doctor?.account?.fullName,
+        });
+    };
+
+    // Auto-determine test result based on CD4 and Viral Load values
+    const determineTestResult = (cd4Count, viralLoad) => {
+        // Convert values to numbers for comparison
+        const cd4 = parseInt(cd4Count) || 0;
+        const viral = parseInt(viralLoad) || 0;
+
+        // Standard HIV test result criteria:
+        if (cd4 >= 500 && viral <= 1000) {
+            return "Negative";
+        } else {
+            return "Positive";
+        }
+    };
+
+    const onFinish = async (values) => {
+        setLoadingCreateResult(true);
+        try {
+            if (values.appointmentService === "RapidTest") {
+                const payloadForRapidTest = {
+                    appointmentId: values.appointmentId,
+                    testType: values.appointmentService,
+                    labName: values.labName,
+                    doctorComments: values.doctorComments,
+                    testResults: values.testResults,
+                };
+                await createResultAfterTest(payloadForRapidTest);
+            } else {
+                // Auto-determine result for PCR/ELISA tests
+                const autoTestResult = determineTestResult(
+                    values.cD4Count,
+                    values.hivViralLoadValue
+                );
+
+                const payloadFor2Remaining = {
+                    appointmentId: values.appointmentId,
+                    testType: values.appointmentService,
+                    cD4Count: values.cD4Count,
+                    hivViralLoadValue: values.hivViralLoadValue,
+                    labName: values.labName,
+                    doctorComments: values.doctorComments,
+                    testResults: autoTestResult, // Use auto-determined result
+                };
+                await createResultAfterTest(payloadFor2Remaining);
+            }
+            toast.success("✅ HIV test result created successfully!");
+            setIsModalOpen(false);
+            fetchingAppointmentsFollowingDoctor();
+            form.resetFields();
+        } catch (error) {
+            toast.error(
+                error?.response?.data?.message?.error || "Error while creating result"
+            );
+        }
+        setLoadingCreateResult(false);
     };
 
     const fetchingAppointmentsFollowingDoctor = useCallback(async () => {
@@ -232,24 +301,21 @@ const AppointmentListByDoctorTestingAccountId = () => {
         {
             title: 'Actions',
             key: 'actions',
-            width: 120,
+            width: 150,
             render: (_, record) => {
-                const canStartConsultation = record.status === 'CheckedIn';
-                
                 return (
                     <div style={{ display: "flex", gap: "8px" }}>
                         <Button
-                            type={canStartConsultation ? "primary" : "default"}
+                            type="primary"
                             size="small"
-                            disabled={!canStartConsultation}
                             style={{
                                 borderRadius: "6px",
                                 fontWeight: "500",
-                                backgroundColor: canStartConsultation ? "#1976d2" : undefined
+                                backgroundColor: "#1976d2"
                             }}
-                            onClick={() => handleStartConsultation(record)}
+                            onClick={() => handleCreateResult(record)}
                         >
-                            {canStartConsultation ? "Start" : "Waiting"}
+                            Create Result
                         </Button>
                     </div>
                 );
@@ -369,6 +435,207 @@ const AppointmentListByDoctorTestingAccountId = () => {
           }}
         />
       </Card>
+
+      {/* Modal for Creating Test Result */}
+      <Modal
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <ExperimentOutlined style={{ color: "#d32f2f" }} />
+            HIV Test Result
+          </div>
+        }
+        open={isModalOpen}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        width={700}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => {
+              setIsModalOpen(false);
+              form.resetFields();
+            }}
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loadingCreateResult}
+            onClick={() => form.submit()}
+          >
+            Save Result
+          </Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+          {/* Patient & Appointment Info */}
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item label="Appointment ID" name="appointmentId">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="Patient Name" name="patientName">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="Patient Code" name="patientCode">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider>Test Results</Divider>
+
+          {/* Test Information */}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Test Type"
+                name="appointmentService"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select test type!",
+                  },
+                ]}
+              >
+                <Input disabled />
+              </Form.Item>
+            </Col>
+
+            <Col span={12}>
+              <Form.Item
+                label="Lab Name"
+                name="labName"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input lab name!",
+                  },
+                ]}
+              >
+                <Input placeholder="Enter laboratory name" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Test Values */}
+          <Row gutter={16}>
+            {form.getFieldValue("appointmentService") === "RapidTest" ? (
+              // For RapidTest, show manual Test Result selection
+              <Col span={12}>
+                <Form.Item
+                  label="Test Result"
+                  name="testResults"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select test result!",
+                    },
+                  ]}
+                >
+                  <Select placeholder="Select test result">
+                    <Select.Option value="Positive">Positive</Select.Option>
+                    <Select.Option value="Negative">Negative</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            ) : (
+              <>
+                <Col span={8}>
+                  <Form.Item label="CD4 Count" name="cD4Count">
+                    <Input
+                      type="number"
+                      placeholder="CD4 count"
+                      addonAfter="cells/mm³"
+                      onChange={(e) => {
+                        const cd4Value = e.target.value;
+                        const viralValue =
+                          form.getFieldValue("hivViralLoadValue");
+                        if (cd4Value || viralValue) {
+                          const autoResult = determineTestResult(
+                            cd4Value,
+                            viralValue
+                          );
+                          form.setFieldsValue({ testResults: autoResult });
+                        }
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={8}>
+                  <Form.Item label="Viral Load Value" name="hivViralLoadValue">
+                    <Input
+                      placeholder="Viral load value"
+                      addonAfter="copies/mL"
+                      onChange={(e) => {
+                        const viralValue = e.target.value;
+                        const cd4Value = form.getFieldValue("cD4Count");
+                        if (cd4Value || viralValue) {
+                          const autoResult = determineTestResult(
+                            cd4Value,
+                            viralValue
+                          );
+                          form.setFieldsValue({ testResults: autoResult });
+                        }
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={8}>
+                  <Form.Item label="Auto-Determined Result" name="testResults">
+                    <Input
+                      disabled
+                      placeholder="Result will be auto-determined"
+                      style={{
+                        backgroundColor:
+                          form.getFieldValue("testResults") === "Positive"
+                            ? "#ffebee"
+                            : "#e8f5e8",
+                        color:
+                          form.getFieldValue("testResults") === "Positive"
+                            ? "#d32f2f"
+                            : "#2e7d32",
+                        fontWeight: "bold",
+                      }}
+                    />
+                  </Form.Item>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#666",
+                      marginTop: "-16px",
+                    }}
+                  >
+                    📋 Auto-determined based on:
+                    <br />
+                    • CD4 &lt; 200 or Viral Load &gt; 1000 = Positive
+                    <br />• CD4 ≥ 500 and Viral Load &lt; 50 = Negative
+                  </div>
+                </Col>
+              </>
+            )}
+          </Row>
+
+          {/* Comments */}
+          <Form.Item label="Doctor's Comments" name="doctorComments">
+            <Input.TextArea
+              rows={3}
+              placeholder="Enter medical notes or recommendations..."
+              maxLength={500}
+              showCount
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   )
 }
