@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import "./index.scss";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Button,
   Form,
@@ -36,12 +36,13 @@ const CheckedInAppointmentToday = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingCreateResult, setLoadingCreateResult] = useState(false);
+  const [loadingCheckout, setLoadingCheckout] = useState({});
   const accountID = useSelector((store) => store?.user?.accountID);
   const [form] = Form.useForm();
   // modal create result
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchingAppointmentCheckedIn = async () => {
+  const fetchingAppointmentCheckedIn = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getAllAppointmentsFollowingDoctor(accountID);
@@ -61,11 +62,27 @@ const CheckedInAppointmentToday = () => {
       );
     }
     setLoading(false);
-  };
+  }, [accountID]);
 
   useEffect(() => {
     fetchingAppointmentCheckedIn();
-  }, []);
+  }, [fetchingAppointmentCheckedIn]);
+
+  // Handle checkout - mark appointment as completed
+  const handleCheckout = async (record) => {
+    setLoadingCheckout(prev => ({ ...prev, [record.appointmentId]: true }));
+    try {
+      await updateAppointmentCompleted(record.appointmentId);
+      toast.success(`✅ Successfully checked out ${record.patientName}`);
+      // Refresh the appointments list
+      fetchingAppointmentCheckedIn();
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message?.error || "Error during checkout"
+      );
+    }
+    setLoadingCheckout(prev => ({ ...prev, [record.appointmentId]: false }));
+  };
 
   const columns = [
     {
@@ -165,23 +182,45 @@ const CheckedInAppointmentToday = () => {
       title: "Action",
       dataIndex: "appointmentId",
       key: "action",
-      width: 150,
+      width: 200,
       fixed: "right",
       render: (text, record) => {
+        const isCheckoutLoading = loadingCheckout[record.appointmentId];
+        
         return (
-          <Tooltip title="Create HIV test result for this patient">
-            <Button
-              loading={loading}
-              type="primary"
-              icon={<FileTextOutlined />}
-              onClick={() => {
-                handleOpenModaleCreateResult(record);
-              }}
-              className="action-button"
-            >
-              Create Result
-            </Button>
-          </Tooltip>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {/* <Tooltip title="Create HIV test result for this patient">
+              <Button
+                loading={loading}
+                type="primary"
+                icon={<FileTextOutlined />}
+                onClick={() => {
+                  handleOpenModaleCreateResult(record);
+                }}
+                className="action-button"
+                style={{ marginBottom: "4px" }}
+              >
+                Create Result
+              </Button>
+            </Tooltip> */}
+            
+            <Tooltip title="Complete appointment and checkout patient">
+              <Button
+                loading={isCheckoutLoading}
+                type="default"
+                style={{
+                  backgroundColor: "#ff7875",
+                  borderColor: "#ff7875",
+                  color: "#fff",
+                  fontWeight: "500"
+                }}
+                onClick={() => handleCheckout(record)}
+                className="action-button"
+              >
+                {isCheckoutLoading ? "Checking out..." : "Checkout"}
+              </Button>
+            </Tooltip>
+          </div>
         );
       },
     },
@@ -245,7 +284,7 @@ const CheckedInAppointmentToday = () => {
         };
         await createResultAfterTest(payloadFor2Remaining);
       }
-      await updateAppointmentCompleted(values.appointmentId);
+      // Don't auto-complete appointment here, let doctor decide when to checkout
       toast.success("✅ HIV test result created successfully!");
       setIsModalOpen(false);
       fetchingAppointmentCheckedIn();
