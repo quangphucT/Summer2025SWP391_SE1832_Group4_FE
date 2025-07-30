@@ -22,25 +22,43 @@ import {
 const { Header, Sider, Content } = Layout;
 
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CheckedInAppointmentToday from "../checkedIn-Customer-List";
 import { useDispatch, useSelector } from "react-redux";
 import { removeInformation } from "../../../../redux/feature/userSlice";
 import AppointmentListByDoctorAccountId from "../appointment-list";
 import PatientMedicalRecord from "../patientMedicalRecord";
 import RegisterTherapyForPatient from "../../dashboard-doctor-consultant/register-therapy-forPatient";
-
+import { getDoctorByAccountId } from "../../../../apis/doctorApi/doctorApi";
 
 const DashboardDoctorTherapyLayout = () => {
   const emailDoctor = useSelector((store) => store?.user?.email);
   const fullNameDoctor = useSelector((store) => store?.user?.fullName);
-  const doctorID = useSelector((store) => store?.user?.accountID);
+  const accountID = useSelector((store) => store?.user?.accountID);
   const fullname = useSelector((store) => store?.user?.fullName);
   const [selectedMenu, setSelectedMenu] = useState(
     "recently-checkedInPatients"
   );
+  const [doctorId, setDoctorId] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkedInInformationRaw = sessionStorage.getItem("checkedInPatients");
+    const checkedInPatients = checkedInInformationRaw ? JSON.parse(checkedInInformationRaw) : [];
+    const firstPatient = Array.isArray(checkedInPatients) ? checkedInPatients[0] : null;
+    const doctorIdFromAppointment = firstPatient?.doctor?.doctorId;
+    if (doctorIdFromAppointment) {
+      setDoctorId(doctorIdFromAppointment);
+    } else if (accountID) {
+      getDoctorByAccountId(accountID)
+        .then(res => {
+          setDoctorId(res.data?.data?.doctorId || "");
+        })
+        .catch(() => setDoctorId(""));
+    }
+  }, [accountID]);
+
   const handleLogout = () => {
     sessionStorage.clear();
     dispatch(removeInformation());
@@ -164,7 +182,7 @@ const DashboardDoctorTherapyLayout = () => {
                 backdropFilter: "blur(10px)",
               }}
             >
-              DoctorID: {doctorID}
+              DoctorID: {doctorId}
             </div>
           </div>
         </div>

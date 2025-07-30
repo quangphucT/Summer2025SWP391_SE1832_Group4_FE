@@ -28,6 +28,14 @@ const DoctorDetail = ({ onBook }) => {
   const [patientNames, setPatientNames] = useState({});
   const [avgRating, setAvgRating] = useState(null);
   const [patientProfiles, setPatientProfiles] = useState({});
+  const [starCounts, setStarCounts] = useState({
+    oneStarCount: 0,
+    twoStarCount: 0,
+    threeStarCount: 0,
+    fourStarCount: 0,
+    fiveStarCount: 0,
+  });
+  const [filterStar, setFilterStar] = useState(null);
 
   useEffect(() => {
     const fetchDoctorData = async () => {
@@ -87,6 +95,14 @@ const DoctorDetail = ({ onBook }) => {
           // Lấy rating trung bình
           const avg = data.averageRating;
           setAvgRating(typeof avg === 'number' ? avg : null);
+          // Lấy breakdown số sao
+          setStarCounts({
+            oneStarCount: data.oneStarCount || 0,
+            twoStarCount: data.twoStarCount || 0,
+            threeStarCount: data.threeStarCount || 0,
+            fourStarCount: data.fourStarCount || 0,
+            fiveStarCount: data.fiveStarCount || 0,
+          });
           // Lấy danh sách feedbacks (giả sử là data.feedbackList hoặc data.feedbacks)
           const fb = data.feedbackList || data.feedbacks || [];
           setFeedbacks(fb);
@@ -192,6 +208,8 @@ const DoctorDetail = ({ onBook }) => {
     );
   }
 
+  const totalFeedbacks = starCounts.fiveStarCount + starCounts.fourStarCount + starCounts.threeStarCount + starCounts.twoStarCount + starCounts.oneStarCount;
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
@@ -230,28 +248,83 @@ const DoctorDetail = ({ onBook }) => {
               </div>
               <span className="text-gray-600">{avgRating !== null ? avgRating.toFixed(1) : 5} out of 5</span>
             </div>
-            <button 
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium text-lg px-6 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
-              onClick={() => {
-                if (onBook) onBook(doctor);
-                navigate(`/schedule-consultation?doctorId=${doctor.doctorId}`, {
-                  state: {
-                    selectedDoctor: doctor.doctorId,
-                    doctorName: doctor.fullName
-                  }
-                });
-              }}
-            >
-              Book an Appointment
-            </button>
+            {/* Book an Appointment button moved below breakdown */}
+            <div className="flex justify-center mt-4 mb-2">
+              <button 
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium text-lg px-6 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 max-w-xs"
+                onClick={() => {
+                  if (onBook) onBook(doctor);
+                  navigate(`/schedule-consultation?doctorId=${doctor.doctorId}`, {
+                    state: {
+                      selectedDoctor: doctor.doctorId,
+                      doctorName: doctor.fullName
+                    }
+                  });
+                }}
+              >
+                Book an Appointment
+              </button>
+            </div>
+            {/* Shopee-style Star breakdown */}
+            <div className="my-4">
+              <div className="font-semibold text-gray-800 mb-2 text-base text-center">Rating Breakdown</div>
+              <div className="flex flex-col gap-2 w-full max-w-xs mx-auto">
+                {[5, 4, 3, 2, 1].map(star => {
+                  const count =
+                    star === 5 ? starCounts.fiveStarCount :
+                    star === 4 ? starCounts.fourStarCount :
+                    star === 3 ? starCounts.threeStarCount :
+                    star === 2 ? starCounts.twoStarCount :
+                    starCounts.oneStarCount;
+                  const percent = totalFeedbacks > 0 ? (count / totalFeedbacks) * 100 : 0;
+                  return (
+                    <div
+                      key={star}
+                      className={`flex items-center gap-2 cursor-pointer group ${filterStar === star ? 'bg-blue-100' : 'hover:bg-gray-100'} rounded px-2 py-1 transition`}
+                      onClick={() => setFilterStar(star)}
+                    >
+                      <span className="flex items-center min-w-[60px] justify-end">
+                        {[...Array(star)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </span>
+                      <div className="relative flex-1 flex items-center">
+                        <div className="w-40 h-3 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-yellow-400 rounded-full transition-all"
+                            style={{ width: `${percent}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <span className="min-w-[48px] text-right text-gray-700 font-medium">{count} reviews</span>
+                    </div>
+                  );
+                })}
+                {filterStar && (
+                  <button
+                    className="mt-2 text-xs text-blue-600 underline"
+                    onClick={() => setFilterStar(null)}
+                  >
+                    See all reviews
+                  </button>
+                )}
+              </div>
+            </div>
+            
             {/* Feedback Section */}
             <div className="mt-6 text-left">
-              <div className="font-semibold text-gray-800 mb-2 text-base">Patient Feedback</div>
-              {feedbacks.length === 0 ? (
-                <div className="text-gray-500 text-sm">No feedback yet</div>
+              <div className="font-semibold text-gray-800 mb-2 text-base">Patient Reviews</div>
+              {(filterStar
+                ? feedbacks.filter(fb => fb.rating === filterStar)
+                : feedbacks
+              ).length === 0 ? (
+                <div className="text-gray-500 text-sm">No reviews yet</div>
               ) : (
                 <div className="space-y-3">
-                  {feedbacks.map((fb, idx) => (
+                  {(filterStar
+                    ? feedbacks.filter(fb => fb.rating === filterStar)
+                    : feedbacks
+                  ).map((fb, idx) => (
                     <div key={fb.feedbackId || idx} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                       <div className="flex items-center gap-2 mb-1">
                         {patientProfiles[fb.patientId]?.profileImageUrl ? (
