@@ -41,6 +41,7 @@ import { getTestResultByPatientId } from "../../../../apis/Results/getTestResult
 import api from "../../../../config/api";
 import dayjs from "dayjs";
 import { getDoctorByAccountId } from "../../../../apis/doctorApi/doctorApi";
+import { createScheduledActivity } from "../../../../apis/scheduledActivities/scheduledActivities";
 
 const { Title, Text } = Typography;
 
@@ -90,6 +91,13 @@ const CheckedInAppointmentToday = () => {
   const [treatmentLoading, setTreatmentLoading] = useState(false);
   const [regimenOptions, setRegimenOptions] = useState([]);
   const [selectedRegimen, setSelectedRegimen] = useState(null);
+  const [showCreateScheduleBtn, setShowCreateScheduleBtn] = useState({});
+  
+  // Thêm state cho modal tạo schedule
+  const [openCreateScheduleModal, setOpenCreateScheduleModal] = useState(false);
+  const [createScheduleLoading, setCreateScheduleLoading] = useState(false);
+  const [selectedRecordForSchedule, setSelectedRecordForSchedule] = useState(null);
+  const [scheduleForm] = Form.useForm();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -411,6 +419,16 @@ const CheckedInAppointmentToday = () => {
                     </Button>
                   )}
 
+                  {/* {showCreateScheduleBtn[record.appointmentId] && (
+                    <Button
+                      type="primary"
+                      style={{ background: '#1976d2', border: 'none' }}
+                      onClick={() => handleOpenCreateScheduleModal(record)}
+                    >
+                      Create Schedule (API Example)
+                    </Button>
+                  )} */}
+
                   <Button
                     onClick={() => handleUpdateAppointmentCompleted(record)}
                     type="primary"
@@ -636,6 +654,58 @@ const CheckedInAppointmentToday = () => {
     } finally {
       setSuggestLoading(false);
     }
+  };
+
+  // Thêm hàm mở modal tạo schedule
+  const handleOpenCreateScheduleModal = (record) => {
+    setSelectedRecordForSchedule(record);
+    setOpenCreateScheduleModal(true);
+    scheduleForm.setFieldsValue({
+      patientId: record.patient?.patientId || 0,
+      createdByStaffId: doctorId || 0,
+      scheduledDate: dayjs(),
+      activityType: 'ReExamination',
+      description: '',
+      status: 'Scheduled',
+    });
+  };
+
+  // Thêm hàm tạo schedule
+  const handleCreateSchedule = async (values) => {
+    setCreateScheduleLoading(true);
+    try {
+      const payload = {
+        patientId: parseInt(values.patientId),
+        createdByStaffId: parseInt(values.createdByStaffId),
+        scheduledDate: values.scheduledDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+        activityType: values.activityType,
+        description: values.description,
+        status: values.status,
+      };
+      
+      await createScheduledActivity(payload);
+      toast.success('Schedule created successfully!');
+      
+      // Chuyển trạng thái appointment sang complete sau khi tạo schedule thành công
+      await handleUpdateAppointmentCompleted(selectedRecordForSchedule);
+      
+      setOpenCreateScheduleModal(false);
+      scheduleForm.resetFields();
+      setSelectedRecordForSchedule(null);
+      setShowCreateScheduleBtn(prev => ({ ...prev, [selectedRecordForSchedule.appointmentId]: false }));
+    } catch (error) {
+      toast.error('Failed to create schedule!');
+      console.error('Error creating schedule:', error);
+    } finally {
+      setCreateScheduleLoading(false);
+    }
+  };
+
+  // Thêm hàm đóng modal tạo schedule
+  const handleCloseCreateScheduleModal = () => {
+    setOpenCreateScheduleModal(false);
+    setSelectedRecordForSchedule(null);
+    scheduleForm.resetFields();
   };
 
   return (
@@ -993,13 +1063,11 @@ const CheckedInAppointmentToday = () => {
               };
 
               await createPatientTreatment(payload);
-              await handleUpdateAppointmentCompleted(
-                treatmentRecordRef.current
-              );
               toast.success(
-                "Create treatment and complete appointment successfully!"
+                "Create treatment successfully!"
               );
               setOpenTreatmentModal(false);
+              setShowCreateScheduleBtn(prev => ({ ...prev, [treatmentRecordRef.current?.appointmentId]: true }));
             } catch (error) {
               console.error("Treatment creation error:", error);
               toast.error("Treatment creation failed or status update failed!");
@@ -1785,6 +1853,129 @@ const CheckedInAppointmentToday = () => {
           </Form>
         )}
       </Modal>
+
+      {/* Create Schedule Modal
+      <Modal
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: "#1976d2", fontSize: 24 }}>📅</span>
+            <span style={{ fontWeight: 600, fontSize: 20 }}>
+              Create Scheduled Activity
+            </span>
+          </div>
+        }
+        open={openCreateScheduleModal}
+        onCancel={handleCloseCreateScheduleModal}
+        footer={[
+          <Button key="cancel" onClick={handleCloseCreateScheduleModal}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={createScheduleLoading}
+            onClick={() => scheduleForm.submit()}
+          >
+            Create Schedule
+          </Button>,
+        ]}
+        width={600}
+        centered
+      >
+        <div className="create-schedule-form">
+          <div className="schedule-info-header">
+            <Text type="secondary">
+              Creating schedule for Patient:{" "}
+              <strong>{selectedRecordForSchedule?.patient?.patientName || selectedRecordForSchedule?.patient?.patientCodeAtFacility}</strong>
+            </Text>
+          </div>
+
+          <Divider />
+
+          <Form
+            form={scheduleForm}
+            layout="vertical"
+            onFinish={handleCreateSchedule}
+            className="schedule-form"
+          >
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="patientId"
+                  label="Patient ID"
+                  rules={[{ required: true, message: "Patient ID is required" }]}
+                >
+                  <Input disabled />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="createdByStaffId"
+                  label="Created By Staff ID"
+                  rules={[{ required: true, message: "Staff ID is required" }]}
+                >
+                  <Input disabled />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              name="scheduledDate"
+              label="Scheduled Date"
+              rules={[{ required: true, message: "Please select scheduled date" }]}
+            >
+              <DatePicker
+                showTime
+                format="YYYY-MM-DD HH:mm:ss"
+                style={{ width: "100%" }}
+                placeholder="Select scheduled date and time"
+              />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="activityType"
+                  label="Activity Type"
+                  rules={[{ required: true, message: "Please select activity type" }]}
+                >
+                  <Select placeholder="Select activity type">
+                    <Select.Option value="ReExamination">ReExamination</Select.Option>
+                    <Select.Option value="LabTest">LabTest</Select.Option>
+                    <Select.Option value="MedicationPickup">MedicationPickup</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="status"
+                  label="Status"
+                  rules={[{ required: true, message: "Please select status" }]}
+                >
+                  <Select placeholder="Select status">
+                    <Select.Option value="Scheduled">Scheduled</Select.Option>
+                    <Select.Option value="Completed">Completed</Select.Option>
+                    <Select.Option value="Canceled">Canceled</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[{ required: true, message: "Please enter description" }]}
+            >
+              <Input.TextArea
+                rows={3}
+                placeholder="Enter activity description"
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+          </Form>
+        </div>
+      </Modal> */}
     </div>
   );
 };

@@ -36,6 +36,7 @@ import { toast } from "react-toastify";
 import { getMedicalRecordByPatientPhone } from "../../../../apis/medicalRecord/getMedicalRecordByPatientPhoneApi";
 import { addTestResultToMedicalRecord } from "../../../../apis/medicalRecord/addTestResultToMedicalRecordApi";
 import { getDoctorByAccountId } from "../../../../apis/doctorApi/doctorApi";
+import { useSelector } from "react-redux";
 const { Title, Text } = Typography;
 
 // // Hàm chuẩn hóa số điện thoại về dạng +84...
@@ -62,7 +63,8 @@ const PatientMedicalRecord = () => {
   const [addTestResultLoading, setAddTestResultLoading] = useState(false);
   const [selectedGender, setSelectedGender] = useState(null);
 
-  const accountID = sessionStorage.getItem("accountID") || null;
+  // Lấy accountID từ Redux thay vì sessionStorage
+  const accountID = useSelector((store) => store?.user?.accountID);
   const [doctorIdFromAppointment, setDoctorIdFromAppointment] = useState(null);
 
   useEffect(() => {
@@ -178,6 +180,14 @@ const PatientMedicalRecord = () => {
       testResultId: testResultId || "",
     });
   };
+
+  // Thêm useEffect để cập nhật form khi doctorIdFromAppointment thay đổi
+  useEffect(() => {
+    if (openCreateModal && doctorIdFromAppointment) {
+      form.setFieldValue("doctorId", doctorIdFromAppointment);
+    }
+  }, [doctorIdFromAppointment, openCreateModal]);
+
   // get Medical Record by Patient ID
 
   const handleFormSubmit = async (values) => {
@@ -197,7 +207,7 @@ const PatientMedicalRecord = () => {
         ),
       
         testResultId: parseInt(values.testResultId) || 0,
-        doctorId: parseInt(doctorIdFromAppointment) || 0, // Always use doctorId from appointment
+        doctorId: parseInt(values.doctorId) || parseInt(doctorIdFromAppointment) || 0, // Use form value first, fallback to state
       };
 
       // Only include pregnancy fields if gender is FEMALE
